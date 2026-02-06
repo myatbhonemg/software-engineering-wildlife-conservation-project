@@ -1,9 +1,140 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 <head>
-  <title>Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komodo Hub - Login</title>
+    <style>
+        /*Basic*/
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Color*/
+        :root {
+            --primary-green: #2D5016;
+            --secondary-green: #4A7C2C;
+            --accent-orange: #E17B3C;
+            --light-bg: #F8F5ED;
+            --white: #FFFFFF;
+            --text-dark: #2C3E1F;
+            --text-muted: #6B7C5C;
+            --border-color: #D4CDB8;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--light-bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Main */
+        .container {
+            max-width: 900px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /*left Branding */
+        .branding-panel {
+            background-color: var(--primary-green);
+            color: var(--white);
+            padding: 50px 30px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .branding-panel h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .branding-panel p {
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .features {
+            margin-top: 40px;
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .feature-item span {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        /* Right Forms */
+        .form-panel {
+            padding: 50px 40px;
+        }
+
+        .form-header h2 {
+            font-size: 28px;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body>
-  <h1></h1>
+    <div class="container">
+        <!-- Left Branding -->
+        <div class="branding-panel">
+            <div class="logo">🦎</div>
+            <h1>Komodo Hub</h1>
+            <p>Digital Platform for Community-Supported Animal Conservation</p>
+            
+            <div class="features">
+                <div class="feature-item">
+                    <span>Access knowledge base</span>
+                </div>
+                <div class="feature-item">
+                    <span>Join conservation programs</span>
+                </div>
+                <div class="feature-item">
+                    <span>Connect with communities</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Forms -->
+        <div class="form-panel">
+            <div class="form-header">
+                <h2>Welcome!</h2>
+                <p>Sign in to continue your conservation journey</p>
+            </div>
+            
+            
+        </div>
+    </div>
 </body>
 </html>
