@@ -103,6 +103,52 @@
             font-size: 14px;
             margin-bottom: 30px;
         }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--secondary-green);
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--secondary-green);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-green);
+        }
     </style>
 </head>
 <body>
@@ -132,6 +178,38 @@
                 <h2>Welcome!</h2>
                 <p>Sign in to continue your conservation journey</p>
             </div>
+
+            <!--Login Form-->
+            <form>
+                <!-- role selection-->
+                <div class="form-group">
+                    <label for="login-role">I am a..</label>
+                    <select id="login-role" required>
+                        <option value="">Select your role</option>
+                        <option value="student">Student (with access code)</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="school-admin">School Administrator</option>
+                        <option value="system-admin">System Administrator</option>
+                        <option value="community-member">Community Member</option>
+                        <option value="community-admin">Community Administrator</option>
+                        <option value="public">General Public</option>
+                    </select>
+                </div>
+
+                <!--email Field -->
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" placeholder="your.email@example.com">
+                </div>
+
+                <!--password Field -->
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password">
+                </div>
+
+                <button type="submit" class="btn-submit">Sign In</button>
+            </form>
             
             
         </div>
