@@ -103,6 +103,9 @@
             font-size: 14px;
             margin-bottom: 30px;
         }
+        .form-group {
+            margin-bottom: 20px;
+        }
         .form-group label {
             display: block;
             font-size: 14px;
@@ -118,12 +121,6 @@
             border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 14px;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--secondary-green);
         }
 
         .help-text {
@@ -180,11 +177,11 @@
             </div>
 
             <!--Login Form-->
-            <form>
+            <form onsubmit="handleLogin(event)">
                 <!-- role selection-->
                 <div class="form-group">
                     <label for="login-role">I am a..</label>
-                    <select id="login-role" required>
+                    <select id="login-role" onchange = "updateLoginFields()"required>
                         <option value="">Select your role</option>
                         <option value="student">Student (with access code)</option>
                         <option value="teacher">Teacher</option>
@@ -197,15 +194,20 @@
                 </div>
 
                 <!--email Field -->
-                <div class="form-group">
+                <div id="login-email-group"class="form-group" style ="display: none;">
                     <label for="login-email">Email Address</label>
                     <input type="email" id="login-email" placeholder="your.email@example.com">
                 </div>
 
                 <!--password Field -->
-                <div class="form-group">
+                <div id="login-password-group" class="form-group" style="display: none;">
                     <label for="login-password">Password</label>
                     <input type="password" id="login-password" placeholder="Enter your password">
+                </div>
+                <!-- Access Code (only for students) -->
+                <div id="login-code-group" class="form-group" style="display: none;">
+                    <label for="login-code">Student Access Code</label>
+                    <input type="text" id="login-code" placeholder="Enter your access code" maxlength="15">
                 </div>
 
                 <button type="submit" class="btn-submit">Sign In</button>
@@ -214,5 +216,61 @@
             
         </div>
     </div>
+    <script>
+        // Update login form based on role
+        function updateLoginFields() {
+            const role = document.getElementById('login-role').value;
+            const emailGroup = document.getElementById('login-email-group');
+            const passwordGroup = document.getElementById('login-password-group');
+            const codeGroup = document.getElementById('login-code-group');
+
+            if (role === 'student') {
+                // Student: Show only access code
+                emailGroup.style.display = 'none';
+                passwordGroup.style.display = 'none';
+                codeGroup.style.display = 'block';
+            } else if (role) {
+                // Other roles: Show email and password
+                emailGroup.style.display = 'block';
+                passwordGroup.style.display = 'block';
+                codeGroup.style.display = 'none';
+            } else {
+                // No role selected: Hide all
+                emailGroup.style.display = 'none';
+                passwordGroup.style.display = 'none';
+                codeGroup.style.display = 'none';
+            }
+        }
+
+        // Handle login form submission
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const role = document.getElementById('login-role').value;
+            
+            if (!role) {
+                alert('Please select your role');
+                return;
+            }
+
+            if (role === 'student') {
+                const code = document.getElementById('login-code').value;
+                if (!code) {
+                    alert('Please enter your access code');
+                    return;
+                }
+                alert('Login successful! Student code: ' + code);
+            } else {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                if (!email || !password) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                alert('Login successful! Email: ' + email);
+            }
+        }
+    </script>
 </body>
 </html>
