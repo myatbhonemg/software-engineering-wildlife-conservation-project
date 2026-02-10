@@ -129,6 +129,18 @@
             margin-top: 5px;
         }
 
+        /*password toggle*/
+        .password-field{
+            position: relative;
+        }
+
+        .toggle-password{
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            cursor: pointer;
+            font-size: 18px;
+        }
         /* Submit Button */
         .btn-submit {
             width: 100%;
@@ -146,6 +158,37 @@
         .btn-submit:hover {
             background-color: var(--primary-green);
         }
+        /* Links */
+        .link-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .link-text a {
+            color: var(--secondary-green);
+            text-decoration: none;
+        }
+
+        .link-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .branding-panel {
+                padding: 30px 20px;
+            }
+            
+            .form-panel {
+                padding: 30px 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -158,13 +201,13 @@
             
             <div class="features">
                 <div class="feature-item">
-                    <span>Access knowledge base</span>
+                    <span> - Access knowledge base</span>
                 </div>
                 <div class="feature-item">
-                    <span>Join conservation programs</span>
+                    <span> - Join conservation programs</span>
                 </div>
                 <div class="feature-item">
-                    <span>Connect with communities</span>
+                    <span> - Connect with communities</span>
                 </div>
             </div>
         </div>
@@ -202,17 +245,23 @@
                 <!--password Field -->
                 <div id="login-password-group" class="form-group" style="display: none;">
                     <label for="login-password">Password</label>
-                    <input type="password" id="login-password" placeholder="Enter your password">
+                    <div class="password-field">
+                        <input type="password" id="login-password" placeholder="Enter your password">
+                        <span class="toggle-password" onclick="togglePassword('login-password')"> 👁️ </span>
+                    </div>
                 </div>
                 <!-- Access Code (only for students) -->
                 <div id="login-code-group" class="form-group" style="display: none;">
                     <label for="login-code">Student Access Code</label>
                     <input type="text" id="login-code" placeholder="Enter your access code" maxlength="15">
+                    <div class="help-text">Provided by your school</div>
                 </div>
 
                 <button type="submit" class="btn-submit">Sign In</button>
             </form>
-            
+            <div class="link-text">
+                <a href="#">Forgot password?</a>
+            </div>
             
         </div>
     </div>
@@ -241,7 +290,14 @@
                 codeGroup.style.display = 'none';
             }
         }
-
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field.type === 'password') {
+                field.type = 'text';
+            } else {
+                field.type = 'password';
+            }
+        }
         // Handle login form submission
         function handleLogin(event) {
             event.preventDefault();
@@ -268,7 +324,15 @@
                     alert('Please fill in all fields');
                     return;
                 }
-                alert('Login successful! Email: ' + email);
+                const roleNames = {
+                    'teacher': 'Teacher',
+                    'school-admin': 'School Administrator',
+                    'system-admin': 'System Administrator',
+                    'community-member': 'Community Member',
+                    'community-admin': 'Community Administrator',
+                    'public': 'General Public'
+                };
+                alert('Login successful!\n\nRole: '+ roleNames[role] + '\nEmail: ' + email );
             }
         }
     </script>
