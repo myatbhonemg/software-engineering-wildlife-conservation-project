@@ -195,9 +195,9 @@
     <div class="container">
         <!-- Left Branding -->
         <div class="branding-panel">
-            <div class="logo">🦎</div>
+            <div class="logo">🐅</div>
             <h1>Komodo Hub</h1>
-            <p>Digital Platform for Community-Supported Animal Conservation</p>
+            <p>Digital Platform for Animal Conservation</p>
             
             <div class="features">
                 <div class="feature-item">
@@ -298,6 +298,117 @@
                 field.type = 'password';
             }
         }
+        const rolePrivileges = {
+            'student': {
+                name: 'Student',
+                canAccess: [
+                    'View conservation programs',
+                    'Submit sighting reports',
+                    'Access school library',
+                    'Create creative canvas',
+                    'Message assigned teacher'
+                ],
+                cannotAccess: [
+                    'View other student profiles',
+                    'Manage classes',
+                    'Access admin dashboard'
+                ],
+                redirectTo: 'student-dashboard.html'
+            },
+            'teacher': {
+                name: 'Teacher',
+                canAccess: [
+                    'Manage class syllabus',
+                    'View enrolled student data',
+                    'Leave notes on student work',
+                    'Message students',
+                    'Create class activities'
+                ],
+                cannotAccess: [
+                    'View students outside assigned class',
+                    'Manage school subscriptions',
+                    'Access system admin panel'
+                ],
+                redirectTo: 'teacher-dashboard.html'
+            },
+            'school-admin': {
+                name: 'School Administrator',
+                canAccess: [
+                    'Manage school subscriptions',
+                    'Register and enroll students',
+                    'Generate student access codes',
+                    'View teacher and student data',
+                    'Manage school profile'
+                ],
+                cannotAccess: [
+                    'Access other school data',
+                    'Manage system-wide settings',
+                    'View community accounts'
+                ],
+                redirectTo: 'school-admin-dashboard.html'
+            },
+            'system-admin': {
+                name: 'System Administrator',
+                canAccess: [
+                    'Manage all school accounts',
+                    'Manage all community accounts',
+                    'View business dashboard',
+                    'Contact subscribers',
+                    'Full system access'
+                ],
+                cannotAccess: [
+                    'Edit technical server settings',
+                    'Modify source code'
+                ],
+                redirectTo: 'system-admin-dashboard.html'
+            },
+            'community-member': {
+                name: 'Community Member',
+                canAccess: [
+                    'Upload articles and essays',
+                    'Submit sighting reports',
+                    'View public library',
+                    'Access community programs',
+                    'Manage own profile page'
+                ],
+                cannotAccess: [
+                    'Manage community account',
+                    'Register other members',
+                    'Access school data'
+                ],
+                redirectTo: 'community-dashboard.html'
+            },
+            'community-admin': {
+                name: 'Community Administrator',
+                canAccess: [
+                    'Manage community account',
+                    'Register community members',
+                    'View member contributions',
+                    'Manage community library',
+                    'Enroll in programs'
+                ],
+                cannotAccess: [
+                    'Access school data',
+                    'Manage system-wide settings'
+                ],
+                redirectTo: 'community-admin-dashboard.html'
+            },
+            'public': {
+                name: 'General Public',
+                canAccess: [
+                    'Browse species knowledge base',
+                    'View school library pages',
+                    'View community library pages',
+                    'Explore conservation programs'
+                ],
+                cannotAccess: [
+                    'Submit sighting reports',
+                    'Join programs',
+                    'Access any dashboard'
+                ],
+                redirectTo: 'home.html'
+            }
+        };
         // Handle login form submission
         function handleLogin(event) {
             event.preventDefault();
@@ -315,7 +426,19 @@
                     alert('Please enter your access code');
                     return;
                 }
-                alert('Login successful! Student code: ' + code);
+                // Show student privileges
+                const privileges = rolePrivileges['student'];
+                const canAccessList = privileges.canAccess.map(p => '   ✅ ' + p).join('\n');
+                const cannotAccessList = privileges.cannotAccess.map(p => '   ❌ ' + p).join('\n');
+
+                alert(
+                    'Login Successful!\n\n' +
+                    'Role: Student\n' +
+                    'Access Code: ' + code + '\n\n' +
+                    'You CAN access:\n' + canAccessList + '\n\n' +
+                    'You CANNOT access:\n' + cannotAccessList + '\n\n' +
+                    '[Redirecting to: ' + privileges.redirectTo + ']'
+                );
             } else {
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
@@ -324,15 +447,20 @@
                     alert('Please fill in all fields');
                     return;
                 }
-                const roleNames = {
-                    'teacher': 'Teacher',
-                    'school-admin': 'School Administrator',
-                    'system-admin': 'System Administrator',
-                    'community-member': 'Community Member',
-                    'community-admin': 'Community Administrator',
-                    'public': 'General Public'
-                };
-                alert('Login successful!\n\nRole: '+ roleNames[role] + '\nEmail: ' + email );
+                // Get privileges for selected role
+                const privileges = rolePrivileges[role];
+                const canAccessList = privileges.canAccess.map(p => '   ✅ ' + p).join('\n');
+                const cannotAccessList = privileges.cannotAccess.map(p => '   ❌ ' + p).join('\n');
+
+                alert(
+                    'Login Successful!\n\n' +
+                    'Role: ' + privileges.name + '\n' +
+                    'Email: ' + email + '\n\n' +
+                    'You CAN access:\n' + canAccessList + '\n\n' +
+                    'You CANNOT access:\n' + cannotAccessList + '\n\n' +
+                    '[Redirecting to: ' + privileges.redirectTo + ']'
+                );
+
             }
         }
     </script>
