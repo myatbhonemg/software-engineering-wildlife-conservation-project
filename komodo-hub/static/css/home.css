@@ -1,0 +1,25 @@
+/* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Color Variables */
+        :root {
+            --primary-green: #2D5016;
+            --secondary-green: #4A7C2C;
+            --accent-orange: #E17B3C;
+            --light-bg: #F8F5ED;
+            --white: #FFFFFF;
+            --text-dark: #2C3E1F;
+            --text-muted: #6B7C5C;
+            --border-color: #D4CDB8;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
