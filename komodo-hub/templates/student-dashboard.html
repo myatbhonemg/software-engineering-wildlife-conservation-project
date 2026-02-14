@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komodo Hub - Student Dashboard</title>
+
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/dashboard.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Top Navigation Bar -->
+    <nav class="dash-nav">
+        <div class="dash-nav-left">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+            <a href="#" class="dash-logo">
+                &#129422; Komodo Hub
+            </a>
+        </div>
+        <div class="dash-nav-right">
+            <span class="nav-role-badge">Student</span>
+            <span class="nav-username" id="nav-username">Loading...</span>
+            <button class="btn-signout" onclick="signOut()">Sign Out</button>
+        </div>
+    </nav>
+
+    <div class="dash-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active">
+                    <a href="#">&#127968; Dashboard</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128218; Species Library</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128248; Report Sighting</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#127979; My School</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#127942; Challenges</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#127912; Creative Canvas</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128100; My Profile</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dash-main">
+
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="welcome-text">
+                    <h1 id="welcome-message">Welcome back!</h1>
+                    <p>Here's what's happening in conservation today.</p>
+                </div>
+                <div class="welcome-icon">&#129439;</div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green">&#128248;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Sightings Reported</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">&#127942;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Challenges Joined</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">&#128218;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">25+</div>
+                        <div class="stat-label">Species to Explore</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">&#127912;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Canvas Submissions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="section-title-row">
+                <h2>Quick Actions</h2>
+            </div>
+            <div class="quick-actions">
+                <div class="action-card">
+                    <div class="action-icon">&#128248;</div>
+                    <h3>Report a Sighting</h3>
+                    <p>Spotted an endangered species? Log it here.</p>
+                    <button class="btn-action">Start Report</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">&#128218;</div>
+                    <h3>Browse Species</h3>
+                    <p>Learn about Indonesia's endangered animals.</p>
+                    <button class="btn-action">Explore Now</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">&#127942;</div>
+                    <h3>Join a Challenge</h3>
+                    <p>Participate in conservation challenges.</p>
+                    <button class="btn-action">View Challenges</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="../static/js/student.js"></script>
+</body>
+</html>
