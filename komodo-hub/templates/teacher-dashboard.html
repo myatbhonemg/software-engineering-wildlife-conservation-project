@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komodo Hub - Teacher Dashboard</title>
+
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/dashboard.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Top Navigation Bar -->
+    <nav class="dash-nav">
+        <div class="dash-nav-left">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+            <a href="#" class="dash-logo">&#129422; Komodo Hub</a>
+        </div>
+        <div class="dash-nav-right">
+            <span class="nav-role-badge">Teacher</span>
+            <span class="nav-username" id="nav-username">Loading...</span>
+            <button class="btn-signout" onclick="signOut()">Sign Out</button>
+        </div>
+    </nav>
+
+    <div class="dash-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active">
+                    <a href="#">&#127968; Dashboard</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128218; Species Library</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128100; My Students</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128248; Sighting Reports</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#127979; Class Programs</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#127942; Challenges</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#127912; Creative Canvas</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128100; My Profile</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dash-main">
+
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="welcome-text">
+                    <h1 id="welcome-message">Welcome back!</h1>
+                    <p>Manage your class and track student conservation activities.</p>
+                </div>
+                <div class="welcome-icon">&#128218;</div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green">&#128100;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">My Students</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">&#128248;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Student Sightings</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">&#127942;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Active Challenges</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">&#127912;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Canvas Submissions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="section-title-row">
+                <h2>Quick Actions</h2>
+            </div>
+            <div class="quick-actions">
+                <div class="action-card">
+                    <div class="action-icon">&#128100;</div>
+                    <h3>View My Students</h3>
+                    <p>See your students' profiles and conservation activity.</p>
+                    <button class="btn-action coming-soon-btn">View Students</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">&#128248;</div>
+                    <h3>Review Sightings</h3>
+                    <p>Check and approve sighting reports submitted by students.</p>
+                    <button class="btn-action coming-soon-btn">Review Reports</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">&#127979;</div>
+                    <h3>Class Programs</h3>
+                    <p>Manage conservation programs assigned to your class.</p>
+                    <button class="btn-action coming-soon-btn">Manage Programs</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="../static/js/teacher.js"></script>
+</body>
+</html>

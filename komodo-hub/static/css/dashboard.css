@@ -288,3 +288,19 @@
         padding: 20px;
     }
 }
+/* ===== SCHOOL ADMIN ===== */
+.admin-badge {
+    background-color: #6B4C9A;
+}
+
+.admin-banner {
+    background-color: #3D2B6B;
+}
+
+.btn-action-admin {
+    background-color: #6B4C9A;
+}
+
+.btn-action-admin:hover {
+    background-color: #3D2B6B;
+}
