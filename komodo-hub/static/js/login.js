@@ -138,18 +138,16 @@ function handleLogin(event) {
     const privileges = rolePrivileges[role];
     const canAccessList = privileges.canAccess.map(p => '   ✅ ' + p).join('\n');
     const cannotAccessList = privileges.cannotAccess.map(p => '   ❌ ' + p).join('\n');
+    // Save user to localStorage so dashboard can read it
+    localStorage.setItem('user', JSON.stringify({
+        name: email.split('@')[0],
+        role: role,
+        email: email
+    }));
 
-    alert(
-        '✅ Login Successful!\n\n' +
-        'Role: ' + privileges.name + '\n' +
-        'Email: ' + email + '\n\n' +
-        'You CAN access:\n' + canAccessList + '\n\n' +
-        'You CANNOT access:\n' + cannotAccessList + '\n\n' +
-        '[Redirecting to: ' + privileges.redirectTo + ']'
-    );
-
-    // Redirect to correct dashboard (uncomment when pages are ready)
-    // window.location.href = privileges.redirectTo;
+    // Redirect to correct dashboard
+    window.location.href = privileges.redirectTo;
+    
 }
 
 
