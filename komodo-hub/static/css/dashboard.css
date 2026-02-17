@@ -304,3 +304,24 @@
 .btn-action-admin:hover {
     background-color: #3D2B6B;
 }
+
+/* ===== COMMUNITY===== */
+.stat-icon.blue {
+    background-color: #E8F0FE;
+}
+
+.community-badge {
+    background-color: #1A73E8;
+}
+
+.community-banner {
+    background-color: #1557B0;
+}
+
+.btn-action-community {
+    background-color: #1A73E8;
+}
+
+.btn-action-community:hover {
+    background-color: #1557B0;
+}
