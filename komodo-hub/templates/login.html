@@ -91,14 +91,14 @@
             <div id="register-form" class="form-content">
                 <div class="form-header">
                     <h2>Create Account</h2>
-                    <p>Join the conservation initiative today</p>
+                    <p>Join the conservation today</p>
                 </div>
 
                 <form onsubmit="handleRegister(event)">
                     <!-- Role Selection -->
                     <div class="form-group">
                         <label for="register-role">I am a...</label>
-                        <select id="register-role" onchange="updateRegisterFields()" required>
+                        <select id="register-role" required>
                             <option value="">Select your role</option>
                             <option value="student">Student</option>
                             <option value="teacher">Teacher</option>
@@ -122,15 +122,15 @@
                         <input type="email" id="register-email" placeholder="your.email@example.com">
                     </div>
 
-                    <!-- Access Code (only for student, teacher, community-member) -->
+                    <!-- Access Code (hidden until confirming the student) -->
                     <div id="register-code-group" class="form-group" style="display: none;">
                         <label for="register-code">Access Code</label>
                         <input type="text" id="register-code" placeholder="Enter your access code" maxlength="15">
-                        <div class="help-text" id="register-code-hint">Provided by your school or community</div>
+                        <div class="help-text" id="register-code-hint">Check your email for the access code</div>
                     </div>
 
                     <!-- Password -->
-                    <div class="form-group">
+                    <div class="form-group" id="password-group" style="display: none;">
                         <label for="register-password">Password</label>
                         <div class="password-field">
                             <input type="password" id="register-password" placeholder="Create a password">
@@ -139,7 +139,7 @@
                     </div>
 
                     <!-- Confirm Password -->
-                    <div class="form-group">
+                    <div class="form-group" id="confirm-password-group" style="display: none;">
                         <label for="register-confirm">Confirm Password</label>
                         <div class="password-field">
                             <input type="password" id="register-confirm" placeholder="Re-enter your password">
@@ -147,7 +147,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-submit">Create Account</button>
+                    <button type="submit" class="btn-submit" id="register-btn">Request Access Code</button>
                 </form>
 
                 <div class="link-text">

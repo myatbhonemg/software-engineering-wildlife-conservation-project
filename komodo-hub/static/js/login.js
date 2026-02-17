@@ -1,7 +1,5 @@
-// ===================================================
 // TAB SWITCHER
 // Switches between Sign In and Register tabs
-// ===================================================
 function switchTab(tab) {
     // Update tab buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -24,36 +22,7 @@ function switchTab(tab) {
 }
 
 
-// ===================================================
-// REGISTER - Show/hide access code based on role
-// Needs access code: student, teacher, community-member
-// No access code:    school-admin, system-admin, community-admin, public
-// ===================================================
-function updateRegisterFields() {
-    const role = document.getElementById('register-role').value;
-    const codeGroup = document.getElementById('register-code-group');
-    const codeHint = document.getElementById('register-code-hint');
-
-    const needsAccessCode = ['student', 'teacher', 'community-member'];
-
-    if (needsAccessCode.includes(role)) {
-        codeGroup.style.display = 'block';
-
-        // Update hint text based on role
-        if (role === 'student' || role === 'teacher') {
-            codeHint.textContent = 'Provided by your school administrator';
-        } else if (role === 'community-member') {
-            codeHint.textContent = 'Provided by your community administrator';
-        }
-    } else {
-        codeGroup.style.display = 'none';
-    }
-}
-
-
-// ===================================================
 // PASSWORD TOGGLE
-// ===================================================
 function togglePassword(fieldId) {
     const field = document.getElementById(fieldId);
     if (field.type === 'password') {
@@ -64,9 +33,9 @@ function togglePassword(fieldId) {
 }
 
 
-// ===================================================
+
 // ROLE PRIVILEGES
-// ===================================================
+
 const rolePrivileges = {
     'student': {
         name: 'Student',
@@ -151,50 +120,69 @@ function handleLogin(event) {
 }
 
 
-// ===================================================
 // HANDLE REGISTER
 // student + teacher + community-member → need access code
 // all others → only email + password
-// ===================================================
+let accessCodeRequest = false;
 function handleRegister(event) {
     event.preventDefault();
 
     const role = document.getElementById('register-role').value;
     const name = document.getElementById('register-name').value;
     const email = document.getElementById('register-email').value;
-    const password = document.getElementById('register-password').value;
-    const confirm = document.getElementById('register-confirm').value;
     const needsAccessCode = ['student', 'teacher', 'community-member'];
 
     // Validation
-    if (!role) {
-        alert('Please select your role');
+    if (!accessCodeRequest){
+        if (!role || !name || !email) {
+            alert('Please fill in all fields');
+            return;
+        }
+        if (needsAccessCode.includes(role)) {
+            //fake backend email
+            alert('Request sent!\n\nIf your email is approved, you will receive an access code shortly.');
+
+            // Show access code + password fields
+            document.getElementById('register-code-group').style.display = 'block';
+            document.getElementById('password-group').style.display = 'block';
+            document.getElementById('confirm-password-group').style.display = 'block';
+        }else{
+            // school-admin, community-admin, system-admin, public
+            // no access code needed, just show password fields
+            document.getElementById('password-group').style.display = 'block';
+            document.getElementById('confirm-password-group').style.display = 'block';
+        }
+        // Change button text to Step 2
+        document.getElementById('register-btn').textContent = 'Create Account';
+        accessCodeRequest = true;
         return;
     }
-    if (!name || !email || !password || !confirm) {
-        alert('Please fill in all fields');
-        return;
-    }
+    // ===== STEP 2 =====
+    const password = document.getElementById('register-password').value;
+    const confirmPassword = document.getElementById('register-confirm').value;
+
     if (needsAccessCode.includes(role)) {
-        const code = document.getElementById('register-code').value;
-        if (!code) {
+        const accessCode = document.getElementById('register-code').value;
+        if (!accessCode) {
             alert('Please enter your access code');
             return;
         }
     }
-    if (password !== confirm) {
+    if (!password || !confirmPassword) {
+        alert('Please enter and confirm your password');
+        return;
+    }
+    if (password !== confirmPassword) {
         alert('Passwords do not match');
         return;
     }
 
     // Success - show message and switch back to login
-    alert(
-        '✅ Registration Successful!\n\n' +
-        'Name: ' + name + '\n' +
-        'Role: ' + rolePrivileges[role].name + '\n' +
-        'Email: ' + email + '\n\n' +
-        '[Demo Mode: Please sign in with your new account]'
-    );
+    alert('✅ Account created!\n\nName: ' + name + '\nRole: ' + rolePrivileges[role].name + '\nEmail: ' + email + '\n\n[Please sign in with your new account]');
+    document.getElementById('register-btn').textContent = 'Request Access Code';
+    document.getElementById('register-code-group').style.display = 'none';
+    document.getElementById('password-group').style.display = 'none';
+    document.getElementById('confirm-password-group').style.display = 'none';
 
     switchTab('login');
 }
