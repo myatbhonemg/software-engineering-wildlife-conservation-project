@@ -37,17 +37,3 @@ function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.toggle('collapsed');
 }
-
-// ===== COMING SOON =====
-document.querySelectorAll('.coming-soon-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        alert('Coming soon in the next sprint!');
-    });
-});
-
-document.querySelectorAll('.sidebar-item:not(.active) a').forEach(link => {
-    link.addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Coming soon in the next sprint!');
-    });
-});
