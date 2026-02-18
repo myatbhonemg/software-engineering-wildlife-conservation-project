@@ -73,11 +73,17 @@ const rolePrivileges = {
         cannotAccess: ['Access school data', 'Manage system-wide settings'],
         redirectTo: 'community-admin-dashboard.html'
     },
+    'principal': {
+        name: 'School Principal',
+        canAccess: ['Approve and decline student registrations', 'View all teachers and students', 'View school reports', 'Manage school conservation programs'],
+        cannotAccess: ['Access other school data', 'Manage system-wide settings'],
+        redirectTo: 'principal-dashboard.html'
+    },
     'public': {
         name: 'General Public',
         canAccess: ['Browse species knowledge base', 'View school and community library pages', 'Explore conservation programs'],
         cannotAccess: ['Submit sighting reports', 'Join programs', 'Access any dashboard'],
-        redirectTo: 'home.html'
+        redirectTo: 'public-dashboard.html'
     }
 };
 

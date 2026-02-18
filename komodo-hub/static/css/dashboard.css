@@ -341,3 +341,20 @@
 .btn-action-community-admin:hover {
     background-color: #084C37;
 }
+
+/* ===== PRINCIPAL ===== */
+.principal-badge {
+    background-color: #8B4513;
+}
+
+.principal-banner {
+    background-color: #6B3410;
+}
+
+.btn-action-principal {
+    background-color: #8B4513;
+}
+
+.btn-action-principal:hover {
+    background-color: #6B3410;
+}
