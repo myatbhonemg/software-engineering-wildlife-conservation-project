@@ -358,3 +358,92 @@
 .btn-action-principal:hover {
     background-color: #6B3410;
 }
+
+/* ===== SYSTEM ADMIN EXTRAS ===== */
+.system-admin-badge {
+    background-color: #C0392B;
+}
+
+.system-admin-banner {
+    background-color: #922B21;
+}
+
+.btn-action-system-admin {
+    background-color: #C0392B;
+}
+
+.btn-action-system-admin:hover {
+    background-color: #922B21;
+}
+
+/* ===== PUBLIC EXTRAS ===== */
+.public-badge {
+    background-color: #7F8C8D;
+}
+
+.public-banner {
+    background-color: #616A6B;
+}
+
+.btn-action-public {
+    background-color: #7F8C8D;
+    color: var(--white);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn-action-public:hover {
+    background-color: #616A6B;
+}
+
+/* Read only notice */
+.readonly-notice {
+    background-color: #FEF9E7;
+    border: 1px solid #F9E79F;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #7D6608;
+    margin-bottom: 24px;
+}
+
+.readonly-notice a {
+    color: var(--secondary-green);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* Sidebar upgrade prompt */
+.sidebar-upgrade {
+    margin: 24px 16px;
+    padding: 16px;
+    background-color: var(--light-bg);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.btn-upgrade {
+    display: block;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: var(--secondary-green);
+    color: var(--white);
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.btn-upgrade:hover {
+    background-color: var(--primary-green);
+}
