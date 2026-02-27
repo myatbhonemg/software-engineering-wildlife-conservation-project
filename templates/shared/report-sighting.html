@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Sighting - Komodo Hub</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/report-sighting.css') }}">
+</head>
+<body class="dashboard-body">
+
+    <!-- Top Navigation Bar -->
+    <nav class="dash-nav">
+        <div class="dash-nav-left">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+            <a href="/dashboard/{{ user['role'] }}" class="dash-logo">&#129422; Komodo Hub</a>
+        </div>
+        <div class="dash-nav-right">
+            <span class="nav-role-badge" id="user-role-badge">{{ user['role'].replace('-', ' ').title() }}</span>
+            <span class="nav-username" id="nav-username">{{ user['fullname'] }}</span>
+            <button class="btn-signout" onclick="signOut()">Sign Out</button>
+        </div>
+    </nav>
+
+    <div class="dash-layout">
+
+        <!-- Sidebar (will be populated by JS) -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="sidebar-menu">
+                <li class='sidebar-item'>
+                    <a href="/dashboard/{{ user['role'] }}">&#127968; Dashboard</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/species-library">&#128218; Library</a>
+                </li>
+                <li class="sidebar-item active">
+                    <a href="/report-sighting">&#128248; Report Sighting</a>
+                </li>
+                {% if user['role'] in ['student', 'teacher', 'school-admin', 'principal'] %}
+                <li class="sidebar-item">
+                    <a href="#">&#127979; My School</a>
+                </li>
+                {% endif %}
+                {% if user['role'] in ['community-member', 'community-admin'] %}
+                <li class="sidebar-item">
+                    <a href="#">&#129309; My Community</a>
+                </li>
+                {% endif %}
+                <li class="sidebar-item">
+                    <a href="#">&#128172; Messages</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128100; My Profile</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dash-main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>&#128248; Report a Sighting</h1>
+                <p>Help protect Indonesia's endangered species by reporting your sightings</p>
+            </div>
+
+            <!-- Report Form -->
+            <div class="report-form-container">
+                <form id="sighting-form" onsubmit="handleSubmit(event)">
+                    
+                    <!-- Species Selection -->
+                    <div class="form-section">
+                        <h3>What did you see?</h3>
+                        
+                        <div class="form-group">
+                            <label for="species">Species *</label>
+                            <select id="species" required>
+                                <option value="">Select a species</option>
+                                {% for s in species %}
+                                <option value="{{ s['species_id'] }}">{{ s['common_name'] }}</option>
+                                {% endfor %} 
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="count">How many did you see? *</label>
+                            <input type="number" id="count" min="1" max="100" value="1" required>
+                        </div>
+                    </div>
+
+                    <!-- Location & Time -->
+                    <div class="form-section">
+                        <h3>Where and when?</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="location">Location *</label>
+                                <input type="text" id="location" placeholder="e.g., Ujung Kulon National Park" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="region">Province/Region *</label>
+                                <select id="region" required>
+                                    <option value="">Select region</option>
+                                    <option value="java">Java</option>
+                                    <option value="sumatra">Sumatra</option>
+                                    <option value="bali">Bali</option>
+                                    <option value="sulawesi">Sulawesi</option>
+                                    <option value="kalimantan">Kalimantan</option>
+                                    <option value="papua">Papua</option>
+                                    <option value="nusa-tenggara">Nusa Tenggara</option>
+                                    <option value="maluku">Maluku</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="date">Date *</label>
+                                <input type="date" id="date" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="time">Time (approximate)</label>
+                                <input type="time" id="time">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Photo Upload -->
+                    <div class="form-section">
+                        <h3>Upload photos (optional)</h3>
+                        
+                        <div class="form-group">
+                            <label for="photo" class="photo-upload-label">
+                                <div class="upload-box" id="upload-box">
+                                    <span class="upload-icon">&#128247;</span>
+                                    <p>Click to upload photos or drag and drop</p>
+                                    <p class="upload-hint">PNG, JPG up to 5MB</p>
+                                </div>
+                            </label>
+                            <input type="file" id="photo" accept="image/*" multiple style="display: none;" onchange="handlePhotoUpload(event)">
+                            <div id="photo-preview" class="photo-preview"></div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-section">
+                        <h3>Tell us more</h3>
+                        
+                        <div class="form-group">
+                            <label for="description">Description *</label>
+                            <textarea id="description" rows="5" placeholder="Describe what you saw, the animal's behavior, habitat conditions, etc." required></textarea>
+                            <div class="char-count">
+                                <span id="char-count">0</span> / 500 characters
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="habitat">Animal's Condition</label>
+                            <select id="habitat">
+                                <option value="">Select condition</option>
+                                <option value="pristine">Pristine - Undisturbed natural habitat</option>
+                                <option value="good">Good - Minimal human impact</option>
+                                <option value="moderate">Moderate - Some habitat degradation</option>
+                                <option value="poor">Poor - Significant human disturbance</option>
+                                <option value="critical">Critical - Severely degraded</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Contact Info (for anonymous/public users) -->
+                    <div class="form-section" id="contact-section" style="{{ 'display: block;' if user['role'] == 'public' else 'display:none;' }}">
+                        <h3>Your contact information</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contact-name">Name *</label>
+                                <input type="text" id="contact-name" placeholder="Your name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="contact-email">Email *</label>
+                                <input type="email" id="contact-email" placeholder="your.email@example.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="resetForm()">Clear Form</button>
+                        <button type="submit" class="btn-submit-report">Submit Report</button>
+                    </div>
+
+                </form>
+
+                <!-- Success Message (hidden by default) -->
+                <div id="success-message" class="success-message" style="display: none;">
+                    <div class="success-icon">✓</div>
+                    <h3>Sighting Reported Successfully!</h3>
+                    <p>Thank you for contributing to conservation efforts. Your report will be reviewed by our team.</p>
+                    <button class="btn-primary" onclick="resetForm()">Report Another Sighting</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/tabs/report-sighting.js') }}"></script>
+</body>
+</html>

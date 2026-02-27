@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Species Library - Komodo Hub</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/species-library.css') }}">
+</head>
+<body class="dashboard-body">
+
+    <!-- Top Navigation Bar -->
+    <nav class="dash-nav">
+        <div class="dash-nav-left">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+            <a href="/dashboard/{{ user['role'] }}" class="dash-logo">&#129422; Komodo Hub</a>
+        </div>
+        <div class="dash-nav-right">
+            <span class="nav-role-badge" id="user-role-badge">{{ user['role'].replace('-', ' ').title() }}</span>
+            <span class="nav-username" id="nav-username">{{ user['fullname'] }}</span>
+            <button class="btn-signout" onclick="signOut()">Sign Out</button>
+        </div>
+    </nav>
+
+    <div class="dash-layout">
+
+        <!-- Sidebar (minimal for tab pages) -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item">
+                    <a href="/dashboard/{{user['role']}}">&#127968; Dashboard</a>
+                </li>
+                <li class="sidebar-item active">
+                    <a href="/species-library">&#128218; Species Library</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128248; Report Sighting</a>
+                </li>
+                {% if user['role'] in ['student', 'teacher', 'school-admin', 'principal'] %}
+                <li class="sidebar-item">
+                    <a href="#">&#127979; My School</a>
+                </li>
+                {% endif %}
+                {% if user['role'] in ['community-member', 'community-admin'] %}
+                <li class="sidebar-item">
+                    <a href="#">&#129309; My Community</a>
+                </li>
+                {% endif %}
+                <li class="sidebar-item">
+                    <a href="#">&#128172; Messages</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128100; My Profile</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dash-main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>&#128218; Species Library</h1>
+                <p>Explore Indonesia's endangered species and community conservation activity</p>
+            </div>
+
+            <!-- SECTION 1: Species Database -->
+            <section class="species-database">
+                <div class="database-header">
+                    <div class="header-left">
+                        <h2>Endangered Species of Indonesia</h2>
+                        <button class="toggle-section-btn" onclick="toggleSpeciesGrid()">
+                            <span id="species-arrow">View All</span>
+                        </button>
+                    </div>
+                    <div class="database-controls collapsed" id="species-controls">
+                        <input type="search" id="species-search" placeholder="Search species..." class="search-input">
+                        <select id="status-filter" class="filter-select">
+                            <option value="all">All Status</option>
+                            <option value="CR">Critically Endangered</option>
+                            <option value="EN">Endangered</option>
+                            <option value="VU">Vulnerable</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="species-grid collapsed" id="species-grid">
+                    <!-- Species Card 1 -->
+                    {% for s in species %}
+                        <div class="species-card" data-status="{{ s['status'] }}">
+                        <div class="species-image-large">
+                            <img src="{{ url_for('static', filename=s['image']) }}" alt="{{ s['common_name'] }}">
+                        </div>
+                        <div class="species-details">
+                            <h3 class="species-name">{{ s['common_name'] }}</h3>
+                            <p class="species-scientific">{{ s['scientific_name'] }}</p>
+                            <div class="species-meta-row">
+                                <span class="location-tag">&#128205; {{ s['location'] }}</span>
+                                <span class="diet-tag">&#127807; {{ s['diet'] }}</span>
+                            </div>
+                            <span class="status-badge status-{{ s['status'].lower() }}">
+                                {% if s['status'] == 'CR' %}Critically Endangered
+                                {% elif s['status'] == 'EN' %}Endangered
+                                {% elif s['status'] == 'VU' %}Vulnerable
+                                {% endif %}
+                            </span>
+                            <p class="species-description">{{ s['description'] }}</p>
+                            <p class="species-fact">💡 {{ s['fun_fact'] }}</p>
+                        </div>
+                    </div>
+                    {% endfor %} 
+
+            </section>
+
+            <!-- SECTION 2: Community Feed -->
+            <section class="community-feed">
+                <div class="feed-header">
+                    <h2>&#128248; Community Activity</h2>
+                    <div class="feed-tabs">
+                        <button class="feed-tab active" data-filter="all">All</button>
+                        <button class="feed-tab" data-filter="school">My School</button>
+                        <button class="feed-tab" data-filter="community">My Community</button>
+                    </div>
+                </div>
+
+                <div class="feed-posts" id="feed-posts">
+                    <!-- Post 1 -->
+                    <div class="feed-post" data-type="sighting">
+                        <div class="post-header">
+                            <div class="post-user">
+                                <div class="user-avatar">&#128100;</div>
+                                <div class="user-info">
+                                    <div class="user-name">Myat</div>
+                                    <div class="user-meta">Student, Grade 10 • 2 hours ago</div>
+                                </div>
+                            </div>
+                            <span class="post-type-badge">&#128205; Sighting</span>
+                        </div>
+                        <div class="post-content">
+                            <h3>Spotted Javan Rhino in Ujung Kulon National Park</h3>
+                            <p>The rhino was grazing peacefully near the forest edge.</p>
+                            <div class="post-image-placeholder">
+                                <span style="font-size: 80px;">&#129439;</span>
+                                <p>Photo: Javan Rhinoceros</p>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Post 2 -->
+                    <div class="feed-post" data-type="article">
+                        <div class="post-header">
+                            <div class="post-user">
+                                <div class="user-avatar">&#128100;</div>
+                                <div class="user-info">
+                                    <div class="user-name">Mr. Kifo</div>
+                                    <div class="user-meta">Teacher • 1 day ago</div>
+                                </div>
+                            </div>
+                            <span class="post-type-badge article">&#128220; Article</span>
+                        </div>
+                        <div class="post-content">
+                            <h3>New Conservation Efforts for Sumatran Tigers</h3>
+                            <p>Great news! Local communities are partnering with conservation groups to protect tiger habitats.</p>
+                            <div class="post-link-preview">
+                                <div class="link-icon">&#128279;</div>
+                                <div class="link-info">
+                                    <div class="link-title">Tiger Conservation Success Story</div>
+                                    <div class="link-url">conservation.org/sumatra-tigers</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Post 3 -->
+                    <div class="feed-post" data-type="sighting">
+                        <div class="post-header">
+                            <div class="post-user">
+                                <div class="user-avatar">&#128100;</div>
+                                <div class="user-info">
+                                    <div class="user-name">Tevin</div>
+                                    <div class="user-meta">Community Member • 3 days ago</div>
+                                </div>
+                            </div>
+                            <span class="post-type-badge">&#128205; Sighting</span>
+                        </div>
+                        <div class="post-content">
+                            <h3>Bali Myna spotted near Bali Barat National Park</h3>
+                            <p>Incredible to see this beautiful bird in the wild!</p>
+                            <div class="post-image-placeholder">
+                                <span style="font-size: 80px;">&#129500;</span>
+                                <p>Photo: Bali Myna</p>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Post 4 -->
+                    <div class="feed-post" data-type="creative">
+                        <div class="post-header">
+                            <div class="post-user">
+                                <div class="user-avatar">&#128100;</div>
+                                <div class="user-info">
+                                    <div class="user-name">Odala</div>
+                                    <div class="user-meta">Student, Grade 11 • 5 days ago</div>
+                                </div>
+                            </div>
+                            <span class="post-type-badge creative">&#127912; Creative</span>
+                        </div>
+                        <div class="post-content">
+                            <h3>My painting of the Komodo Dragon</h3>
+                            <p>Created this artwork for our conservation art project.</p>
+                            <div class="post-image-placeholder" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <span style="font-size: 80px;">&#127912;</span>
+                                <p>Artwork: Komodo Dragon Portrait</p>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                </div>
+
+                <button class="btn-load-more">Load More Posts</button>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/tabs/species-library.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komodo Hub - Protecting Indonesia's Endangered Species</title>
+
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="home-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">&#129422;</span>
+                <span class="logo-text">Komodo Hub</span>
+            </div>
+            <div class="nav-actions">
+                <a href="/login" class="btn-nav-login">Login</a>
+                <a href="/login" class="btn-nav-register">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <h1>Protect Indonesia's Endangered Species</h1>
+            <p class="hero-subtitle">Join schools and communities in conserving our precious wildlife through citizen science and education.</p>
+            <div class="hero-actions">
+                <a href="/login" class="btn-hero-primary">Join Now</a>
+                <a href="#species" class="btn-hero-secondary">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Stats -->
+    <section class="impact-stats">
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Schools Enrolled</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">3,000+</div>
+                <div class="stat-label">Community Members</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">5,000+</div>
+                <div class="stat-label">Sightings Reported</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">25+</div>
+                <div class="stat-label">Species Tracked</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Facts Section -->
+    <section class="facts-section">
+        <div class="facts-container">
+            <h2>Why It Matters</h2>
+            <div class="facts-grid">
+                <div class="fact-card">
+                    <div class="fact-icon">&#128680;</div>
+                    <h3>Urgent Crisis</h3>
+                    <p>Indonesia hosts 12% of the world's mammal species, but many face extinction due to habitat loss and poaching.</p>
+                </div>
+                <div class="fact-card">
+                    <div class="fact-icon">&#127891;</div>
+                    <h3>Education First</h3>
+                    <p>Schools and communities play a vital role in conservation through awareness, reporting, and active participation.</p>
+                </div>
+                <div class="fact-card">
+                    <div class="fact-icon">&#128248;</div>
+                    <h3>Citizen Science</h3>
+                    <p>Your sighting reports help researchers track populations and protect critical habitats across Indonesia.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Endangered Species Section -->
+    <section class="species-section" id="species">
+        <div class="species-container">
+            <div class="section-header">
+                <h2>Indonesia's Endangered Species</h2>
+                <p>Meet some of the incredible species we're working to protect</p>
+            </div>
+
+            <div class="species-showcase">
+                <!-- Species Card  -->
+                {% for s in species %}
+                <div class="showcase-card">
+                    <div class="showcase-image">
+                        <img src="{{ url_for('static', filename=s['image']) }}" alt="{{ s['common_name'] }}">
+                    </div>
+                    <div class="showcase-info">
+                        <h3>{{ s['common_name'] }}</h3>
+                        <p class="showcase-scientific">{{ s['scientific_name'] }}</p>
+                        <span class="showcase-badge status-{{ s['status'].lower() }}">
+                            {% if s['status'] == 'CR' %} Critically Endangered
+                            {% elif s['status'] == 'EN' %}Endangered
+                            {% elif s['status'] == 'VU' %}Vulnerable
+                            {% endif %}
+                        </span>
+                        <p class="showcase-description">{{ s['description'] }}</p>
+                    </div>
+                </div>    
+                {% endfor %}
+                
+            </div>
+
+            <div class="cta-section">
+                <h3>Ready to Make a Difference?</h3>
+                <p>Join thousands of students and community members protecting Indonesia's wildlife.</p>
+                <a href="/login" class="btn-cta">Get Started Today</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="home-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <span class="logo-icon">&#129422;</span>
+                <span class="logo-text">Komodo Hub</span>
+            </div>
+            <div class="footer-text">
+                <p>Empowering schools and communities to protect Indonesia's endangered species through education and citizen science.</p>
+                
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

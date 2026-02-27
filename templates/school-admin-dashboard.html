@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komodo Hub - School Admin Dashboard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body class="dashboard-body">
+
+    <!-- Top Navigation Bar -->
+    <nav class="dash-nav">
+        <div class="dash-nav-left">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+            <a href="/dashboard/school-admin" class="dash-logo">&#129422; Komodo Hub</a>
+        </div>
+        <div class="dash-nav-right">
+            <span class="nav-role-badge admin-badge">{{ user['role'].replace('-', ' ').title() }}</span>
+            <span class="nav-username" id="nav-username">{{ user['fullname'] }}</span>
+            <button class="btn-signout" onclick="signOut()">Sign Out</button>
+        </div>
+    </nav>
+
+    <div class="dash-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active">
+                    <a href="#">&#127968; Dashboard</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="/species-library">&#128218; Library</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#127979; School Information</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128100; Manage Teachers</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#127891; Manage Students</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128272; Register Members</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128248; Sighting Reports</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128202; School Reports</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128172; Messages</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#">&#128100; My Profile</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dash-main">
+
+            <!-- Welcome Banner -->
+            <div class="welcome-banner admin-banner">
+                <div class="welcome-text">
+                    <h1 id="welcome-message">Welcome, {{ user['fullname'] }}!</h1>
+                    <p>Manage your school's conservation programs and members.</p>
+                </div>
+                <div class="welcome-icon">&#127979;</div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green">&#128100;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Total Teachers</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">&#127891;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">&#128248;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Total Sightings</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">&#128272;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Active Access Codes</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="section-title-row">
+                <h2>Quick Actions</h2>
+            </div>
+            <div class="quick-actions">
+                <div class="action-card">
+                    <div class="action-icon">&#128272;</div>
+                    <h3>Register Members</h3>
+                    <p> Registerfor new teachers and students.</p>
+                    <button class="btn-action btn-action-admin coming-soon-btn">Generate Codes</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">&#128100;</div>
+                    <h3>Manage Students</h3>
+                    <p>View and manage students information in your school.</p>
+                    <button class="btn-action btn-action-admin coming-soon-btn">View Members</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">&#128202;</div>
+                    <h3>School Reports</h3>
+                    <p>View your school's overall conservation activity and progress.</p>
+                    <button class="btn-action btn-action-admin coming-soon-btn">View Reports</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/school-admin.js') }}"></script>
+</body>
+</html>
