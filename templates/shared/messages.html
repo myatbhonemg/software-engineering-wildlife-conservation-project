@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Komodo Hub</title>
+
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="../../static/css/dashboard.css">
+    <link rel="stylesheet" href="../../static/css/tabs/messages.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Top Navigation Bar -->
+    {% include 'shared/navbar.html' %}
+
+    <div class="dash-layout">
+
+        <!-- Sidebar is a seperate helper file -->
+        {% include 'shared/sidebar.html' %}
+
+        <!-- Main Content -->
+        <main class="dash-main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>&#128172; Messages</h1>
+                <p>Communicate with teachers, students, and community members</p>
+            </div>
+
+            <!-- Messages Container -->
+            <div class="messages-container">
+                
+                <!-- Conversations List -->
+                <div class="conversations-panel">
+                    <div class="panel-header">
+                        <h2>Conversations</h2>
+                        <button class="btn-new-message" onclick="newMessage()">+ New</button>
+                    </div>
+
+                    <div class="conversations-list">
+                        
+                        <!-- Conversation 1 - Unread -->
+                        <div class="conversation-item unread active" onclick="openConversation(1)">
+                            <div class="conv-avatar">🐅</div>
+                            <div class="conv-info">
+                                <div class="conv-header">
+                                    <span class="conv-name">Sir Myat</span>
+                                    <span class="conv-time">10:30 AM</span>
+                                </div>
+                                <p class="conv-preview">Great work on your sighting report! The photo...</p>
+                            </div>
+                            <span class="unread-badge">2</span>
+                        </div>
+
+                        <!-- Conversation 2 -->
+                        <div class="conversation-item" onclick="openConversation(2)">
+                            <div class="conv-avatar">🐒</div>
+                            <div class="conv-info">
+                                <div class="conv-header">
+                                    <span class="conv-name">Kifo</span>
+                                    <span class="conv-time">Yesterday</span>
+                                </div>
+                                <p class="conv-preview">Did you see the Komodo Dragon yesterday?</p>
+                            </div>
+                        </div>
+
+                        <!-- Conversation 3 - Unread -->
+                        <div class="conversation-item unread" onclick="openConversation(3)">
+                            <div class="conv-avatar">🐘</div>
+                            <div class="conv-info">
+                                <div class="conv-header">
+                                    <span class="conv-name">Conservation Team</span>
+                                    <span class="conv-time">2 days ago</span>
+                                </div>
+                                <p class="conv-preview">Reminder: Field trip to Ujung Kulon next week</p>
+                            </div>
+                            <span class="unread-badge">1</span>
+                        </div>
+
+                        <!-- Conversation 4 -->
+                        <div class="conversation-item" onclick="openConversation(4)">
+                            <div class="conv-avatar">🦜</div>
+                            <div class="conv-info">
+                                <div class="conv-header">
+                                    <span class="conv-name">Odala</span>
+                                    <span class="conv-time">Feb 18</span>
+                                </div>
+                                <p class="conv-preview">Thanks for sharing the species info!</p>
+                            </div>
+                        </div>
+
+                        <!-- Conversation 5 -->
+                        <div class="conversation-item" onclick="openConversation(5)">
+                            <div class="conv-avatar">🦧</div>
+                            <div class="conv-info">
+                                <div class="conv-header">
+                                    <span class="conv-name">Mr. Tevin</span>
+                                    <span class="conv-time">Feb 15</span>
+                                </div>
+                                <p class="conv-preview">Your project proposal looks excellent. Let's...</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Messages Thread -->
+                <div class="messages-panel">
+                    <div class="thread-header">
+                        <div class="thread-user">
+                            <div class="thread-avatar">🐅</div>
+                            <div class="thread-info">
+                                <h3>Sir Myat</h3>
+                                <p>Teacher, Biology</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="messages-thread" id="messages-thread">
+                        
+                        <!-- Message 1 - Received -->
+                        <div class="message received">
+                            <div class="message-avatar">🐅</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-sender">Sir Myat</span>
+                                    <span class="message-time">Yesterday, 2:30 PM</span>
+                                </div>
+                                <p class="message-text">Hi! I reviewed your sighting report from last week. The observations were very detailed and accurate.</p>
+                            </div>
+                        </div>
+
+                        <!-- Message 2 - Sent -->
+                        <div class="message sent">
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-time">Yesterday, 3:15 PM</span>
+                                </div>
+                                <p class="message-text">Thank you, Sir Myat ! I tried to capture as many details as possible. The rhino was about 50 meters away from our observation point.</p>
+                            </div>
+                        </div>
+
+                        <!-- Message 3 - Received -->
+                        <div class="message received">
+                            <div class="message-avatar">🐅</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-sender">Sir Myat</span>
+                                    <span class="message-time">Today, 10:30 AM</span>
+                                </div>
+                                <p class="message-text">Great work on your sighting report! The photo quality is excellent. Would you be interested in presenting this at our next conservation club meeting?</p>
+                            </div>
+                        </div>
+
+                        <!-- Message 4 - Received -->
+                        <div class="message received">
+                            <div class="message-avatar">🐅</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-sender">Sir Myat</span>
+                                    <span class="message-time">Today, 10:32 AM</span>
+                                </div>
+                                <p class="message-text">I think your classmates would love to hear about your experience!</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Message Input -->
+                    <div class="message-input-container">
+                        <textarea id="message-input" placeholder="Type your message..." rows="1"></textarea>
+                        <button class="btn-send" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- New Message Modal -->
+    <div id="new-message-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>New Message</h3>
+                <button class="modal-close" onclick="closeNewMessageModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <label for="new-message-username">Enter username</label>
+                <input type="text" id="new-message-username" placeholder="e.g., Sarah Chen" autofocus>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeNewMessageModal()">Cancel</button>
+                <button class="btn-start-chat" onclick="startNewChat()">Start Chat</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../static/js/tabs/messages.js"></script>
+</body>
+</html>

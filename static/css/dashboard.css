@@ -99,6 +99,7 @@
     padding: 24px 0;
     flex-shrink: 0;
     transition: width 0.3s ease;
+    position: sticky;
 }
 
 .sidebar.collapsed {

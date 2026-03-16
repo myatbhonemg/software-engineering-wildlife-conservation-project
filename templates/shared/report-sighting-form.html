@@ -12,50 +12,12 @@
 <body class="dashboard-body">
 
     <!-- Top Navigation Bar -->
-    <nav class="dash-nav">
-        <div class="dash-nav-left">
-            <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
-            <a href="/dashboard/{{ user['role'] }}" class="dash-logo">&#129422; Komodo Hub</a>
-        </div>
-        <div class="dash-nav-right">
-            <span class="nav-role-badge" id="user-role-badge">{{ user['role'].replace('-', ' ').title() }}</span>
-            <span class="nav-username" id="nav-username">{{ user['fullname'] }}</span>
-            <button class="btn-signout" onclick="signOut()">Sign Out</button>
-        </div>
-    </nav>
+    {% include 'shared/navbar.html' %}
 
     <div class="dash-layout">
 
-        <!-- Sidebar (will be populated by JS) -->
-        <aside class="sidebar" id="sidebar">
-            <ul class="sidebar-menu">
-                <li class='sidebar-item'>
-                    <a href="/dashboard/{{ user['role'] }}">&#127968; Dashboard</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="/species-library">&#128218; Library</a>
-                </li>
-                <li class="sidebar-item active">
-                    <a href="/report-sighting">&#128248; Report Sighting</a>
-                </li>
-                {% if user['role'] in ['student', 'teacher', 'school-admin', 'principal'] %}
-                <li class="sidebar-item">
-                    <a href="#">&#127979; My School</a>
-                </li>
-                {% endif %}
-                {% if user['role'] in ['community-member', 'community-admin'] %}
-                <li class="sidebar-item">
-                    <a href="#">&#129309; My Community</a>
-                </li>
-                {% endif %}
-                <li class="sidebar-item">
-                    <a href="#">&#128172; Messages</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#">&#128100; My Profile</a>
-                </li>
-            </ul>
-        </aside>
+        <!-- Sidebar -->
+        {% include 'shared/sidebar.html' %}
 
         <!-- Main Content -->
         <main class="dash-main">

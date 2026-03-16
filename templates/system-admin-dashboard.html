@@ -12,55 +12,12 @@
 <body class="dashboard-body">
 
     <!-- Top Navigation Bar -->
-    <nav class="dash-nav">
-        <div class="dash-nav-left">
-            <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
-            <a href="/dashboard/system-admin" class="dash-logo">&#129422; Komodo Hub</a>
-        </div>
-        <div class="dash-nav-right">
-            <span class="nav-role-badge system-admin-badge">{{ user['role'].replace('-', ' ').title() }}</span>
-            <span class="nav-username" id="nav-username">{{ user['fullname'] }}</span>
-            <button class="btn-signout" onclick="signOut()">Sign Out</button>
-        </div>
-    </nav>
+    {% include 'shared/navbar.html' %}
 
     <div class="dash-layout">
 
         <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <ul class="sidebar-menu">
-                <li class="sidebar-item active">
-                    <a href="#">&#127968; Dashboard</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#">&#127979; Manage Schools</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#">&#129309; Manage Communities</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#">&#128100; Manage All Users</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="/species-library">&#128218; Library</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#">&#128248; All Sighting Reports</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#">&#128202; Platform Analytics</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#">&#128736; System Settings</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#">&#128172; Messages</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#">&#128100; My Profile</a>
-                </li>
-            </ul>
-        </aside>
+        {% include 'shared/sidebar.html' %}
 
         <!-- Main Content -->
         <main class="dash-main">

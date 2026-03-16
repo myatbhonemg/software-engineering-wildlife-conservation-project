@@ -36,15 +36,18 @@ function togglePassword(fieldId) {
 let accessCodeRequest = false;
 let accessCode = null;
 let orgInfoStep = false;
+let orgVerified = false;
 document.getElementById('register-role').addEventListener('change', function(){
     const role = this.value;
-    const needsAccessCode = ['student', 'teacher'];
+    const needsAccessCode = ['student',];
     const needsOrgInfo = ['school-admin', 'community-admin'];
+    const needsOrgVerify = ['teacher', 'principal', 'community-member']
     const btn = document.getElementById('register-btn');
 
     accessCodeRequest = false;
     accessCode = null;
     orgInfoStep = false;
+    orgVerified = false;
 
     document.getElementById('org-group').style.display = 'none';
     document.getElementById('school-fields').style.display = 'none';
@@ -52,12 +55,19 @@ document.getElementById('register-role').addEventListener('change', function(){
     document.getElementById('password-group').style.display = 'none';
     document.getElementById('confirm-password-group').style.display = 'none';
     document.getElementById('register-code-group').style.display = 'none';
+    document.getElementById('org-select-group').style.display = 'none';
 
     if (needsAccessCode.includes(role)) {
         //Hide password fields until access code is retrieved
         accessCodeRequest = false;
         accessCode = null;
-        btn.textContent = 'Request Access Code';    
+        btn.textContent = 'Request Access Code';
+    }else if (needsOrgVerify.includes(role)){
+        //Show org dropdown - shools for teacher / principal, and communities for community-members
+        const category = (role === "community-member") ? 'community' : 'school';
+        loadOrganizations(category);
+        document.getElementById('org-select-group').style.display = 'block';
+        btn.textContent = 'Next'  
     }else if (needsOrgInfo.includes(role)) {
         //Show password fields for step 1
         document.getElementById('password-group').style.display = 'block';
@@ -112,6 +122,22 @@ function handleLogin(event) {
     .catch (() => alert("Server error. Please try again"));
 }
 
+//Fetches org names from DB and populates the dropdown
+function loadOrganizations(category){
+    fetch(`/get-organizations?category=${category}`)
+    .then(res => res.json())
+    .then(data =>{
+        const select = document.getElementById('org-select');
+        select.innerHTML = '<option value="">Select your organization</option>';
+        data.organizations.forEach(org => {
+            const opt = document.createElement('option');
+            opt.value = org.organization_id;
+            opt.textContent = org.name;
+            select.appendChild(opt);
+        });
+    })
+    .catch(() => alert('Could not load organizations. Please try again'));
+}
 
 // HANDLE REGISTER
 // student + teacher → need access code
@@ -123,7 +149,8 @@ async function handleRegister(event) {
     const role = document.getElementById('register-role').value;
     const name = document.getElementById('register-name').value;
     const email = document.getElementById('register-email').value;
-    const needsAccessCode = ['student', 'teacher'];
+    const needsAccessCode = ['student',];
+    const needsOrgVerify = ['teacher', 'principal', 'community-member'];
     const needsOrgInfo = ['school-admin', 'community-admin'];
 
     if (!role || !name || !email) {
@@ -170,6 +197,43 @@ async function handleRegister(event) {
         if (password !== confirmPassword) {alert('Passwords do not match');return;}
         
         sendRegistration(role, name, email, password, accessCode2, null);
+
+    // Teacher / Principal / Community Member
+    }else if (needsOrgVerify.includes(role)) {
+        // Step 1 - check they exist in registration table
+        if (!orgVerified){
+            const orgId = document.getElementById('org-select').value;
+            if (!orgId) {alert('Please select your organization'); return; }
+
+            fetch('/verify-registration', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, role, organization_id: orgId})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    orgVerified = true;
+                    document.getElementById('password-group').style.display = 'block';
+                    document.getElementById('confirm-password-group').style.display = 'block';
+                    document.getElementById('register-btn').textContent = 'Create Account';
+                }else {
+                    alert('Error: ' + (data.message || 'Registration not found.'));
+                }
+            })
+            .catch(() => alert('Server error. Please try again. '));
+            return;
+        }
+
+        //Step 2 - create account
+        const orgId = document.getElementById('org-select').value;
+        const password = document.getElementById('register-password').value;
+        const confirmPassword = document.getElementById('register-confirm').value;
+        if (!password || !confirmPassword) { alert('Please enter and confirm your password'); return; }
+        if (password !== confirmPassword) { alert('Passwords do not match'); return; }
+
+        sendRegistration(role, name, email, password, null, null, orgId);
+
 
     // ===== School Admin / Community Admin =====  
     }else if (needsOrgInfo.includes(role)) {
@@ -232,12 +296,12 @@ async function handleRegister(event) {
     }
 }
 
-    // Fetch code
-function sendRegistration(role, name, email, password, accessCodeParam, orgData) {
+    // Send Registration Details to Flask Server
+function sendRegistration(role, name, email, password, accessCodeParam, orgData, orgId = null) {
     fetch('/register-account', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ role, name, email, password, accessCodeParam, orgData })
+        body: JSON.stringify({ role, name, email, password, accessCodeParam, orgData, orgId })
     })
     .then(res => res.json())
     .then(data => {
@@ -247,6 +311,7 @@ function sendRegistration(role, name, email, password, accessCodeParam, orgData)
             accessCode = null;
             accessCodeRequest = false;
             orgInfoStep = false;
+            orgVerified = false;
             document.getElementById('register-btn').textContent = 'Create Account';
             document.getElementById('register-code-group').style.display = 'none';
             document.getElementById('password-group').style.display = 'none';
@@ -263,6 +328,7 @@ function sendRegistration(role, name, email, password, accessCodeParam, orgData)
         orgInfoStep = false;
         accessCodeRequest = false;
         accessCode = null;
+        orgVerified = false;
         document.getElementById('register-btn').textContent = 'Next';
         document.getElementById('org-group').style.display = 'none';
         document.getElementById('school-fields').style.display = 'none';

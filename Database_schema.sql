@@ -20,9 +20,20 @@ CREATE TABLE IF NOT EXISTS user(
     email TEXT NOT NULL,
     role TEXT,
     password TEXT NOT NULL,
-    avatar BLOB,
     organization_id INTEGER,
     FOREIGN KEY (organization_id) REFERENCES organization(organization_id)
+);
+
+--Registration table for student and teacher registrations in school
+CREATE TABLE IF NOT EXISTS registration (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    full_name TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'student',
+    access_code TEXT UNIQUE,
+    organization_id INTEGER REFERENCES organization(organization_id),
+    status TEXT CHECK(status IN ('pending', 'registered')) DEFAULT 'pending',
+    created_at TEXT DEFAULT (datetime('now'))
 );
 
 --All the data about species
@@ -37,8 +48,7 @@ CREATE TABLE IF NOT EXISTS species (
     location TEXT,
     fun_fact TEXT,
     category TEXT,
-    owner_id INTEGER,
-    FOREIGN KEY (owner_id) REFERENCES user(user_id)
+    full_details_url TEXT
 );
 
 -- Sightings Table
@@ -70,15 +80,6 @@ CREATE TABLE IF NOT EXISTS message(
     receiver_id INTEGER NOT NULL,
     FOREIGN KEY (sender_id) REFERENCES user(user_id),
     FOREIGN KEY (receiver_id) REFERENCES user(user_id)
-);
-
---Registration table for student and teacher registrations in school
-CREATE TABLE IF NOT EXISTS registration (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT NOT NULL,
-    role TEXT NOT NULL,
-    access_code TEXT NOT NULL,
-    status TEXT CHECK(status IN ('pending', 'registered')) DEFAULT 'pending'
 );
 
 /*

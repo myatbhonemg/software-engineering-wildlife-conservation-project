@@ -1,0 +1,12 @@
+    <!-- Top Navigation Bar -->
+    <nav class="dash-nav">
+        <div class="dash-nav-left">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+            <a href="/dashboard/{{ user['role'] }}" class="dash-logo">&#129422; Komodo Hub</a>
+        </div>
+        <div class="dash-nav-right">
+            <span class="nav-role-badge">{{ user['role'].replace('-', ' ').title() }}</span>
+            <span class="nav-username">{{ user['fullname'] }}</span>
+            <button class="btn-signout" onclick="signOut()">Sign Out</button>
+        </div>
+    </nav>

@@ -1,0 +1,320 @@
+/* ===== PAGE HEADER ===== */
+.page-header {
+    margin-bottom: 32px;
+}
+
+.page-header h1 {
+    font-size: 32px;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.page-header p {
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+/* ===== UPLOAD SECTION ===== */
+.upload-section {
+    margin-bottom: 40px;
+}
+
+.upload-card {
+    background-color: var(--white);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.upload-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.upload-card h3 {
+    font-size: 24px;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.upload-card > p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+/* Upload Zone */
+.upload-zone {
+    border: 3px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 48px 24px;
+    background-color: var(--light-bg);
+    transition: all 0.3s;
+}
+
+.upload-zone.dragover {
+    border-color: var(--secondary-green);
+    background-color: #EBF3E8;
+}
+
+.upload-icon-large {
+    font-size: 64px;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.upload-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.upload-subtext {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.btn-browse {
+    padding: 12px 32px;
+    background-color: var(--secondary-green);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 12px;
+}
+
+.btn-browse:hover {
+    background-color: var(--primary-green);
+}
+
+.upload-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ===== FILTERS ===== */
+.canvas-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.canvas-tab {
+    padding: 10px 20px;
+    background-color: var(--white);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.canvas-tab:hover {
+    border-color: var(--secondary-green);
+    background-color: var(--light-bg);
+}
+
+.canvas-tab.active {
+    background-color: var(--secondary-green);
+    border-color: var(--secondary-green);
+    color: var(--white);
+}
+
+/* ===== FILES GRID ===== */
+.files-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.file-card {
+    background-color: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 2px solid var(--border-color);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.file-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+/* File Preview */
+.file-preview {
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    color: var(--white);
+}
+
+.file-preview.ppt {
+    background: linear-gradient(135deg, #E17B3C 0%, #D4691F 100%);
+}
+
+.file-preview.doc {
+    background: linear-gradient(135deg, #1A73E8 0%, #1557B0 100%);
+}
+
+.file-preview.pdf {
+    background: linear-gradient(135deg, #D64545 0%, #B33939 100%);
+}
+
+.file-preview.xls {
+    background: linear-gradient(135deg, #4CAF50 0%, #3D8B40 100%);
+}
+
+.file-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+}
+
+.file-extension {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background-color: rgba(0,0,0,0.2);
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+/* File Info */
+.file-info {
+    padding: 16px;
+}
+
+.file-title {
+    font-size: 16px;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.file-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.file-author,
+.file-date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.file-size {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* File Actions */
+.file-actions {
+    padding: 0 16px 16px 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.btn-download,
+.btn-view,
+.btn-delete {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-download {
+    background-color: var(--secondary-green);
+    color: var(--white);
+}
+
+.btn-download:hover {
+    background-color: var(--primary-green);
+}
+
+.btn-view {
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    border: 2px solid var(--border-color);
+}
+
+.btn-view:hover {
+    background-color: #E5EDE1;
+    border-color: var(--secondary-green);
+}
+
+.btn-delete {
+    background-color: #D64545;
+    color: var(--white);
+}
+
+.btn-delete:hover {
+    background-color: #B33939;
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.no-results p {
+    font-size: 18px;
+    color: var(--text-muted);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+    .files-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .files-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .canvas-filters {
+        flex-direction: column;
+    }
+
+    .canvas-tab {
+        width: 100%;
+    }
+
+    .upload-zone {
+        padding: 32px 16px;
+    }
+}

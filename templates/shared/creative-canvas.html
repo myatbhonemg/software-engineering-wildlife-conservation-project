@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Canvas - Komodo Hub</title>
+
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="../../static/css/dashboard.css">
+    <link rel="stylesheet" href="../../static/css/tabs/creative-canvas.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Top Navigation Bar -->
+    {% include 'shared/navbar.html' %}
+
+    <div class="dash-layout">
+
+        <!-- Sidebar (will be populated by JS) -->
+        {% include 'shared/sidebar.html' %}
+
+        <!-- Main Content -->
+        <main class="dash-main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>&#127912; Creative Canvas</h1>
+                <p>Share presentations, documents, and creative work</p>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <div class="upload-card">
+                    <div class="upload-icon">&#128193;</div>
+                    <h3>Upload Your Work</h3>
+                    <p>Share presentations, reports, posters, and documents</p>
+                    <div class="upload-zone" id="upload-zone">
+                        <input type="file" id="file-input" multiple accept=".ppt,.pptx,.doc,.docx,.pdf,.txt,.xlsx,.xls" style="display: none;">
+                        <div class="upload-placeholder">
+                            <span class="upload-icon-large">&#128194;</span>
+                            <p class="upload-text">Drag and drop files here</p>
+                            <p class="upload-subtext">or</p>
+                            <button class="btn-browse" onclick="document.getElementById('file-input').click()">Browse Files</button>
+                            <p class="upload-hint">Supported: PPT, PPTX, DOC, DOCX, PDF, TXT, XLS, XLSX (Max 25MB)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Success Message -->
+            <div id="upload-success" class="upload-success" style="display: none;">
+                <p>✅ Files uploaded successfully! They will appear in the Library feed.</p>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="../../static/js/tabs/creative-canvas.js"></script>
+</body>
+</html>

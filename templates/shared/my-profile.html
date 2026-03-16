@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Komodo Hub</title>
+
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="../../static/css/dashboard.css">
+    <link rel="stylesheet" href="../../static/css/tabs/my-profile.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Top Navigation Bar -->
+    {% include 'shared/navbar.html' %}
+
+    <div class="dash-layout">
+
+        <!-- Sidebar (will be populated by JS) -->
+        {% include 'shared/sidebar.html' %}
+
+        <!-- Main Content -->
+        <main class="dash-main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>&#128100; My Profile</h1>
+                <p>Manage your account information and preferences</p>
+            </div>
+
+            <!-- Profile Container -->
+            <div class="profile-container">
+
+                <!-- Profile Card -->
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar-section">
+                            <div class="profile-avatar-large">👤</div>
+                            <button class="btn-change-avatar" onclick="changeAvatar()">Change Avatar</button>
+                        </div>
+                        <div class="profile-header-info">
+                            <h2 id="profile-name">Loading...</h2>
+                            <p id="profile-role" class="profile-role-text">Student</p>
+                            <p id="profile-email" class="profile-email-text"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="91f4fcf0f8fdd1f4e9f0fce1fdf4bff2fefc">[email&#160;protected]</a></p>
+                        </div>
+                    </div>
+
+                    <!-- Profile Info Section -->
+                    <div class="profile-section">
+                        <div class="section-header">
+                            <h3>Personal Information</h3>
+                            <button class="btn-edit" onclick="toggleEdit('personal')">Edit</button>
+                        </div>
+                        <div class="info-grid" id="personal-info">
+                            <div class="info-item">
+                                <label>Full Name</label>
+                                <p id="display-name">-</p>
+                                <input type="text" id="edit-name" style="display: none;">
+                            </div>
+                            <div class="info-item">
+                                <label>Email</label>
+                                <p id="display-email">-</p>
+                                <input type="email" id="edit-email" style="display: none;">
+                            </div>
+                            <div class="info-item">
+                                <label>Phone</label>
+                                <p id="display-phone">Not provided</p>
+                                <input type="tel" id="edit-phone" style="display: none;" placeholder="+62 XXX-XXXX-XXXX">
+                            </div>
+                            <div class="info-item">
+                                <label>Location</label>
+                                <p id="display-location">Not provided</p>
+                                <input type="text" id="edit-location" style="display: none;" placeholder="City, Province">
+                            </div>
+                        </div>
+                        <div class="edit-actions" id="personal-actions" style="display: none;">
+                            <button class="btn-cancel" onclick="cancelEdit('personal')">Cancel</button>
+                            <button class="btn-save" onclick="saveEdit('personal')">Save Changes</button>
+                        </div>
+                    </div>
+
+                    <!-- School/Community Info (role-dependent) -->
+                    <div class="profile-section" id="organization-section">
+                        <div class="section-header">
+                            <h3 id="org-section-title">School Information</h3>
+                        </div>
+                        <div class="info-grid" id="org-info">
+                            <div class="info-item">
+                                <label id="org-label">School Name</label>
+                                <p id="display-org">Loading...</p>
+                            </div>
+                            <div class="info-item" id="grade-item">
+                                <label>Grade/Class</label>
+                                <p id="display-grade">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Stats -->
+                    <div class="profile-section">
+                        <div class="section-header">
+                            <h3>Activity Summary</h3>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-icon">&#128248;</div>
+                                <div class="stat-info">
+                                    <div class="stat-number">0</div>
+                                    <div class="stat-label">Sightings Reported</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">&#128218;</div>
+                                <div class="stat-info">
+                                    <div class="stat-number">0</div>
+                                    <div class="stat-label">Activities Completed</div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-item">
+                                <div class="stat-icon">&#127942;</div>
+                                <div class="stat-info">
+                                    <div class="stat-number">0</div>
+                                    <div class="stat-label">Programs Joined</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Settings -->
+                    <div class="profile-section">
+                        <div class="section-header">
+                            <h3>Account Settings</h3>
+                        </div>
+                        <div class="settings-list">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Email Notifications</label>
+                                    <p>Receive updates about sightings and activities</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="email-notifications" checked onchange="toggleSetting('email')">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Push Notifications</label>
+                                    <p>Get notified about new messages and reports</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="push-notifications" checked onchange="toggleSetting('push')">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Public Profile</label>
+                                    <p>Allow others to see your profile and activity</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="public-profile" checked onchange="toggleSetting('public')">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="profile-section">
+                        <div class="section-header">
+                            <h3>Change Password</h3>
+                        </div>
+                        <div class="password-form">
+                            <div class="info-item">
+                                <label>Current Password</label>
+                                <input type="password" id="current-password" placeholder="Enter current password">
+                            </div>
+                            <div class="info-item">
+                                <label>New Password</label>
+                                <input type="password" id="new-password" placeholder="Enter new password">
+                            </div>
+                            <div class="info-item">
+                                <label>Confirm New Password</label>
+                                <input type="password" id="confirm-password" placeholder="Confirm new password">
+                            </div>
+                            <button class="btn-change-password" onclick="changePassword()">Update Password</button>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="profile-section danger-zone">
+                        <div class="section-header">
+                            <h3>Danger Zone</h3>
+                        </div>
+                        <div class="danger-actions">
+                            <button class="btn-delete-account" onclick="deleteAccount()">Delete Account</button>
+                            <p class="danger-warning">Once you delete your account, there is no going back. Please be certain.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                </div>
+
+        </main>
+    </div>
+
+    <!-- Avatar Selection Modal -->
+    <div id="avatar-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content avatar-modal">
+            <div class="modal-header">
+                <h3>Choose Your Avatar</h3>
+                <button class="modal-close" onclick="closeAvatarModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="avatar-description">Select an endangered animal as your profile avatar</p>
+                <div class="avatar-grid">
+                    <div class="avatar-option" onclick="selectAvatar('🦏')">
+                        <div class="avatar-emoji">🦏</div>
+                        <p>Rhino</p>
+                    </div>
+                    <div class="avatar-option" onclick="selectAvatar('🐅')">
+                        <div class="avatar-emoji">🐅</div>
+                        <p>Tiger</p>
+                    </div>
+                    <div class="avatar-option" onclick="selectAvatar('🦜')">
+                        <div class="avatar-emoji">🦜</div>
+                        <p>Bird</p>
+                    </div>
+                    <div class="avatar-option" onclick="selectAvatar('🦎')">
+                        <div class="avatar-emoji">🦎</div>
+                        <p>Komodo</p>
+                    </div>
+                    <div class="avatar-option" onclick="selectAvatar('🦅')">
+                        <div class="avatar-emoji">🦅</div>
+                        <p>Eagle</p>
+                    </div>
+                    <div class="avatar-option" onclick="selectAvatar('🐒')">
+                        <div class="avatar-emoji">🐒</div>
+                        <p>Macaque</p>
+                    </div>
+                    <div class="avatar-option" onclick="selectAvatar('🦧')">
+                        <div class="avatar-emoji">🦧</div>
+                        <p>Orangutan</p>
+                    </div>
+                    <div class="avatar-option" onclick="selectAvatar('🐘')">
+                        <div class="avatar-emoji">🐘</div>
+                        <p>Elephant</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeAvatarModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../static/js/tabs/my-profile.js"></script>
+</body>
+</html>

@@ -190,6 +190,20 @@
     background-color: var(--primary-green);
 }
 
+.learn-more-link {
+    display: inline-block;
+    margin-top: 8px;
+    color: var(--secondary-green);
+    text-decoration: underline;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.learn-more-link:hover {
+    color: var(--primary-green);
+}
+
 /* ===== SECTION 2: COMMUNITY FEED ===== */
 .community-feed {
     background-color: var(--white);

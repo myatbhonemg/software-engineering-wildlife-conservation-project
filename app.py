@@ -18,7 +18,6 @@ import os
 from werkzeug.utils import secure_filename
 import time
 
-
 #Initializing the app
 app = Flask(__name__)
 
@@ -60,6 +59,35 @@ def access_code_request_handle():
 
     return jsonify ({'success': True, 'accessCode': record['access_code'] })
 
+#Fetching organizatiions for registration dropdown
+@app.route('/get-organizations', methods=['GET'])
+def get_organizations():
+    category = request.args.get('category') # 'school' or 'community'
+    sql = 'SELECT organization_id, name  FROM organization WHERE category = ?'
+    orgs = db.fetch_query(sql, (category,))
+    return jsonify({'success': True, 'organizations': [dict(o) for o in orgs]})
+
+#Verify registration for teacher / principal / community-member
+@app.route('/verify-registration', methods=['POST'])
+def verify_registration():
+    data = request.get_json()
+    email = data.get('email')
+    org_id = data.get('organization_id')
+    role = data.get('role')
+    
+    sql = 'SELECT id FROM registration WHERE email = ? AND organization_id = ? AND role = ? AND status = ?'
+    values = (email, org_id, role, 'pending')
+    record = db.fetch_one(sql, values)
+    
+    if not record:
+        return jsonify({'success': False, 'message': f'No pending registration found for this email: {email}'})
+    
+    sql = 'UPDATE registration SET status = ? WHERE email = ? AND organization_id = ?'
+    db.execute_query(sql, ('registered', email, org_id))
+    
+    return jsonify ({'success': True})
+
+
 #Registering account final step
 @app.route('/register-account', methods=['POST'])
 def account_registration():
@@ -70,17 +98,19 @@ def account_registration():
     password = data.get('password')
     access_code = data.get('accessCodeParam')
     org_data = data.get('orgData')
+    org_id = data.get('orgId')
     
-    needs_code = ['student', 'teacher']
+    needs_code = ['student',]
     needs_org = ['school-admin', 'community-admin']
     
-    # Verify access code for student / teacher
+    # Verify registration for student
     if role in needs_code:
-        sql = 'SELECT id FROM registration WHERE email = ? AND access_code = ? AND status = ?'
+        sql = 'SELECT id, organization_id FROM registration WHERE email = ? AND access_code = ? AND status = ?'
         values = (email, access_code, 'pending')    
         record = db.fetch_one(sql, values)
         if not record:
             return jsonify({'success': False, 'message': 'Invalid or already used access code'})
+        org_id = record['organization_id']
      
     # Check email not already registered   
     sql = 'SELECT user_id FROM user WHERE email = ?'
@@ -90,14 +120,14 @@ def account_registration():
     
     # Create user
     hashed = generate_password_hash(password)
-    sql = 'INSERT INTO user (fullname, email, role, password) VALUES (?, ?, ?, ?)'
-    values = (name, email, role, hashed)
+    sql = 'INSERT INTO user (fullname, email, role, password, organization_id) VALUES (?, ?, ?, ?, ?)'
+    values = (name, email, role, hashed, org_id)
     db.execute_query(sql, values)
     
     # Mark access code as used
     if role in needs_code:
-        sql = 'UPDATE registration SET status = ? WHERE id = ?'
-        values = ('registered', record['id'],)
+        sql = 'UPDATE registration SET status = ? WHERE email = ?'
+        values = ('registered', email,)
         db.execute_query(sql, values)
     
     # Create org record for school-admin or community-admin
@@ -147,6 +177,7 @@ def login():
     session['role'] = user['role']
     session['fullname'] = user['fullname']
     session['email'] = user['email']
+    session['organization_id'] = user['organization_id']
     
     # Map role to dashboard
     role_redirects = {
@@ -241,7 +272,6 @@ def public_dashboard():
     user = db.fetch_one('SELECT * FROM user WHERE user_id = ?', (session['user_id'],))
     return render_template('public-dashboard.html', user=user)
 
-
 #Retrieving species data to fill species library page
 @app.route('/species-library')
 def species_library():
@@ -252,6 +282,38 @@ def species_library():
     species = db.fetch_query(sql)
     return render_template("shared/species-library.html", user = user, species = species)
 
+#Get activities page
+@app.route('/activities')
+def get_activities():
+    if 'user_id' not in session:
+        return redirect(url_for('login_get'))
+    user = db.fetch_one('SELECT * FROM user WHERE user_id = ?', (session['user_id'], ))
+    return render_template('shared/activity.html', user = user)
+
+#Get Creatinv Canvas page
+@app.route('/creative-canvas')
+def get_creative_canvas():
+    if 'user_id' not in session:
+        return redirect(url_for('login_get'))
+    user = db.fetch_one('SELECT * FROM user WHERE user_id = ?', (session['user_id'], ))
+    return render_template('shared/creative-canvas.html', user = user)
+
+# Get Massages
+@app.route('/messages')
+def get_messages():
+    if 'user_id' not in session:
+        return redirect(url_for('login_get'))
+    user = db.fetch_one('SELECT * FROM user WHERE user_id = ?', (session['user_id'], ))
+    return render_template('shared/messages.html', user = user)
+
+#Get my profile details
+@app.route('/my-profile')
+def get_my_profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login_get'))
+    user = db.fetch_one('SELECT * FROM user WHERE user_id = ?', (session['user_id'], ))
+    return render_template('shared/my-profile.html', user = user)
+
 #Sighting Reporting form handling
 @app.route('/report-sighting')
 def report_sighting():
@@ -261,7 +323,70 @@ def report_sighting():
     user = db.fetch_one(sql, (session['user_id'],))
     sql = 'SELECT species_id, common_name FROM species'
     species = db.fetch_query(sql)
-    return render_template('shared/report-sighting.html', user=user, species=species)
+    return render_template('shared/report-sighting-form.html', user=user, species=species)
+
+#Get Sighting Reports
+@app.route('/sighting-reports')
+def get_sighting_reports():
+    if 'user_id' not in session:
+        return redirect(url_for('login_get'))
+    user = db.fetch_one('SELECT * FROM user WHERE user_id = ?', (session['user_id'], ))
+    return render_template('shared/sighting-reports-view.html', user = user)
+
+#Handle Registering students / teacher / community members by Admins
+@app.route('/register-member')
+def get_member_registration_form():
+    if 'user_id' not in session:
+        return redirect(url_for('login_get'))
+    user = db.fetch_one('SELECT * FROM user WHERE user_id = ? ', (session['user_id'],))
+    return render_template('shared/register-member.html', user = user)
+
+#Handling Member Registration
+@app.route('/register-member', methods = ['POST'])
+def register_member():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Not logged in'})
+    data = request.get_json()
+    role = data.get('role')
+    full_name = data.get('fullName')
+    email = data.get('email')
+    accessCode = data.get('accessCode')
+    org_id = session.get('organization_id') #Geting admin's org_id from session
+    
+    #Checking if email already registered in registration table
+    existing = db.fetch_one('SELECT id FROM registration WHERE email = ?', (email, ))
+    if existing:
+        return jsonify({'success': False, 'message': 'This email is already registered'})
+    
+    #Insert into registeration table
+    sql = 'INSERT INTO registration (email, full_name, role, access_code, organization_id) VALUES (?, ?, ?, ?, ?)'
+    db.execute_query(sql, (email, full_name, role, accessCode, org_id))
+    
+    return jsonify({'success': True})
+    
+#Retrieving Teachers Details for School admin
+@app.route('/manage-teachers')
+def get_teachers_details():
+    if 'user_id' not in session:
+        return redirect(url_for('login_get'))
+    user = db.fetch_one('SELECT * FROM user WHERE user_id = ?', (session['user_id'], ))
+    return render_template('shared/manage-users.html', user=user)
+
+#Retrieving Students Details for School admin
+@app.route('/manage-students')
+def get_students_details():
+    if 'user_id' not in session:
+        return redirect(url_for('login_get'))
+    user = db.fetch_one('SELECT * FROM user WHERE user_id = ?', (session['user_id'], ))
+    return render_template('shared/manage-users.html', user=user)
+
+#Retrieving Community members details for community admin
+@app.route('/manage-members')
+def get_members_details():
+    if 'user_id' not in session:
+        return redirect(url_for('login_get'))
+    user = db.fetch_one('SELECT * FROM user WHERE user_id = ?', (session['user_id'], ))
+    return render_template('shared/manage-users.html', user=user)
 
 #Handling Sighting Reports submission
 @app.route('/submit-sighting', methods=['POST'])
@@ -298,8 +423,6 @@ def submit_sighting():
     )    
     db.execute_query(sql, values)
     return jsonify({'success': True})
-
-
 
 if __name__ == '__main__':
     app.run(
