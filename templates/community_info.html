@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}My Community – Komodo Hub{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/community_info.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>My Community</h1>
+    <p>View and manage your community's information and public profile</p>
+</div>
+
+<div class="profile-container">
+
+    <!-- ===== COMMUNITY PROFILE CARD ===== -->
+    <div class="profile-card">
+
+        <!-- Community Header -->
+        <div class="profile-header">
+            <div class="profile-avatar-section">
+                <div class="profile-avatar-large">
+                    🌿
+                </div>
+                <button class="btn-change-avatar" id="changeAvatarBtn">Change Icon</button>
+            </div>
+            <div class="profile-header-info">
+                <h2>{{ org.name }}</h2>
+                <p class="profile-role-text">Community Organisation</p>
+                <p class="profile-email-text">{{ org.email }}</p>
+                <div class="community-badges">
+                    <span class="community-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        {{ members | length }} Members
+                    </span>
+                    <span class="community-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round"><circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/></svg>
+                        Since {{ org.created_at[:4] if org.created_at else '2025' }}
+                    </span>
+                    <span class="community-badge badge-public">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/></svg>
+                        Public Profile
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== COMMUNITY DETAILS ===== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h3>Community Details</h3>
+                <button class="btn-edit" id="editDetailsBtn">Edit</button>
+            </div>
+
+            <!-- View mode -->
+            <div class="info-grid" id="detailsView">
+                <div class="info-item">
+                    <label>Organisation Name</label>
+                    <p>{{ org.name }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Type</label>
+                    <p>{{ org.type | capitalize if org.type else 'Not specified' }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Email Address</label>
+                    <p>{{ org.email }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Address</label>
+                    <p>{{ org.address if org.address else 'Not provided' }}</p>
+                </div>
+            </div>
+
+            <!-- Edit mode (hidden by default) -->
+            <form class="info-grid" id="detailsEdit" style="display:none;"
+                method="POST" action="{{ url_for('update_community_info') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="info-item">
+                    <label for="editName">Organisation Name</label>
+                    <input type="text" id="editName" name="name" value="{{ org.name }}">
+                </div>
+                <div class="info-item">
+                    <label for="editType">Type</label>
+                    <input type="text" id="editType" name="type" value="{{ org.type or '' }}"
+                        placeholder="e.g. Conservation, Wildlife">
+                </div>
+                <div class="info-item">
+                    <label for="editEmail">Email Address</label>
+                    <input type="email" id="editEmail" name="email" value="{{ org.email }}">
+                </div>
+                <div class="info-item">
+                    <label for="editAddress">Address</label>
+                    <input type="text" id="editAddress" name="address" value="{{ org.address or '' }}"
+                        placeholder="e.g. Jakarta, Indonesia">
+                </div>
+                <div class="edit-actions">
+                    <button type="button" class="btn-cancel" id="cancelDetailsBtn">Cancel</button>
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ===== COMMUNITY STATS ===== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h3>Community Activity</h3>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-icon">👥</span>
+                    <div>
+                        <div class="stat-number">{{ members | length }}</div>
+                        <div class="stat-label">Total Members</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🔭</span>
+                    <div>
+                        <div class="stat-number">{{ total_sightings or 0 }}</div>
+                        <div class="stat-label">Sightings Reported</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">📄</span>
+                    <div>
+                        <div class="stat-number">{{ total_contributions or 0 }}</div>
+                        <div class="stat-label">Contributions</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🌱</span>
+                    <div>
+                        <div class="stat-number">{{ active_programmes or 0 }}</div>
+                        <div class="stat-label">Active Programmes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MEMBERS LIST ===== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h3>Members</h3>
+                <span class="member-count-label">{{ members | length }} total</span>
+            </div>
+
+            {% if members %}
+            <div class="members-list">
+                {% for member in members %}
+                <div class="member-item">
+                    <div class="member-avatar avatar-{{ loop.index % 6 }}">
+                        {{ member.fullname[0] | upper }}
+                    </div>
+                    <div class="member-info">
+                        <span class="member-name">{{ member.fullname }}</span>
+                        <span class="member-role">{{ member.role | replace('-', ' ') | title }}</span>
+                    </div>
+                    <div class="member-meta">
+                        <span class="member-contributions">{{ member.contributions or 0 }} contributions</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-members">
+                <p>No members yet. Register members through the <a href="{{ url_for('get_member_registration_form') }}">member registration</a> page.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ===== PUBLIC PROFILE NOTICE ===== -->
+        <div class="profile-section">
+            <div class="section-header">
+                <h3>Public Visibility</h3>
+            </div>
+            <div class="visibility-info">
+                <div class="visibility-row">
+                    <div class="setting-info">
+                        <label>Community Profile Page</label>
+                        <p>Your community name, type, and description are visible to the public.</p>
+                    </div>
+                    <span class="visibility-badge badge-visible">Visible</span>
+                </div>
+                <div class="visibility-row">
+                    <div class="setting-info">
+                        <label>Member Contributions</label>
+                        <p>Articles, essays, and sighting reports submitted by members are publicly viewable.</p>
+                    </div>
+                    <span class="visibility-badge badge-visible">Visible</span>
+                </div>
+                <div class="visibility-row">
+                    <div class="setting-info">
+                        <label>Member Profiles</label>
+                        <p>Individual member profile pages and personal information are linked publicly.</p>
+                    </div>
+                    <span class="visibility-badge badge-visible">Visible</span>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.profile-card -->
+</div><!-- /.profile-container -->
+
+
+<!-- ===== AVATAR MODAL ===== -->
+<div class="modal-overlay" id="avatarModal" style="display:none;">
+    <div class="modal-content avatar-modal">
+        <div class="modal-header">
+            <h3>Choose Community Icon</h3>
+            <button class="modal-close" id="closeAvatarModal" aria-label="Close">&#10005;</button>
+        </div>
+        <div class="modal-body">
+            <p class="avatar-description">Select an icon to represent your community.</p>
+            <div class="avatar-grid">
+                <div class="avatar-option" onclick="selectAvatar('🌿')">
+                    <div class="avatar-emoji">🌿</div>
+                    <p>Nature</p>
+                </div>
+                <div class="avatar-option" onclick="selectAvatar('🦎')">
+                    <div class="avatar-emoji">🦎</div>
+                    <p>Reptile</p>
+                </div>
+                <div class="avatar-option" onclick="selectAvatar('🌊')">
+                    <div class="avatar-emoji">🌊</div>
+                    <p>Ocean</p>
+                </div>
+                <div class="avatar-option" onclick="selectAvatar('🦅')">
+                    <div class="avatar-emoji">🦅</div>
+                    <p>Bird</p>
+                </div>
+                <div class="avatar-option" onclick="selectAvatar('🐘')">
+                    <div class="avatar-emoji">🐘</div>
+                    <p>Elephant</p>
+                </div>
+                <div class="avatar-option" onclick="selectAvatar('🌳')">
+                    <div class="avatar-emoji">🌳</div>
+                    <p>Forest</p>
+                </div>
+                <div class="avatar-option" onclick="selectAvatar('🐆')">
+                    <div class="avatar-emoji">🐆</div>
+                    <p>Wildcat</p>
+                </div>
+                <div class="avatar-option" onclick="selectAvatar('🌺')">
+                    <div class="avatar-emoji">🌺</div>
+                    <p>Flora</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" id="cancelAvatarModal">Cancel</button>
+            <button class="btn-save" id="saveAvatarBtn">Save Icon</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/community_info.js') }}"></script>
+{% endblock %}
