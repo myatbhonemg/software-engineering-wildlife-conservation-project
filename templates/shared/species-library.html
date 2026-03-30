@@ -33,7 +33,7 @@
                 <div class="database-header">
                     <div class="header-left">
                         <h2>Endangered Species of Indonesia</h2>
-                        <button class="toggle-section-btn" onclick="toggleSpeciesGrid()">
+                        <button class="toggle-section-btn" id="species-toggle-btn" onclick="toggleSpeciesGrid()">
                             <span id="species-arrow">View All</span>
                         </button>
                     </div>
@@ -49,7 +49,7 @@
                 </div>
 
                 <div class="species-grid collapsed" id="species-grid">
-                    <!-- Species Card 1 -->
+                    <!-- Species Card  -->
                     {% for s in species %}
                         <div class="species-card" data-status="{{ s['status'] }}">
                         <div class="species-image-large">
@@ -77,121 +77,77 @@
 
             </section>
 
-            <!-- SECTION 2: Community Feed -->
+            <!-- SECTION 2: Community Activity Feed -->
             <section class="community-feed">
                 <div class="feed-header">
-                    <h2>&#128248; Community Activity</h2>
+                    <div class="header-left">
+                        <h2>&#128248; Sightings</h2>
+                        <button class="toggle-section-btn" id="feed-toggle-btn" onclick="toggleFeed()">
+                            <span id="feed-arrow">View All</span>
+                        </button>
+                    </div>
                     <div class="feed-tabs">
-                        <button class="feed-tab active" data-filter="all">All</button>
-                        <button class="feed-tab" data-filter="school">My School</button>
-                        <button class="feed-tab" data-filter="community">My Community</button>
+                        <button class="feed-tab active" onclick="filterFeed('all', this)">All</button>
+                        {% if user['role'] in ['student', 'teacher', 'school-admin', 'principal'] %}
+                        <button class="feed-tab" onclick="filterFeed('school', this)">My School</button>
+                        {% endif %}
+                        {% if user['role'] in ['community-member', 'community-admin'] %}
+                        <button class="feed-tab" onclick="filterFeed('community', this)">My Community</button>
+                        {% endif %}
                     </div>
                 </div>
 
-                <div class="feed-posts" id="feed-posts">
-                    <!-- Post 1 -->
-                    <div class="feed-post" data-type="sighting">
+                <!-- Add collapsed class to feed-posts by default -->
+                <div class="feed-posts collapsed" id="feed-posts">
+                    {% for s in sightings %}
+                    <div class="feed-post" 
+                        data-type="sighting"
+                        data-org="{{ s['reporter_org_id'] }}">
+
                         <div class="post-header">
                             <div class="post-user">
-                                <div class="user-avatar">&#128100;</div>
+                                <div class="user-avatar">
+                                    {% if s['reporter_avatar'] %}
+                                        <img src="{{ url_for('static', filename=s['reporter_avatar']) }}" 
+                                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                    {% else %}
+                                        👤
+                                    {% endif %}
+                                </div>
                                 <div class="user-info">
-                                    <div class="user-name">Myat</div>
-                                    <div class="user-meta">Student, Grade 10 • 2 hours ago</div>
+                                    <div class="user-name">{{ s['reporter_name'] }}</div>
+                                    <div class="user-meta">{{ s['reporter_role'].replace('-',' ').title() }} • {{ s['sighting_date'] }}</div>
                                 </div>
                             </div>
                             <span class="post-type-badge">&#128205; Sighting</span>
                         </div>
+
                         <div class="post-content">
-                            <h3>Spotted Javan Rhino in Ujung Kulon National Park</h3>
-                            <p>The rhino was grazing peacefully near the forest edge.</p>
+                            <h3>Spotted {{ s['common_name'] }} in {{ s['location'] }}</h3>
+                            <p>{{ s['description'] }}</p>
+                            {% if s['photo'] %}
                             <div class="post-image-placeholder">
-                                <span style="font-size: 80px;">&#129439;</span>
-                                <p>Photo: Javan Rhinoceros</p>
+                                <img src="{{ url_for('static', filename=s['photo']) }}" 
+                                    alt="{{ s['common_name'] }}"
+                                    style="width:100%; border-radius:8px; cursor:pointer;"
+                                    onclick="window.open(this.src, '_blank')">
                             </div>
+                            {% endif %}
                         </div>
-                        
                     </div>
-
-                    <!-- Post 2 -->
-                    <div class="feed-post" data-type="article">
-                        <div class="post-header">
-                            <div class="post-user">
-                                <div class="user-avatar">&#128100;</div>
-                                <div class="user-info">
-                                    <div class="user-name">Mr. Kifo</div>
-                                    <div class="user-meta">Teacher • 1 day ago</div>
-                                </div>
-                            </div>
-                            <span class="post-type-badge article">&#128220; Article</span>
-                        </div>
-                        <div class="post-content">
-                            <h3>New Conservation Efforts for Sumatran Tigers</h3>
-                            <p>Great news! Local communities are partnering with conservation groups to protect tiger habitats.</p>
-                            <div class="post-link-preview">
-                                <div class="link-icon">&#128279;</div>
-                                <div class="link-info">
-                                    <div class="link-title">Tiger Conservation Success Story</div>
-                                    <div class="link-url">conservation.org/sumatra-tigers</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    </div>
-
-                    <!-- Post 3 -->
-                    <div class="feed-post" data-type="sighting">
-                        <div class="post-header">
-                            <div class="post-user">
-                                <div class="user-avatar">&#128100;</div>
-                                <div class="user-info">
-                                    <div class="user-name">Tevin</div>
-                                    <div class="user-meta">Community Member • 3 days ago</div>
-                                </div>
-                            </div>
-                            <span class="post-type-badge">&#128205; Sighting</span>
-                        </div>
-                        <div class="post-content">
-                            <h3>Bali Myna spotted near Bali Barat National Park</h3>
-                            <p>Incredible to see this beautiful bird in the wild!</p>
-                            <div class="post-image-placeholder">
-                                <span style="font-size: 80px;">&#129500;</span>
-                                <p>Photo: Bali Myna</p>
-                            </div>
-                        </div>
-                        
-                    </div>
-
-                    <!-- Post 4 -->
-                    <div class="feed-post" data-type="creative">
-                        <div class="post-header">
-                            <div class="post-user">
-                                <div class="user-avatar">&#128100;</div>
-                                <div class="user-info">
-                                    <div class="user-name">Odala</div>
-                                    <div class="user-meta">Student, Grade 11 • 5 days ago</div>
-                                </div>
-                            </div>
-                            <span class="post-type-badge creative">&#127912; Creative</span>
-                        </div>
-                        <div class="post-content">
-                            <h3>My painting of the Komodo Dragon</h3>
-                            <p>Created this artwork for our conservation art project.</p>
-                            <div class="post-image-placeholder" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                <span style="font-size: 80px;">&#127912;</span>
-                                <p>Artwork: Komodo Dragon Portrait</p>
-                            </div>
-                        </div>
-                        
-                    </div>
-
+                    {% else %}
+                    <p style="padding: 20px; color: var(--text-muted);">No sightings reported yet.</p>
+                    {% endfor %}
                 </div>
 
-                <button class="btn-load-more">Load More Posts</button>
+                <button class="btn-load-more" style="display:none;">Load More Posts</button>
             </section>
 
+            <div id="user-data" data-org-id="{{ user['organization_id'] or '' }}"></div>
         </main>
     </div>
 
     <script src="{{ url_for('static', filename='js/tabs/species-library.js') }}"></script>
+
 </body>
 </html>

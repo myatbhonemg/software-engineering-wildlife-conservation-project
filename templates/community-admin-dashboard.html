@@ -3,29 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Komodo Hub - Community Admin Dashboard</title>
-
+    <title>Community Admin Dashboard - Komodo Hub</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body class="dashboard-body">
 
-    <!-- Top Navigation Bar -->
     {% include 'shared/navbar.html' %}
 
     <div class="dash-layout">
-
-        <!-- Sidebar -->
         {% include 'shared/sidebar.html' %}
 
-        <!-- Main Content -->
         <main class="dash-main">
 
             <!-- Welcome Banner -->
             <div class="welcome-banner community-admin-banner">
                 <div class="welcome-text">
-                    <h1 id="welcome-message">Welcome back, {{ user['fullname'] }}!</h1>
-                    <p>Manage your community's conservation programs and members.</p>
+                    <h1>Welcome back, {{ user['fullname'] }}!</h1>
+                    <p>Here's an overview of your community's conservation activity.</p>
                 </div>
                 <div class="welcome-icon">&#129309;</div>
             </div>
@@ -35,32 +30,46 @@
                 <div class="stat-card">
                     <div class="stat-icon blue">&#128100;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number">{{ member_count }}</div>
                         <div class="stat-label">Total Members</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon orange">&#128248;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number">{{ sighting_count }}</div>
                         <div class="stat-label">Total Sightings</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon blue">&#128272;</div>
+                    <div class="stat-icon blue">&#127942;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">Active Access Codes</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon orange">&#127942;</div>
-                    <div class="stat-info">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number">{{ active_challenges }}</div>
                         <div class="stat-label">Active Challenges</div>
                     </div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">&#9203;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ pending_members }}</div>
+                        <div class="stat-label">Pending Invitations</div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Pending Alert -->
+            {% if pending_members > 0 %}
+            <div class="pending-alerts">
+                <div class="alert-box alert-orange">
+                    <span class="alert-icon">&#9203;</span>
+                    <div class="alert-info">
+                        <strong>{{ pending_members }} member invitation{{ 's' if pending_members != 1 else '' }} pending</strong>
+                        <p>These people have been invited but haven't registered yet.</p>
+                    </div>
+                    <a href="/manage-members" class="alert-btn">View Members</a>
+                </div>
+            </div>
+            {% endif %}
 
             <!-- Quick Actions -->
             <div class="section-title-row">
@@ -68,22 +77,31 @@
             </div>
             <div class="quick-actions">
                 <div class="action-card">
-                    <div class="action-icon">&#128272;</div>
-                    <h3>Register Member</h3>
-                    <p>Register new community members.</p>
-                    <button class="btn-action btn-action-community-admin coming-soon-btn">Generate Codes</button>
-                </div>
-                <div class="action-card">
                     <div class="action-icon">&#128100;</div>
                     <h3>Manage Members</h3>
                     <p>View and manage all members in your community group.</p>
-                    <button class="btn-action btn-action-community-admin coming-soon-btn">View Members</button>
+                    <button class="btn-action btn-action-community-admin"
+                            onclick="window.location.href='/manage-members'">
+                        View Members
+                    </button>
                 </div>
                 <div class="action-card">
-                    <div class="action-icon">&#128202;</div>
-                    <h3>Community Reports</h3>
-                    <p>View your community's overall conservation activity and progress.</p>
-                    <button class="btn-action btn-action-community-admin coming-soon-btn">View Reports</button>
+                    <div class="action-icon">&#127942;</div>
+                    <h3>Activity Challenges</h3>
+                    <p>Create and manage conservation challenges for your community.</p>
+                    <button class="btn-action btn-action-community-admin"
+                            onclick="window.location.href='/activities'">
+                        View Challenges
+                    </button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">&#128248;</div>
+                    <h3>Sighting Reports</h3>
+                    <p>View all species sightings submitted by your community.</p>
+                    <button class="btn-action btn-action-community-admin"
+                            onclick="window.location.href='/sighting-reports'">
+                        View Reports
+                    </button>
                 </div>
             </div>
 

@@ -3,49 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Komodo Hub</title>
+    <title>
+        {% if user['role'] in ['school-admin', 'community-admin'] %}
+            {% if user['role'] == 'school-admin' %}School Profile{% else %}Community Profile{% endif %}
+        {% else %}
+            My Profile
+        {% endif %}
+        - Komodo Hub
+    </title>
 
-    <link rel="stylesheet" href="../../static/css/style.css">
-    <link rel="stylesheet" href="../../static/css/dashboard.css">
-    <link rel="stylesheet" href="../../static/css/tabs/my-profile.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/my-profile.css') }}">
 </head>
 <body class="dashboard-body">
 
-    <!-- Top Navigation Bar -->
     {% include 'shared/navbar.html' %}
 
     <div class="dash-layout">
-
-        <!-- Sidebar (will be populated by JS) -->
         {% include 'shared/sidebar.html' %}
 
-        <!-- Main Content -->
         <main class="dash-main">
+
+            <!-- ============================================================
+                 SCHOOL ADMIN / COMMUNITY ADMIN — ORG-FIRST PROFILE
+                 ============================================================ -->
+            {% if user['role'] in ['school-admin', 'community-admin'] %}
 
             <!-- Page Header -->
             <div class="page-header">
-                <h1>&#128100; My Profile</h1>
-                <p>Manage your account information and preferences</p>
+                <h1>
+                    {% if user['role'] == 'school-admin' %}&#127979; School Profile
+                    {% else %}&#129309; Community Profile
+                    {% endif %}
+                </h1>
+                <p>Manage your
+                    {% if user['role'] == 'school-admin' %}school's{% else %}community's{% endif %}
+                    information and administrator account
+                </p>
             </div>
 
-            <!-- Profile Container -->
             <div class="profile-container">
 
-                <!-- Profile Card -->
-                <div class="profile-card">
+                <!-- ===== ORGANISATION CARD (PRIMARY) ===== -->
+                <div class="profile-card" style="margin-bottom: 28px;">
+
+                    <!-- Org Header -->
                     <div class="profile-header">
                         <div class="profile-avatar-section">
-                            <div class="profile-avatar-large">👤</div>
-                            <button class="btn-change-avatar" onclick="changeAvatar()">Change Avatar</button>
+                            {% if org and org['avatar'] %}
+                                <img src="{{ url_for('static', filename=org['avatar']) }}"
+                                     class="profile-avatar-large" id="org-avatar-img" alt="Org Avatar">
+                            {% else %}
+                                <div class="profile-avatar-large org-avatar-placeholder" id="org-avatar-img">
+                                    {% if user['role'] == 'school-admin' %}&#127979;{% else %}&#129309;{% endif %}
+                                </div>
+                            {% endif %}
+                            <input type="file" id="org-avatar-input" accept="image/*" style="display:none;"
+                                   onchange="uploadOrgAvatar(this)">
+                            <button class="btn-change-avatar"
+                                    onclick="document.getElementById('org-avatar-input').click()">
+                                Change Logo
+                            </button>
                         </div>
+
                         <div class="profile-header-info">
-                            <h2 id="profile-name">Loading...</h2>
-                            <p id="profile-role" class="profile-role-text">Student</p>
-                            <p id="profile-email" class="profile-email-text"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="91f4fcf0f8fdd1f4e9f0fce1fdf4bff2fefc">[email&#160;protected]</a></p>
+                            <h2 id="org-display-name">{{ org['name'] if org else 'Your Organization' }}</h2>
+                            <p class="profile-role-text">
+                                {% if user['role'] == 'school-admin' %}
+                                    {{ org['type'].replace('-', ' ').title() if org and org['type'] else 'School' }}
+                                {% else %}
+                                    {{ org['type'].replace('-', ' ').title() if org and org['type'] else 'Community' }}
+                                {% endif %}
+                            </p>
+                            <p class="profile-email-text">{{ org['email'] if org else '' }}</p>
                         </div>
                     </div>
 
-                    <!-- Profile Info Section -->
+                    <!-- Org Information (editable) -->
+                    <div class="profile-section">
+                        <div class="section-header">
+                            <h3>
+                                {% if user['role'] == 'school-admin' %}School{% else %}Community{% endif %}
+                                Information
+                            </h3>
+                            <button class="btn-edit" id="org-edit-btn" onclick="toggleOrgEdit()">Edit</button>
+                        </div>
+
+                        <div class="info-grid" id="org-info">
+                            <div class="info-item">
+                                <label>
+                                    {% if user['role'] == 'school-admin' %}School Name{% else %}Community Name{% endif %}
+                                </label>
+                                <p id="org-disp-name">{{ org['name'] if org else '—' }}</p>
+                                <input type="text" id="org-edit-name" style="display:none;"
+                                       value="{{ org['name'] if org else '' }}">
+                            </div>
+                            <div class="info-item">
+                                <label>Type</label>
+                                <p id="org-disp-type">
+                                    {{ org['type'].replace('-',' ').title() if org and org['type'] else '—' }}
+                                </p>
+                                <select id="org-edit-type" style="display:none;"
+                                        class="info-select">
+                                    {% if user['role'] == 'school-admin' %}
+                                        <option value="primary"   {% if org and org['type']=='primary'   %}selected{% endif %}>Primary School</option>
+                                        <option value="secondary" {% if org and org['type']=='secondary' %}selected{% endif %}>Secondary School</option>
+                                        <option value="college"   {% if org and org['type']=='college'   %}selected{% endif %}>College</option>
+                                        <option value="university"{% if org and org['type']=='university'%}selected{% endif %}>University</option>
+                                    {% else %}
+                                        <option value="local"     {% if org and org['type']=='local'     %}selected{% endif %}>Local Community</option>
+                                        <option value="regional"  {% if org and org['type']=='regional'  %}selected{% endif %}>Regional Community</option>
+                                        <option value="national"  {% if org and org['type']=='national'  %}selected{% endif %}>National Community</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <label>Email</label>
+                                <p id="org-disp-email">{{ org['email'] if org else '—' }}</p>
+                                <input type="email" id="org-edit-email" style="display:none;"
+                                       value="{{ org['email'] if org else '' }}">
+                            </div>
+                            <div class="info-item">
+                                <label>Address</label>
+                                <p id="org-disp-address">{{ org['address'] if org and org['address'] else '—' }}</p>
+                                <input type="text" id="org-edit-address" style="display:none;"
+                                       value="{{ org['address'] if org and org['address'] else '' }}">
+                            </div>
+                        </div>
+
+                        <div class="edit-actions" id="org-edit-actions" style="display:none;">
+                            <button class="btn-cancel" onclick="cancelOrgEdit()">Cancel</button>
+                            <button class="btn-save" onclick="saveOrgEdit()">Save Changes</button>
+                        </div>
+                    </div>
+
+                    <!-- Org Activity Stats -->
+                    <div class="profile-section">
+                        <div class="section-header">
+                            <h3>
+                                {% if user['role'] == 'school-admin' %}School{% else %}Community{% endif %}
+                                Activity
+                            </h3>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-icon">&#128100;</div>
+                                <div class="stat-info">
+                                    <div class="stat-number">{{ member_count }}</div>
+                                    <div class="stat-label">
+                                        {% if user['role'] == 'school-admin' %}Total Members{% else %}Total Members{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon">&#128248;</div>
+                                <div class="stat-info">
+                                    <div class="stat-number">{{ org_sightings_count }}</div>
+                                    <div class="stat-label">Sightings Reported</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /org card -->
+
+
+                <!-- ===== ADMINISTRATOR ACCOUNT CARD (SECONDARY) ===== -->
+                <div class="profile-card">
+
+                    <div class="admin-card-label">
+                        <span>&#128100; Administrator Account</span>
+                    </div>
+
+                    <!-- Admin Header -->
+                    <div class="profile-header">
+                        <div class="profile-avatar-section">
+                            {% if user['avatar'] %}
+                                <img src="{{ url_for('static', filename=user['avatar']) }}"
+                                     class="profile-avatar-large" id="profile-avatar-img" alt="Avatar">
+                            {% else %}
+                                <div class="profile-avatar-large" id="profile-avatar-img">&#128100;</div>
+                            {% endif %}
+                            <input type="file" id="avatar-input" accept="image/*" style="display:none;"
+                                   onchange="uploadAvatar(this)">
+                            <button class="btn-change-avatar"
+                                    onclick="document.getElementById('avatar-input').click()">
+                                Change Photo
+                            </button>
+                        </div>
+                        <div class="profile-header-info">
+                            <h2 id="profile-name">{{ user['fullname'] }}</h2>
+                            <p class="profile-role-text">
+                                {{ user['role'].replace('-', ' ').title() }}
+                            </p>
+                            <p class="profile-email-text">{{ user['email'] }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Admin Personal Info -->
                     <div class="profile-section">
                         <div class="section-header">
                             <h3>Personal Information</h3>
@@ -54,47 +210,184 @@
                         <div class="info-grid" id="personal-info">
                             <div class="info-item">
                                 <label>Full Name</label>
-                                <p id="display-name">-</p>
-                                <input type="text" id="edit-name" style="display: none;">
+                                <p id="display-name">{{ user['fullname'] }}</p>
+                                <input type="text" id="edit-name" style="display:none;"
+                                       value="{{ user['fullname'] }}">
                             </div>
                             <div class="info-item">
                                 <label>Email</label>
-                                <p id="display-email">-</p>
-                                <input type="email" id="edit-email" style="display: none;">
+                                <p id="display-email">{{ user['email'] }}</p>
+                                <input type="email" id="edit-email" style="display:none;"
+                                       value="{{ user['email'] }}">
                             </div>
                             <div class="info-item">
                                 <label>Phone</label>
-                                <p id="display-phone">Not provided</p>
-                                <input type="tel" id="edit-phone" style="display: none;" placeholder="+62 XXX-XXXX-XXXX">
+                                <p id="display-phone">{{ user['phone'] or 'Not provided' }}</p>
+                                <input type="tel" id="edit-phone" style="display:none;"
+                                       value="{{ user['phone'] or '' }}">
                             </div>
                             <div class="info-item">
                                 <label>Location</label>
-                                <p id="display-location">Not provided</p>
-                                <input type="text" id="edit-location" style="display: none;" placeholder="City, Province">
+                                <p id="display-location">{{ user['location'] or 'Not provided' }}</p>
+                                <input type="text" id="edit-location" style="display:none;"
+                                       value="{{ user['location'] or '' }}">
                             </div>
                         </div>
-                        <div class="edit-actions" id="personal-actions" style="display: none;">
+                        <div class="edit-actions" id="personal-actions" style="display:none;">
                             <button class="btn-cancel" onclick="cancelEdit('personal')">Cancel</button>
                             <button class="btn-save" onclick="saveEdit('personal')">Save Changes</button>
                         </div>
                     </div>
 
-                    <!-- School/Community Info (role-dependent) -->
-                    <div class="profile-section" id="organization-section">
+                    <!-- Change Password -->
+                    <div class="profile-section">
                         <div class="section-header">
-                            <h3 id="org-section-title">School Information</h3>
+                            <h3>Change Password</h3>
                         </div>
-                        <div class="info-grid" id="org-info">
+                        <div class="password-form">
                             <div class="info-item">
-                                <label id="org-label">School Name</label>
-                                <p id="display-org">Loading...</p>
+                                <label>Current Password</label>
+                                <input type="password" id="current-password"
+                                       placeholder="Enter current password">
                             </div>
-                            <div class="info-item" id="grade-item">
-                                <label>Grade/Class</label>
-                                <p id="display-grade">-</p>
+                            <div class="info-item">
+                                <label>New Password</label>
+                                <input type="password" id="new-password"
+                                       placeholder="Enter new password">
                             </div>
+                            <div class="info-item">
+                                <label>Confirm New Password</label>
+                                <input type="password" id="confirm-password"
+                                       placeholder="Confirm new password">
+                            </div>
+                            <button class="btn-change-password" onclick="changePassword()">
+                                Update Password
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Danger Zone -->
+                    <div class="profile-section danger-zone">
+                        <div class="section-header">
+                            <h3>Danger Zone</h3>
+                        </div>
+                        <div class="danger-actions">
+                            <button class="btn-delete-account" onclick="deleteAccount()">
+                                Delete Account &amp;
+                                {% if user['role'] == 'school-admin' %}School{% else %}Community{% endif %}
+                            </button>
+                            <p class="danger-warning">
+                                This will permanently delete the
+                                {% if user['role'] == 'school-admin' %}school{% else %}community{% endif %},
+                                all its members, and all associated data. This cannot be undone.
+                            </p>
+                        </div>
+                    </div>
+
+                </div><!-- /admin card -->
+
+            </div><!-- /profile-container -->
+
+
+            <!-- ============================================================
+                 ALL OTHER ROLES — STANDARD USER PROFILE
+                 ============================================================ -->
+            {% else %}
+
+            <div class="page-header">
+                <h1>&#128100; My Profile</h1>
+                <p>Manage your account information and preferences</p>
+            </div>
+
+            <div class="profile-container">
+                <div class="profile-card">
+
+                    <!-- Profile Header -->
+                    <div class="profile-header">
+                        <div class="profile-avatar-section">
+                            {% if user['avatar'] %}
+                                <img src="{{ url_for('static', filename=user['avatar']) }}"
+                                     class="profile-avatar-large" id="profile-avatar-img" alt="Avatar">
+                            {% else %}
+                                <div class="profile-avatar-large" id="profile-avatar-img">&#128100;</div>
+                            {% endif %}
+                            <input type="file" id="avatar-input" accept="image/*" style="display:none;"
+                                   onchange="uploadAvatar(this)">
+                            <button class="btn-change-avatar"
+                                    onclick="document.getElementById('avatar-input').click()">
+                                Change Photo
+                            </button>
+                        </div>
+                        <div class="profile-header-info">
+                            <h2 id="profile-name">{{ user['fullname'] }}</h2>
+                            <p class="profile-role-text">{{ user['role'].replace('-', ' ').title() }}</p>
+                            <p class="profile-email-text">{{ user['email'] }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Personal Info -->
+                    <div class="profile-section">
+                        <div class="section-header">
+                            <h3>Personal Information</h3>
+                            <button class="btn-edit" onclick="toggleEdit('personal')">Edit</button>
+                        </div>
+                        <div class="info-grid" id="personal-info">
+                            <div class="info-item">
+                                <label>Full Name</label>
+                                <p id="display-name">{{ user['fullname'] }}</p>
+                                <input type="text" id="edit-name" style="display:none;"
+                                       value="{{ user['fullname'] }}">
+                            </div>
+                            <div class="info-item">
+                                <label>Email</label>
+                                <p id="display-email">{{ user['email'] }}</p>
+                                <input type="email" id="edit-email" style="display:none;"
+                                       value="{{ user['email'] }}">
+                            </div>
+                            <div class="info-item">
+                                <label>Phone</label>
+                                <p id="display-phone">{{ user['phone'] or 'Not provided' }}</p>
+                                <input type="tel" id="edit-phone" style="display:none;"
+                                       value="{{ user['phone'] or '' }}">
+                            </div>
+                            <div class="info-item">
+                                <label>Location</label>
+                                <p id="display-location">{{ user['location'] or 'Not provided' }}</p>
+                                <input type="text" id="edit-location" style="display:none;"
+                                       value="{{ user['location'] or '' }}">
+                            </div>
+                        </div>
+                        <div class="edit-actions" id="personal-actions" style="display:none;">
+                            <button class="btn-cancel" onclick="cancelEdit('personal')">Cancel</button>
+                            <button class="btn-save" onclick="saveEdit('personal')">Save Changes</button>
+                        </div>
+                    </div>
+
+                    <!-- Org Info (read-only for non-admins) -->
+                    {% if org %}
+                    <div class="profile-section">
+                        <h3>
+                            {% if user['role'] in ['student', 'teacher', 'principal'] %}
+                                School
+                            {% else %}
+                                Community
+                            {% endif %}
+                            Information
+                        </h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Name</label>
+                                <p>{{ org['name'] }}</p>
+                            </div>
+                            {% if org['type'] %}
+                            <div class="info-item">
+                                <label>Type</label>
+                                <p>{{ org['type'].replace('-',' ').title() }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
 
                     <!-- Activity Stats -->
                     <div class="profile-section">
@@ -105,7 +398,7 @@
                             <div class="stat-item">
                                 <div class="stat-icon">&#128248;</div>
                                 <div class="stat-info">
-                                    <div class="stat-number">0</div>
+                                    <div class="stat-number">{{ sightings_count }}</div>
                                     <div class="stat-label">Sightings Reported</div>
                                 </div>
                             </div>
@@ -116,7 +409,6 @@
                                     <div class="stat-label">Activities Completed</div>
                                 </div>
                             </div>
-                            
                             <div class="stat-item">
                                 <div class="stat-icon">&#127942;</div>
                                 <div class="stat-info">
@@ -139,7 +431,8 @@
                                     <p>Receive updates about sightings and activities</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" id="email-notifications" checked onchange="toggleSetting('email')">
+                                    <input type="checkbox" id="email-notifications" checked
+                                           onchange="toggleSetting('email')">
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -149,7 +442,8 @@
                                     <p>Get notified about new messages and reports</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" id="push-notifications" checked onchange="toggleSetting('push')">
+                                    <input type="checkbox" id="push-notifications" checked
+                                           onchange="toggleSetting('push')">
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -159,7 +453,8 @@
                                     <p>Allow others to see your profile and activity</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" id="public-profile" checked onchange="toggleSetting('public')">
+                                    <input type="checkbox" id="public-profile" checked
+                                           onchange="toggleSetting('public')">
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -174,17 +469,22 @@
                         <div class="password-form">
                             <div class="info-item">
                                 <label>Current Password</label>
-                                <input type="password" id="current-password" placeholder="Enter current password">
+                                <input type="password" id="current-password"
+                                       placeholder="Enter current password">
                             </div>
                             <div class="info-item">
                                 <label>New Password</label>
-                                <input type="password" id="new-password" placeholder="Enter new password">
+                                <input type="password" id="new-password"
+                                       placeholder="Enter new password">
                             </div>
                             <div class="info-item">
                                 <label>Confirm New Password</label>
-                                <input type="password" id="confirm-password" placeholder="Confirm new password">
+                                <input type="password" id="confirm-password"
+                                       placeholder="Confirm new password">
                             </div>
-                            <button class="btn-change-password" onclick="changePassword()">Update Password</button>
+                            <button class="btn-change-password" onclick="changePassword()">
+                                Update Password
+                            </button>
                         </div>
                     </div>
 
@@ -194,68 +494,23 @@
                             <h3>Danger Zone</h3>
                         </div>
                         <div class="danger-actions">
-                            <button class="btn-delete-account" onclick="deleteAccount()">Delete Account</button>
-                            <p class="danger-warning">Once you delete your account, there is no going back. Please be certain.</p>
+                            <button class="btn-delete-account" onclick="deleteAccount()">
+                                Delete Account
+                            </button>
+                            <p class="danger-warning">
+                                Once you delete your account, there is no going back. Please be certain.
+                            </p>
                         </div>
                     </div>
 
                 </div>
+            </div>
 
-                </div>
+            {% endif %}
 
         </main>
     </div>
 
-    <!-- Avatar Selection Modal -->
-    <div id="avatar-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content avatar-modal">
-            <div class="modal-header">
-                <h3>Choose Your Avatar</h3>
-                <button class="modal-close" onclick="closeAvatarModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <p class="avatar-description">Select an endangered animal as your profile avatar</p>
-                <div class="avatar-grid">
-                    <div class="avatar-option" onclick="selectAvatar('🦏')">
-                        <div class="avatar-emoji">🦏</div>
-                        <p>Rhino</p>
-                    </div>
-                    <div class="avatar-option" onclick="selectAvatar('🐅')">
-                        <div class="avatar-emoji">🐅</div>
-                        <p>Tiger</p>
-                    </div>
-                    <div class="avatar-option" onclick="selectAvatar('🦜')">
-                        <div class="avatar-emoji">🦜</div>
-                        <p>Bird</p>
-                    </div>
-                    <div class="avatar-option" onclick="selectAvatar('🦎')">
-                        <div class="avatar-emoji">🦎</div>
-                        <p>Komodo</p>
-                    </div>
-                    <div class="avatar-option" onclick="selectAvatar('🦅')">
-                        <div class="avatar-emoji">🦅</div>
-                        <p>Eagle</p>
-                    </div>
-                    <div class="avatar-option" onclick="selectAvatar('🐒')">
-                        <div class="avatar-emoji">🐒</div>
-                        <p>Macaque</p>
-                    </div>
-                    <div class="avatar-option" onclick="selectAvatar('🦧')">
-                        <div class="avatar-emoji">🦧</div>
-                        <p>Orangutan</p>
-                    </div>
-                    <div class="avatar-option" onclick="selectAvatar('🐘')">
-                        <div class="avatar-emoji">🐘</div>
-                        <p>Elephant</p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeAvatarModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="../../static/js/tabs/my-profile.js"></script>
+    <script src="{{ url_for('static', filename='js/tabs/my-profile.js') }}"></script>
 </body>
 </html>

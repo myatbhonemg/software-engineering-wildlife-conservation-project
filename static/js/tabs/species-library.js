@@ -57,27 +57,23 @@ if (statusFilter) {
 // ===== COMMUNITY FEED FUNCTIONALITY =====
 
 // Feed filter tabs
-const feedTabs = document.querySelectorAll('.feed-tab');
-feedTabs.forEach(tab => {
-    tab.addEventListener('click', function() {
-        // Remove active from all tabs
-        feedTabs.forEach(t => t.classList.remove('active'));
-        
-        // Add active to clicked tab
-        this.classList.add('active');
-        
-        const filter = this.getAttribute('data-filter');
-        
-        // For now just show alert, backend will filter posts later
-        if (filter === 'school') {
-            console.log('Filtering by: My School');
-        } else if (filter === 'community') {
-            console.log('Filtering by: My Community');
+function filterFeed(filter, clickedBtn) {
+    // Update active tab
+    document.querySelectorAll('.feed-tab').forEach(btn => btn.classList.remove('active'));
+    clickedBtn.classList.add('active');
+
+    const userOrgId = document.getElementById('user-data').getAttribute('data-org-id');
+    const posts = document.querySelectorAll('.feed-post');
+
+    posts.forEach(post => {
+        const postOrg = post.getAttribute('data-org');
+        if (filter === 'all') {
+            post.style.display = 'block';
         } else {
-            console.log('Showing: All posts');
+            post.style.display = (postOrg == userOrgId) ? 'block' : 'none';
         }
     });
-});
+}
 
 // Load more posts button
 console.log('Species Library loaded successfully');
@@ -98,4 +94,17 @@ function toggleSpeciesGrid() {
     } else {
         arrow.textContent = 'Hide All';
     }
+}
+
+// Toggle Feeds visibility
+// Toggle feed visibility
+function toggleFeed() {
+    const feed = document.getElementById('feed-posts');
+    const arrow = document.getElementById('feed-arrow');
+    const btn = document.getElementById('feed-toggle-btn');
+
+    feed.classList.toggle('collapsed');
+    btn.classList.toggle('collapsed');
+
+    arrow.textContent = feed.classList.contains('collapsed') ? 'View All' : 'Hide All';
 }

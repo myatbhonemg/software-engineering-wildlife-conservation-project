@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Users - Komodo Hub</title>
 
-    <link rel="stylesheet" href="../../static/css/style.css">
-    <link rel="stylesheet" href="../../static/css/dashboard.css">
-    <link rel="stylesheet" href="../../static/css/tabs/manage-users.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/tabs/manage-users.css') }}">
 </head>
 <body class="dashboard-body">
 
@@ -33,28 +33,28 @@
                 <div class="stat-box">
                     <div class="stat-icon">&#128100;</div>
                     <div class="stat-info">
-                        <div class="stat-number" id="total-users">156</div>
+                        <div class="stat-number" id="total-users">{{ total }}</div>
                         <div class="stat-label" id="stat-label-1">Total Users</div>
                     </div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-icon">&#9989;</div>
                     <div class="stat-info">
-                        <div class="stat-number" id="active-users">142</div>
+                        <div class="stat-number" id="active-users">{{ active }}</div>
                         <div class="stat-label">Active</div>
                     </div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-icon">&#128274;</div>
                     <div class="stat-info">
-                        <div class="stat-number" id="inactive-users">14</div>
+                        <div class="stat-number" id="inactive-users">{{ inactive }}</div>
                         <div class="stat-label">Inactive</div>
                     </div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-icon">&#128197;</div>
                     <div class="stat-info">
-                        <div class="stat-number" id="new-users">8</div>
+                        <div class="stat-number" id="new-users">{{ new_this_month }}</div>
                         <div class="stat-label">New This Month</div>
                     </div>
                 </div>
@@ -82,8 +82,27 @@
                         </select>
                     </div>
                 </div>
-                <div class="controls-right">
-                    <button class="btn-export" onclick="exportUsers()">&#128190; Export</button>
+                
+                <!--Add member button and Exporting user details as pdf or csv -->
+                <div class="controls-right" style="position: relative;">
+                    {% if manage_type in ['staff', 'members'] and user['role'] in ['school-admin', 'principal', 'community-admin'] %}
+                    <button class="btn-add-member" onclick="openAddMemberModal()">+ Add Staff</button>
+                    {% elif manage_type in ['students',] and user['role'] in ['school-admin', 'principal',] %}
+                    <button class="btn-add-member" onclick="openAddMemberModal()">+ Add Student</button>
+                    {% endif %}
+                    <button class="btn-export" onclick="toggleExportMenu()">&#128190; Export ▾</button>
+                    <div id="export-menu" style="display:none; position:absolute; right:0; top:110%;
+                        background:white; border:1px solid var(--border-color); border-radius:8px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index:100; min-width:150px;">
+                        <button onclick="exportCSV()" style="display:block; width:100%; padding:10px 16px;
+                            background:none; border:none; text-align:left; cursor:pointer; font-size:14px;">
+                            📄 Export as CSV
+                        </button>
+                        <button onclick="exportPDF()" style="display:block; width:100%; padding:10px 16px;
+                            background:none; border:none; text-align:left; cursor:pointer; font-size:14px;">
+                            🖨️ Export as PDF
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -100,11 +119,93 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
+                    <!-- Replace the tbody block -->
                     <tbody id="users-tbody">
-                        <!-- Users will be populated by JS -->
+                        {% for m in members %}
+                        <tr data-status="{{ m['status'] or 'active' }}" data-search="{{ m['fullname']|lower }} {{ m['email']|lower }}">
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar">
+                                        {% if m['avatar'] %}
+                                            <img src="{{ url_for('static', filename=m['avatar']) }}" 
+                                                style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                        {% else %}
+                                            👤
+                                        {% endif %}
+                                    </div>
+                                    <div class="user-info">
+                                        <div class="user-name">{{ m['fullname'] }}</div>
+                                        <div class="user-id">{{ m['email'] }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ m['email'] }}</td>
+                            <td>{{ m['role'].replace('-', ' ').title() }}</td>
+                            <td>{{ m['created_at'][:10] if m['created_at'] else '—' }}</td>
+                            <td><span class="status-badge status-{{ m['status'] or 'active' }}">{{ (m['status'] or 'active').title() }}</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-edit-user" 
+                                        onclick="editUser({{ m['user_id'] }}, '{{ m['fullname'] }}', '{{ m['email'] }}', '{{ m['status'] or 'active' }}')">
+                                        Edit
+                                    </button>
+                                    <button class="btn-delete-user" onclick="deleteUser({{ m['user_id'] }})">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="6" style="text-align:center; color: var(--text-muted); padding: 20px;">No users found.</td></tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pending Invitations -->
+            {% if pending and pending|length > 0 %}
+            <div class="pending-section">
+                <h3 class="pending-title">&#9203; Pending Invitations ({{ pending|length }})</h3>
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Access Code</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in pending %}
+                        <tr id="pending-row-{{ p['id'] }}">
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar">👤</div>
+                                    <div class="user-info">
+                                        <div class="user-name">{{ p['full_name'] }}</div>
+                                        <div class="user-id">Invited — not yet registered</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ p['email'] }}</td>
+                            <td>{{ p['role'].replace('-', ' ').title() }}</td>
+                            <td>
+                                <code style="background:var(--light-bg); padding:3px 8px; 
+                                            border-radius:4px; font-size:13px;">
+                                    {{ p['access_code'] }}
+                                </code>
+                            </td>
+                            <td>
+                                <button class="btn-delete-user"
+                                        onclick="revokeInvitation({{ p['id'] }})">
+                                    Revoke
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
 
             <!-- No Results -->
             <div id="no-results" class="no-results" style="display: none;">
@@ -113,6 +214,75 @@
 
         </main>
     </div>
+
+    <!-- Add memeber modal-->
+    {% if manage_type in ['staff', 'students', 'members'] and user['role'] in ['school-admin', 'principal', 'community-admin'] %}
+    <div id="add-member-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content user-modal">
+            <div class="modal-header">
+                <h3 id="add-member-title">Add Member</h3>
+                <button class="modal-close" onclick="closeAddMemberModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:13px; color:var(--text-muted); margin:0 0 4px 0;">
+                    An invitation will be created. Share the access code with the person so they can register.
+                </p>
+
+                <!-- Role selector (only for staff page) -->
+                {% if manage_type == 'staff' %}
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="add-role" onchange="updateRoleOptions()">
+                        <option value="teacher">Teacher</option>
+                        {% if not has_principal %}
+                        <option value="principal">Principal</option>
+                        {% endif %}
+                    </select>
+                </div>
+                {% elif manage_type == 'members' %}
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="add-role">
+                        <option value="community-member">Community Member</option>
+                    </select>
+                </div>
+                {% else %}
+                <input type="hidden" id="add-role" value="student">
+                {% endif %}
+
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="add-name" placeholder="e.g., John Smith">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="add-email" placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Access Code</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="add-code" placeholder="e.g., ABC123" 
+                            style="flex:1; font-family: monospace; letter-spacing: 2px;">
+                        <button onclick="generateCode()"
+                                style="padding:10px 14px; background:var(--secondary-green); 
+                                    color:white; border:none; border-radius:8px; 
+                                    cursor:pointer; font-size:13px; font-weight:600;
+                                    white-space:nowrap;">
+                            Generate
+                        </button>
+                    </div>
+                    <small style="color:var(--text-muted); font-size:12px;">
+                        Share this code with the person so they can complete registration.
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeAddMemberModal()">Cancel</button>
+                <button class="btn-save-user" onclick="submitAddMember()">Send Invitation</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Edit User Modal -->
     <div id="edit-user-modal" class="modal-overlay" style="display: none;">
@@ -124,15 +294,11 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label>Full Name</label>
-                    <input type="text" id="edit-name" placeholder="John Doe">
+                    <input type="text" id="edit-name" disabled style="background: var(--light-bg); color: var(--text-muted);">
                 </div>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="edit-email" placeholder="john@example.com">
-                </div>
-                <div class="form-group">
-                    <label>Phone</label>
-                    <input type="tel" id="edit-phone" placeholder="+62 812 3456 7890">
+                    <input type="email" id="edit-email" disabled style="background: var(--light-bg); color: var(--text-muted);">
                 </div>
                 <div class="form-group">
                     <label>Status</label>
@@ -148,7 +314,9 @@
             </div>
         </div>
     </div>
-
-    <script src="../../static/js/tabs/manage-users.js"></script>
+    <script>
+        const manageType = "{{ manage_type }}";
+    </script>
+    <script src="{{ url_for('static', filename='/js/tabs/manage-users.js') }}"></script>
 </body>
 </html>

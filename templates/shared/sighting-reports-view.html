@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sighting Reports - Komodo Hub</title>
 
-    <link rel="stylesheet" href="../../static/css/style.css">
-    <link rel="stylesheet" href="../../static/css/dashboard.css">
-    <link rel="stylesheet" href="../../static/css/tabs/sighting-reports-view.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/sighting-reports-view.css') }}">
 </head>
 <body class="dashboard-body">
 
@@ -25,7 +25,15 @@
             <!-- Page Header -->
             <div class="page-header">
                 <h1>&#128248; Sighting Reports</h1>
-                <p id="header-description">View and manage sighting reports from your students</p>
+                <p>
+                    {% if user['role'] == 'teacher' %}View and manage sighting reports from your students
+                    {% elif user['role'] == 'principal' %}View all sighting reports from your school
+                    {% elif user['role'] == 'school-admin' %}View and manage all school sighting reports
+                    {% elif user['role'] == 'community-admin' %}View all sighting reports from your community
+                    {% elif user['role'] == 'system-admin' %}View all sighting reports across the platform
+                    {% else %}View sighting reports
+                    {% endif %}
+                </p>
             </div>
 
             <!-- Filters -->
@@ -55,248 +63,52 @@
 
             <!-- Reports Feed -->
             <div class="reports-feed" id="reports-feed">
+                {% for s in sightings %}
                 
                 <!-- Report Card 1 -->
-                <div class="report-card" data-species="javan-rhino" data-location="ujung kulon" data-reporter="john doe">
+                <div class="report-card" 
+                    data-species="{{ s['common_name'].lower().replace(' ', '-') }}" 
+                    data-location="{{ s['location'].lower() }}" 
+                    data-reporter="{{ s['reporter_name'].lower() }}">
+
                     <div class="report-header">
                         <div class="report-user">
-                            <div class="user-avatar">👤</div>
+                            <div class="user-avatar">
+                                {% if s['reporter_avatar'] %}
+                                    <img src="{{ url_for('static', filename=s['reporter_avatar']) }}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                {% else %}
+                                    👤
+                                {% endif %}
+                            </div>
                             <div class="user-info">
-                                <span class="user-name">John Doe</span>
-                                <span class="user-meta">Student, Grade 10 • Feb 20, 2026</span>
+                                <span class="user-name">{{ s['reporter_name'] }}</span>
+                                <span class="user-meta">{{ s['reporter_role'].replace('-', ' ').title() }} • {{ s['sighting_date'] }}</span>
                             </div>
                         </div>
-                        <button class="btn-delete-card" onclick="deleteReport(this, 1)">Delete</button>
+                        <button class="btn-delete-card" onclick="deleteReport(this, {{ s['sighting_id'] }})">Delete</button>
                     </div>
+
                     <div class="report-content">
-                        <h3>Spotted Javan Rhinoceros in Ujung Kulon National Park</h3>
+                        <h3>Spotted {{s['common_name']}} in {{ s['location'] }}</h3>
                         <div class="report-details">
-                            <span class="detail-item">📍 Ujung Kulon National Park, Java</span>
-                            <span class="detail-item">🦏 1 individual</span>
+                            <span class="detail-item">📍 {{ s['location'] }}, {{ s['region'] }}</span>
+                            <span class="detail-item">👁️ {{ s['count'] }} individual{% if s['count'] > 1 %}s{% endif %}</span>
                         </div>
+                        <p>{{ s['description'] }}</p>
                     </div>
+                    {% if s['photo'] %}
                     <div class="report-photo">
-                        <img src="../../static/species/rhi.jpg" alt="Javan Rhinoceros sighting" onclick="viewPhoto(this.src)">
-                        
+                        <img src="{{ url_for('static', filename=s['photo']) }}" 
+                        alt="{{ s['common_name'] }} sighting" 
+                        onclick="viewPhoto(this.src)">
                     </div>
+                    {% else %}
+                    <p class='no-pho-msg'>No photo provided for this sighting</p>
+                    {% endif %}
                 </div>
-
-                <!-- Report Card 2 -->
-                <div class="report-card" data-species="sumatran-tiger" data-location="gunung leuser" data-reporter="jane smith">
-                    <div class="report-header">
-                        <div class="report-user">
-                            <div class="user-avatar">👤</div>
-                            <div class="user-info">
-                                <span class="user-name">Jane Smith</span>
-                                <span class="user-meta">Student, Grade 11 • Feb 18, 2026</span>
-                            </div>
-                        </div>
-                        <button class="btn-delete-card" onclick="deleteReport(this, 2)">Delete</button>
-                    </div>
-                    <div class="report-content">
-                        <h3>Spotted Sumatran Tiger in Gunung Leuser</h3>
-                        <div class="report-details">
-                            <span class="detail-item">📍 Gunung Leuser, Sumatra</span>
-                            <span class="detail-item">🐅 2 individuals</span>
-                        </div>
-                    </div>
-                    <div class="report-photo">
-                        <img src="../../static/species/tiger2.jpg" alt="Sumatran Tiger sighting" onclick="viewPhoto(this.src)">
-                        <p>Photo: Sumatran Tiger</p>
-                    </div>
-                </div>
-
-                <!-- Report Card 3 -->
-                <div class="report-card" data-species="bali-myna" data-location="bali barat" data-reporter="alex wong">
-                    <div class="report-header">
-                        <div class="report-user">
-                            <div class="user-avatar">👤</div>
-                            <div class="user-info">
-                                <span class="user-name">Alex Wong</span>
-                                <span class="user-meta">Community Member • Feb 15, 2026</span>
-                            </div>
-                        </div>
-                        <button class="btn-delete-card" onclick="deleteReport(this, 3)">Delete</button>
-                    </div>
-                    <div class="report-content">
-                        <h3>Spotted Bali Myna in Bali Barat National Park</h3>
-                        <div class="report-details">
-                            <span class="detail-item">📍 Bali Barat National Park, Bali</span>
-                            <span class="detail-item">🐦 3 individuals</span>
-                        </div>
-                    </div>
-                    <div class="report-photo">
-                        <img src="../../static/species/Bali-Myna.jpg" alt="Bali Myna sighting" onclick="viewPhoto(this.src)">
-                        <p>Photo: Bali Myna</p>
-                    </div>
-                </div>
-
-                <!-- Report Card 4 - No Photo -->
-                <div class="report-card" data-species="komodo-dragon" data-location="komodo island" data-reporter="sarah lee">
-                    <div class="report-header">
-                        <div class="report-user">
-                            <div class="user-avatar">👤</div>
-                            <div class="user-info">
-                                <span class="user-name">Sarah Lee</span>
-                                <span class="user-meta">Student, Grade 9 • Feb 14, 2026</span>
-                            </div>
-                        </div>
-                        <button class="btn-delete-card" onclick="deleteReport(this, 4)">Delete</button>
-                    </div>
-                    <div class="report-content">
-                        <h3>Spotted Komodo Dragon in Komodo Island</h3>
-                        <div class="report-details">
-                            <span class="detail-item">📍 Komodo Island, Nusa Tenggara</span>
-                            <span class="detail-item">🦎 1 individual</span>
-                        </div>
-                        <p class="no-photo-msg">No photo provided for this sighting</p>
-                    </div>
-                </div>
-
-                <!-- Report Card 5 -->
-                <div class="report-card" data-species="javan-hawk-eagle" data-location="gunung gede" data-reporter="michael chen">
-                    <div class="report-header">
-                        <div class="report-user">
-                            <div class="user-avatar">👤</div>
-                            <div class="user-info">
-                                <span class="user-name">Michael Chen</span>
-                                <span class="user-meta">Student, Grade 12 • Feb 12, 2026</span>
-                            </div>
-                        </div>
-                        <button class="btn-delete-card" onclick="deleteReport(this, 5)">Delete</button>
-                    </div>
-                    <div class="report-content">
-                        <h3>Spotted Javan Hawk-Eagle in Gunung Gede Pangrango</h3>
-                        <div class="report-details">
-                            <span class="detail-item">📍 Gunung Gede Pangrango, Java</span>
-                            <span class="detail-item">🦅 2 individuals</span>
-                        </div>
-                    </div>
-                    <div class="report-photo">
-                        <img src="../../static/species/hawk.jpg" alt="Javan Hawk-Eagle sighting" onclick="viewPhoto(this.src)">
-                        <p>Photo: Javan Hawk-Eagle</p>
-                    </div>
-                </div>
-
-                <!-- Report Card 6 -->
-                <div class="report-card" data-species="sumatran-orangutan" data-location="bukit lawang" data-reporter="emily tan">
-                    <div class="report-header">
-                        <div class="report-user">
-                            <div class="user-avatar">👤</div>
-                            <div class="user-info">
-                                <span class="user-name">Emily Tan</span>
-                                <span class="user-meta">Student, Grade 10 • Feb 10, 2026</span>
-                            </div>
-                        </div>
-                        <button class="btn-delete-card" onclick="deleteReport(this, 6)">Delete</button>
-                    </div>
-                    <div class="report-content">
-                        <h3>Spotted Sumatran Orangutan in Bukit Lawang</h3>
-                        <div class="report-details">
-                            <span class="detail-item">📍 Bukit Lawang, Sumatra</span>
-                            <span class="detail-item">🦧 1 individual</span>
-                        </div>
-                    </div>
-                    <div class="report-photo">
-                        <img src="../../static/species/Orangutan.jpg" alt="Sumatran Orangutan sighting" onclick="viewPhoto(this.src)">
-                        <p>Photo: Sumatran Orangutan</p>
-                    </div>
-                </div>
-
-                <!-- Report Card 7 - No Photo -->
-                <div class="report-card" data-species="celebes-macaque" data-location="tangkoko reserve" data-reporter="david kim">
-                    <div class="report-header">
-                        <div class="report-user">
-                            <div class="user-avatar">👤</div>
-                            <div class="user-info">
-                                <span class="user-name">David Kim</span>
-                                <span class="user-meta">Student, Grade 11 • Feb 8, 2026</span>
-                            </div>
-                        </div>
-                        <button class="btn-delete-card" onclick="deleteReport(this, 7)">Delete</button>
-                    </div>
-                    <div class="report-content">
-                        <h3>Spotted Celebes Crested Macaque in Tangkoko Reserve</h3>
-                        <div class="report-details">
-                            <span class="detail-item">📍 Tangkoko Reserve, Sulawesi</span>
-                            <span class="detail-item">🐒 5 individuals</span>
-                        </div>
-                        <p class="no-photo-msg">No photo provided for this sighting</p>
-                    </div>
-                </div>
-
-                <!-- Report Card 8 -->
-                <div class="report-card" data-species="sumatran-elephant" data-location="way kambas" data-reporter="lisa wong">
-                    <div class="report-header">
-                        <div class="report-user">
-                            <div class="user-avatar">👤</div>
-                            <div class="user-info">
-                                <span class="user-name">Lisa Wong</span>
-                                <span class="user-meta">Community Member • Feb 5, 2026</span>
-                            </div>
-                        </div>
-                        <button class="btn-delete-card" onclick="deleteReport(this, 8)">Delete</button>
-                    </div>
-                    <div class="report-content">
-                        <h3>Spotted Sumatran Elephant in Way Kambas</h3>
-                        <div class="report-details">
-                            <span class="detail-item">📍 Way Kambas, Sumatra</span>
-                            <span class="detail-item">🐘 4 individuals</span>
-                        </div>
-                    </div>
-                    <div class="report-photo">
-                        <img src="../../static/species/elep.jpg" alt="Sumatran Elephant sighting" onclick="viewPhoto(this.src)">
-                        <p>Photo: Sumatran Elephant</p>
-                    </div>
-                </div>
-
-                <!-- Report Card 9 - No Photo -->
-                <div class="report-card" data-species="bali-myna" data-location="nusa penida" data-reporter="tom anderson">
-                    <div class="report-header">
-                        <div class="report-user">
-                            <div class="user-avatar">👤</div>
-                            <div class="user-info">
-                                <span class="user-name">Tom Anderson</span>
-                                <span class="user-meta">Public User • Feb 3, 2026</span>
-                            </div>
-                        </div>
-                        <button class="btn-delete-card" onclick="deleteReport(this, 9)">Delete</button>
-                    </div>
-                    <div class="report-content">
-                        <h3>Spotted Bali Myna in Nusa Penida</h3>
-                        <div class="report-details">
-                            <span class="detail-item">📍 Nusa Penida, Bali</span>
-                            <span class="detail-item">🐦 1 individual</span>
-                        </div>
-                        <p class="no-photo-msg">No photo provided for this sighting</p>
-                    </div>
-                </div>
-
-                <!-- Report Card 10 -->
-                <div class="report-card" data-species="javan-rhino" data-location="ujung kulon" data-reporter="maria garcia">
-                    <div class="report-header">
-                        <div class="report-user">
-                            <div class="user-avatar">👤</div>
-                            <div class="user-info">
-                                <span class="user-name">Maria Garcia</span>
-                                <span class="user-meta">Student, Grade 12 • Jan 28, 2026</span>
-                            </div>
-                        </div>
-                        <button class="btn-delete-card" onclick="deleteReport(this, 10)">Delete</button>
-                    </div>
-                    <div class="report-content">
-                        <h3>Spotted Javan Rhinoceros in Ujung Kulon National Park</h3>
-                        <div class="report-details">
-                            <span class="detail-item">📍 Ujung Kulon National Park, Java</span>
-                            <span class="detail-item">🦏 1 individual</span>
-                        </div>
-                    </div>
-                    <div class="report-photo">
-                        <img src="../../static/species/Komodo.jpg" alt="Javan Rhinoceros sighting" onclick="viewPhoto(this.src)">
-                        <p>Photo: Javan Rhinoceros</p>
-                    </div>
-                </div>
-
+                {% else %}
+                <p style='padding: 20px; color: var(--text-muted);'>No sighting reports found.</p>
+                {% endfor %}
             </div>
 
             <!-- No Results Message -->
@@ -307,6 +119,6 @@
         </main>
     </div>
 
-    <script src="../../static/js/tabs/sighting-reports-view.js"></script>
+    <script src="{{ url_for('static', filename='js/tabs/sighting-reports-view.js') }}"></script>
 </body>
 </html>

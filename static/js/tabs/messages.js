@@ -1,300 +1,303 @@
 // ===== MESSAGES JS =====
+let pendingAttachment = null;
 
-// Check user authentication
-const user = JSON.parse(localStorage.getItem('user'));
-
-if (!user) {
-    window.location.href = '../login.html';
-}
-
-// Update UI with user info
-if (user) {
-    const navUsername = document.getElementById('nav-username');
-    if (navUsername) navUsername.textContent = user.name;
-
-    const roleBadge = document.getElementById('user-role-badge');
-    if (roleBadge) {
-        const roleNames = {
-            'student': 'Student',
-            'teacher': 'Teacher',
-            'principal': 'Principal',
-            'school-admin': 'School Admin',
-            'community-member': 'Community',
-            'community-admin': 'Community Admin',
-            'system-admin': 'System Admin',
-            'public': 'Guest'
-        };
-        roleBadge.textContent = roleNames[user.role] || user.role;
-    }
-}
-
-// Sign out function
-function signOut() {
-    localStorage.removeItem('user');
-    window.location.href = '/logout';
-}
-
-// Toggle sidebar
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     if (sidebar) sidebar.classList.toggle('collapsed');
 }
 
-// ===== MESSAGES FUNCTIONALITY =====
-
-// Open conversation
-function openConversation(conversationId) {
-    // Remove active from all conversations
-    document.querySelectorAll('.conversation-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    
-    // Add active to clicked conversation (use event.currentTarget)
-    const clickedItem = event.currentTarget;
-    clickedItem.classList.add('active');
-    
-    // Remove unread badge and unread class
-    clickedItem.classList.remove('unread');
-    const badge = clickedItem.querySelector('.unread-badge');
-    if (badge) badge.remove();
-    
-    // Mock conversation data
-    const conversations = {
-        1: {
-            name: 'Sir Myat',
-            role: 'Teacher, Biology',
-            avatar: '🐅',
-            messages: [
-                { type: 'received', sender: 'Sir Myat', time: 'Yesterday, 2:30 PM', text: 'Hi! I reviewed your sighting report from last week. The observations were very detailed and accurate.' },
-                { type: 'sent', time: 'Yesterday, 3:15 PM', text: 'Thank you, Mr. Johnson! I tried to capture as many details as possible. The rhino was about 50 meters away from our observation point.' },
-                { type: 'received', sender: 'Sir Myat', time: 'Today, 10:30 AM', text: 'Great work on your sighting report! The photo quality is excellent. Would you be interested in presenting this at our next conservation club meeting?' },
-                { type: 'received', sender: 'Sir Myat', time: 'Today, 10:32 AM', text: 'I think your classmates would love to hear about your experience!' }
-            ]
-        },
-        2: {
-            name: 'Kifo',
-            role: 'Student, Grade 10',
-            avatar: '🐒',
-            messages: [
-                { type: 'received', sender: 'Kifo', time: 'Yesterday, 4:20 PM', text: 'Hey! Did you see the Komodo Dragon at the national park yesterday?' },
-                { type: 'sent', time: 'Yesterday, 5:10 PM', text: 'Yes! It was incredible. I managed to get some photos from a safe distance.' },
-                { type: 'received', sender: 'Kifo', time: 'Yesterday, 5:15 PM', text: 'That\'s amazing! Can you share them with the conservation club?' }
-            ]
-        },
-        3: {
-            name: 'Conservation Team',
-            role: 'School Program',
-            avatar: '🐘',
-            messages: [
-                { type: 'received', sender: 'Conservation Team', time: '2 days ago', text: 'Reminder: Field trip to Ujung Kulon National Park next week. Please bring your camera and notebook.' },
-                { type: 'received', sender: 'Conservation Team', time: '2 days ago', text: 'We\'ll be observing Javan Rhinos in their natural habitat. This is a rare opportunity!' }
-            ]
-        },
-        4: {
-            name: 'Odala',
-            role: 'Student, Grade 11',
-            avatar: '🦜',
-            messages: [
-                { type: 'received', sender: 'Odala', time: 'Feb 18, 3:00 PM', text: 'Hey, I saw your post about the Bali Myna. Do you have more info about their habitat?' },
-                { type: 'sent', time: 'Feb 18, 4:30 PM', text: 'Sure! They mostly live in the Bali Barat National Park. I can send you the species library link.' },
-                { type: 'received', sender: 'Odala', time: 'Feb 18, 5:00 PM', text: 'Thanks for sharing the species info! Really helpful for my project.' }
-            ]
-        },
-        5: {
-            name: 'Mr. Tevin',
-            role: 'Teacher, Environmental Science',
-            avatar: '🦧',
-            messages: [
-                { type: 'received', sender: 'Mr. Tevin', time: 'Feb 15, 10:00 AM', text: 'Your project proposal looks excellent. Let\'s discuss the timeline for your research.' },
-                { type: 'sent', time: 'Feb 15, 2:30 PM', text: 'Thank you! I was thinking of starting observations next month. Would that work?' },
-                { type: 'received', sender: 'Mr. Tevin', time: 'Feb 15, 3:00 PM', text: 'Perfect timing! I\'ll book the equipment for you.' }
-            ]
-        }
-    };
-    
-    const conv = conversations[conversationId];
-    if (!conv) return;
-    
-    // Update thread header
-    document.querySelector('.thread-avatar').textContent = conv.avatar;
-    document.querySelector('.thread-info h3').textContent = conv.name;
-    document.querySelector('.thread-info p').textContent = conv.role;
-    
-    // Update messages thread
-    const messagesThread = document.getElementById('messages-thread');
-    messagesThread.innerHTML = '';
-    
-    conv.messages.forEach(msg => {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${msg.type}`;
-        
-        if (msg.type === 'received') {
-            messageDiv.innerHTML = `
-                <div class="message-avatar">${conv.avatar}</div>
-                <div class="message-content">
-                    <div class="message-header">
-                        <span class="message-sender">${msg.sender}</span>
-                        <span class="message-time">${msg.time}</span>
-                    </div>
-                    <p class="message-text">${msg.text}</p>
-                </div>
-            `;
-        } else {
-            messageDiv.innerHTML = `
-                <div class="message-content">
-                    <div class="message-header">
-                        <span class="message-time">${msg.time}</span>
-                    </div>
-                    <p class="message-text">${msg.text}</p>
-                </div>
-            `;
-        }
-        
-        messagesThread.appendChild(messageDiv);
-    });
-    
-    // Scroll to bottom
-    messagesThread.scrollTop = messagesThread.scrollHeight;
-    
-    console.log('Opened conversation:', conversationId);
+function signOut() {
+    window.location.href = '/logout';
 }
 
-// Send message
-function sendMessage() {
-    const input = document.getElementById('message-input');
-    const messageText = input.value.trim();
-    
-    if (!messageText) {
+// ===== SEARCH USERS =====
+function searchUsers(query) {
+    const resultsDiv = document.getElementById('user-search-results');
+    if (!query.trim()) {
+        resultsDiv.innerHTML = '';
         return;
     }
-    
-    // Create new message element
-    const messagesThread = document.getElementById('messages-thread');
-    const newMessage = document.createElement('div');
-    newMessage.className = 'message sent';
-    
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    
-    newMessage.innerHTML = `
-        <div class="message-content">
-            <div class="message-header">
-                <span class="message-time">Today, ${timeStr}</span>
-            </div>
-            <p class="message-text">${messageText}</p>
-        </div>
-    `;
-    
-    messagesThread.appendChild(newMessage);
-    
-    // Clear input
-    input.value = '';
-    
-    // Scroll to bottom
-    messagesThread.scrollTop = messagesThread.scrollHeight;
-    
-    // TODO: Send message to backend
-    console.log('Sending message:', messageText);
+
+    fetch(`/search-users?q=${encodeURIComponent(query)}`)
+        .then(r => r.json())
+        .then(data => {
+            resultsDiv.innerHTML = '';
+            if (data.users.length === 0) {
+                resultsDiv.innerHTML = `<p style="padding:8px; color:var(--text-muted); font-size:13px;">No users found</p>`;
+                return;
+            }
+            data.users.forEach(u => {
+                const div = document.createElement('div');
+                div.style.cssText = 'padding:10px; cursor:pointer; border-radius:6px; display:flex; align-items:center; gap:10px;';
+                div.onmouseover = () => div.style.background = 'var(--light-bg)';
+                div.onmouseout = () => div.style.background = '';
+                div.innerHTML = `
+                    <div style="width:32px;height:32px;border-radius:50%;background:var(--secondary-green);
+                                display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                        ${u.avatar
+                            ? `<img src="/static/${u.avatar}" style="width:100%;height:100%;object-fit:cover;">`
+                            : '👤'}
+                    </div>
+                    <div>
+                        <div style="font-weight:600; font-size:14px;">${u.fullname}</div>
+                        <div style="font-size:12px; color:var(--text-muted);">${u.role.replace(/-/g, ' ')}</div>
+                    </div>`;
+                div.onclick = () => startChatWith(u);
+                resultsDiv.appendChild(div);
+            });
+        });
 }
 
-// Send on Enter key (Shift+Enter for new line)
-document.addEventListener('DOMContentLoaded', function() {
+// ===== OPEN CONVERSATION =====
+function openConversation(userId, name, role, avatar) {
+    // Update active state
+    document.querySelectorAll('.conversation-item').forEach(i => i.classList.remove('active'));
+    const item = document.querySelector(`.conversation-item[data-user-id="${userId}"]`);
+    if (item) {
+        item.classList.add('active');
+        item.classList.remove('unread');
+        const badge = item.querySelector('.unread-badge');
+        if (badge) badge.remove();
+    }
+
+    // Update thread header
+    const avatarEl = document.querySelector('.thread-avatar');
+    avatarEl.innerHTML = avatar
+        ? `<img src="/static/${avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+        : '👤';
+    document.querySelector('.thread-info h3').textContent = name;
+    document.querySelector('.thread-info p').textContent = role.replace(/-/g, ' ');
+
+    // Store receiver
+    document.getElementById('current-receiver-id').value = userId;
+
+    // Fetch messages
+    fetch(`/get-messages/${userId}`)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) return;
+
+            const myId = parseInt(document.getElementById('current-user-id').value);
+            const thread = document.getElementById('messages-thread');
+            thread.innerHTML = '';
+
+            if (data.messages.length === 0) {
+                thread.innerHTML = `<div data-placeholder style="text-align:center; padding:40px; color:var(--text-muted);">
+                    No messages yet. Say hello!
+                </div>`;
+                return;
+            }
+
+            data.messages.forEach(msg => {
+                const isSent = msg.sender_id === myId;
+                const div = document.createElement('div');
+                div.className = `message ${isSent ? 'sent' : 'received'}`;
+
+                const isImage = msg.attachment && /\.(png|jpg|jpeg|gif|webp)$/i.test(msg.attachment);
+                const attachmentHtml = msg.attachment
+                    ? (isImage
+                        ? `<img src="/static/${msg.attachment}" class="msg-attachment-img"
+                                onclick="window.open(this.src,'_blank')">`
+                        : `<a href="/static/${msg.attachment}" target="_blank"
+                            class="msg-attachment-file">&#128206; Attachment</a>`)
+                    : '';
+
+                if (isSent) {
+                    div.innerHTML = `
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-time">${formatTime(msg.sent_at)}</span>
+                            </div>
+                            ${msg.body ? `<p class="message-text">${escapeHtml(msg.body)}</p>` : ''}
+                            ${attachmentHtml}
+                        </div>`;
+                } else {
+                    div.innerHTML = `
+                        <div class="message-avatar">
+                            ${avatar ? `<img src="/static/${avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : '👤'}
+                        </div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-sender">${msg.sender_name}</span>
+                                <span class="message-time">${formatTime(msg.sent_at)}</span>
+                            </div>
+                            ${msg.body ? `<p class="message-text">${escapeHtml(msg.body)}</p>` : ''}
+                            ${attachmentHtml}
+                        </div>`;
+                }
+                thread.appendChild(div);
+            });
+            thread.scrollTop = thread.scrollHeight;
+        });
+}
+
+function startChatWith(u) {
+    closeNewMessageModal();
+
+    // If conversation already exists just open it
+    const existing = document.querySelector(`.conversation-item[data-user-id="${u.user_id}"]`);
+    if (existing) {
+        openConversation(u.user_id, u.fullname, u.role, u.avatar || '');
+        return;
+    }
+
+    // Add new entry to sidebar
+    // ← Add this: remove the "No conversations yet" placeholder if present
+    const convList = document.getElementById('conversations-list');
+    const placeholder = convList.querySelector('[data-placeholder]');
+    if (placeholder) placeholder.remove();
+
+    const div = document.createElement('div');
+    div.className = 'conversation-item active';
+    div.setAttribute('data-user-id', u.user_id);
+    div.onclick = () => openConversation(u.user_id, u.fullname, u.role, u.avatar || '');
+    div.innerHTML = `
+        <div class="conv-avatar">
+            ${u.avatar
+                ? `<img src="/static/${u.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                : '👤'}
+        </div>
+        <div class="conv-info">
+            <div class="conv-header">
+                <span class="conv-name">${u.fullname}</span>
+                <span class="conv-time">New</span>
+            </div>
+            <p class="conv-preview">Start a conversation...</p>
+        </div>`;
+    document.querySelectorAll('.conversation-item').forEach(i => i.classList.remove('active'));
+    convList.insertBefore(div, convList.firstChild);
+
+    openConversation(u.user_id, u.fullname, u.role, u.avatar || '');
+}
+
+//====== HANDLE ATTACHMENTS
+function handleAttachment(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+        alert('File too large. Max 10MB.');
+        input.value = '';
+        return;
+    }
+    pendingAttachment = file;
+    document.getElementById('attachment-name').textContent = file.name;
+    document.getElementById('attachment-preview').style.display = 'flex';
+}
+
+// ===== CLEAR ATTACHMENTS
+function clearAttachment() {
+    pendingAttachment = null;
+    document.getElementById('attachment-input').value = '';
+    document.getElementById('attachment-preview').style.display = 'none';
+}
+
+// ===== SEND MESSAGE =====
+function sendMessage() {
+    const input      = document.getElementById('message-input');
+    const body       = input.value.trim();
+    const receiverId = document.getElementById('current-receiver-id').value;
+
+    if (!body && !pendingAttachment) return;
+    if (!receiverId) { alert('Please select a conversation first'); return; }
+
+    // Use FormData instead of JSON to support file upload
+    const formData = new FormData();
+    formData.append('body', body);
+    formData.append('receiver_id', receiverId);
+    if (pendingAttachment) formData.append('attachment', pendingAttachment);
+
+    fetch('/send-message', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) return;
+
+        const thread = document.getElementById('messages-thread');
+        const placeholder = thread.querySelector('[data-placeholder]');
+        if (placeholder) placeholder.remove();
+
+        // Build message bubble
+        let attachmentHtml = '';
+        if (data.attachment) {
+            const isImage = /\.(png|jpg|jpeg|gif|webp)$/i.test(data.attachment);
+            attachmentHtml = isImage
+                ? `<img src="/static/${data.attachment}" class="msg-attachment-img"
+                        onclick="window.open(this.src,'_blank')">`
+                : `<a href="/static/${data.attachment}" target="_blank"
+                      class="msg-attachment-file">&#128206; ${pendingAttachment?.name || 'Attachment'}</a>`;
+        }
+
+        const div = document.createElement('div');
+        div.className = 'message sent';
+        div.innerHTML = `
+            <div class="message-content">
+                <div class="message-header">
+                    <span class="message-time">${formatTime(data.sent_at)}</span>
+                </div>
+                ${body ? `<p class="message-text">${escapeHtml(body)}</p>` : ''}
+                ${attachmentHtml}
+            </div>`;
+        thread.appendChild(div);
+        thread.scrollTop = thread.scrollHeight;
+
+        // Update sidebar preview
+        const item = document.querySelector(`.conversation-item[data-user-id="${receiverId}"]`);
+        if (item) {
+            item.querySelector('.conv-preview').textContent = body || '📎 Attachment';
+            item.querySelector('.conv-time').textContent = 'Just now';
+        }
+
+        input.value = '';
+        clearAttachment();
+    });
+}
+
+// ===== MODAL =====
+function newMessage() {
+    document.getElementById('new-message-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('new-message-username').focus(), 100);
+}
+
+function closeNewMessageModal() {
+    document.getElementById('new-message-modal').style.display = 'none';
+    document.getElementById('new-message-username').value = '';
+    document.getElementById('user-search-results').innerHTML = '';
+}
+
+// ===== HELPERS =====
+function formatTime(datetimeStr) {
+    if (!datetimeStr) return '';
+    const date = new Date(datetimeStr);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const isYesterday = new Date(now - 86400000).toDateString() === date.toDateString();
+    const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    if (isToday) return `Today, ${timeStr}`;
+    if (isYesterday) return `Yesterday, ${timeStr}`;
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+}
+
+// Enter to send (Shift+Enter for new line)
+document.addEventListener('DOMContentLoaded', function () {
     const input = document.getElementById('message-input');
     if (input) {
-        input.addEventListener('keydown', function(e) {
+        input.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
             }
         });
     }
-});
-
-// New message - open modal
-function newMessage() {
-    document.getElementById('new-message-modal').style.display = 'flex';
-    setTimeout(() => {
-        document.getElementById('new-message-username').focus();
-    }, 100);
-}
-
-// Close modal
-function closeNewMessageModal() {
-    document.getElementById('new-message-modal').style.display = 'none';
-    document.getElementById('new-message-username').value = '';
-}
-
-// Start new chat from modal
-function startNewChat() {
-    const username = document.getElementById('new-message-username').value.trim();
-    
-    if (!username) {
-        alert('Please enter a username');
-        return;
-    }
-    
-    // Check if conversation already exists
-    const conversations = document.querySelectorAll('.conversation-item');
-    let exists = false;
-    conversations.forEach(conv => {
-        if (conv.querySelector('.conv-name').textContent.toLowerCase().includes(username.toLowerCase())) {
-            exists = true;
-            conv.click(); // Open existing conversation
-        }
-    });
-    
-    if (exists) {
-        closeNewMessageModal();
-        return;
-    }
-    
-    // Create new conversation
-    const convList = document.querySelector('.conversations-list');
-    const newConv = document.createElement('div');
-    newConv.className = 'conversation-item active';
-    newConv.onclick = function() { openConversation(Date.now()); };
-    
-    newConv.innerHTML = `
-        <div class="conv-avatar">👤</div>
-        <div class="conv-info">
-            <div class="conv-header">
-                <span class="conv-name">${username}</span>
-                <span class="conv-time">Just now</span>
-            </div>
-            <p class="conv-preview">Start a new conversation...</p>
-        </div>
-    `;
-    
-    // Remove active from all other conversations
-    conversations.forEach(c => c.classList.remove('active'));
-    
-    // Add to top of list
-    convList.insertBefore(newConv, convList.firstChild);
-    
-    // Update thread view
-    document.querySelector('.thread-avatar').textContent = '👤';
-    document.querySelector('.thread-info h3').textContent = username;
-    document.querySelector('.thread-info p').textContent = 'User';
-    
-    // Clear messages
-    document.getElementById('messages-thread').innerHTML = `
-        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-            <p>No messages yet. Start the conversation!</p>
-        </div>
-    `;
-    
-    closeNewMessageModal();
-}
-
-// Enter key to start chat in modal
-document.addEventListener('DOMContentLoaded', function() {
-    const usernameInput = document.getElementById('new-message-username');
-    if (usernameInput) {
-        usernameInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                startNewChat();
-            }
+    // Enter in search modal
+    const searchInput = document.getElementById('new-message-username');
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeNewMessageModal();
         });
     }
 });

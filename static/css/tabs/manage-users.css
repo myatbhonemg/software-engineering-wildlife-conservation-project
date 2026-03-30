@@ -447,3 +447,42 @@
         min-width: 600px;
     }
 }
+
+/* ===== ADD MEMBER BUTTON ===== */
+.btn-add-member {
+    padding: 10px 20px;
+    background-color: var(--secondary-green);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.15s;
+}
+.btn-add-member:hover {
+    background-color: var(--primary-green);
+    transform: translateY(-1px);
+}
+
+/* ===== PENDING SECTION ===== */
+.pending-section {
+    margin-top: 32px;
+    background: var(--white);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    border: 2px solid #FFF3E0;
+}
+
+.pending-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #E17B3C;
+    margin: 0 0 20px 0;
+}
+
+.pending-section .users-table thead th {
+    background-color: #FFF3E0;
+    color: #E17B3C;
+}

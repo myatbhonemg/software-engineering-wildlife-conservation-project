@@ -4,205 +4,244 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activity - Komodo Hub</title>
-
-    <link rel="stylesheet" href="../../static/css/style.css">
-    <link rel="stylesheet" href="../../static/css/dashboard.css">
-    <link rel="stylesheet" href="../../static/css/tabs/activity.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/activity.css') }}">
 </head>
 <body class="dashboard-body">
 
-    <!-- Top Navigation Bar -->
     {% include 'shared/navbar.html' %}
 
     <div class="dash-layout">
-
-        <!-- Sidebar (will be populated by JS) -->
         {% include 'shared/sidebar.html' %}
 
-        <!-- Main Content -->
         <main class="dash-main">
-
-            <!-- Page Header -->
             <div class="page-header">
                 <h1>&#127942; Activity Challenges</h1>
-                <p id="header-description">Complete challenges and earn points</p>
+                <p>
+                    {% if user['role'] in ['teacher', 'community-admin'] %}
+                        Create challenges and track participant progress
+                    {% else %}
+                        Complete challenges, earn points, and climb the leaderboard
+                    {% endif %}
+                </p>
             </div>
 
-            <!-- Create Challenge Button (Teachers/Community Admin only) -->
-            <div id="create-challenge-section" style="display: none;">
-                <button class="btn-create-challenge" onclick="openCreateChallengeModal()">+ Create New Challenge</button>
+            <!-- Create button -->
+            {% if user['role'] in ['teacher', 'community-admin'] %}
+            <div style="margin-bottom: 24px;">
+                <button class="btn-create-challenge" onclick="openCreateChallengeModal()">
+                    + Create New Challenge
+                </button>
             </div>
+            {% endif %}
 
-            <!-- Activity Stats -->
+            <!-- Stats -->
             <div class="activity-stats">
                 <div class="stat-box">
                     <div class="stat-icon">&#127942;</div>
                     <div class="stat-info">
-                        <div class="stat-number" id="active-challenges">8</div>
+                        <div class="stat-number">{{ active_count }}</div>
                         <div class="stat-label">Active Challenges</div>
                     </div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-icon">&#9989;</div>
                     <div class="stat-info">
-                        <div class="stat-number" id="completed-count">5</div>
-                        <div class="stat-label">Completed</div>
+                        <div class="stat-number">{{ completed_count }}</div>
+                        <div class="stat-label">
+                            {% if user['role'] in ['teacher', 'community-admin'] %}
+                                Total Submissions
+                            {% else %}
+                                My Completions
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
+                {% if user['role'] in ['student', 'community-member'] %}
                 <div class="stat-box">
                     <div class="stat-icon">&#11088;</div>
                     <div class="stat-info">
-                        <div class="stat-number" id="points-earned">250</div>
-                        <div class="stat-label">Points Earned</div>
+                        <div class="stat-number">{{ points }}</div>
+                        <div class="stat-label">My Points</div>
                     </div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-icon">&#128293;</div>
+                    <div class="stat-icon">&#127942;</div>
                     <div class="stat-info">
-                        <div class="stat-number" id="streak-days">7</div>
-                        <div class="stat-label">Day Streak</div>
+                        <div class="stat-number">#{{ leaderboard | selectattr('user_id', 'defined') | list | length + 1 }}</div>
+                        <div class="stat-label">My Rank</div>
                     </div>
                 </div>
+                {% else %}
+                <div class="stat-box">
+                    <div class="stat-icon">&#128100;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ leaderboard | length }}</div>
+                        <div class="stat-label">Participants</div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">&#128202;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ challenges | length }}</div>
+                        <div class="stat-label">Total Challenges</div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
-            <!-- Challenge Filters -->
-            <div class="challenge-filters">
-                <button class="filter-btn active" data-filter="all" onclick="filterChallenges('all')">All</button>
-                <button class="filter-btn" data-filter="active" onclick="filterChallenges('active')">Active</button>
-                <button class="filter-btn" data-filter="completed" onclick="filterChallenges('completed')">Completed</button>
-                <button class="filter-btn" data-filter="expired" onclick="filterChallenges('expired')">Expired</button>
+            <div class="activity-layout">
+
+                <!-- Left: Challenges -->
+                <div class="challenges-section">
+                    <!-- Filters -->
+                    <div class="challenge-filters">
+                        <button class="filter-btn active" data-filter="all" onclick="filterChallenges('all', this)">All</button>
+                        <button class="filter-btn" data-filter="active" onclick="filterChallenges('active', this)">Active</button>
+                        <button class="filter-btn" data-filter="completed" onclick="filterChallenges('completed', this)">Completed</button>
+                        <button class="filter-btn" data-filter="expired" onclick="filterChallenges('expired', this)">Expired</button>
+                    </div>
+
+                    <!-- Challenges Grid -->
+                    <div class="challenges-container" id="challenges-container">
+                        {% for c in challenges %}
+                        <div class="challenge-card {{ c['status'] }} {% if c.get('my_submission_id') %}done{% endif %}"
+                             data-status="{{ c['status'] }}"
+                             data-done="{{ '1' if c.get('my_submission_id') else '0' }}"
+                             id="challenge-card-{{ c['challenge_id'] }}">
+
+                            <div class="challenge-header">
+                                <div class="challenge-badge {{ c['status'] }}-badge">
+                                    {% if c['status'] == 'active' %}&#128293; Active
+                                    {% elif c['status'] == 'expired' %}&#9940; Expired
+                                    {% endif %}
+                                    {% if c.get('my_submission_id') %}&#9989; Done{% endif %}
+                                </div>
+                                <div class="challenge-points {% if c.get('my_submission_id') %}earned{% endif %}">
+                                    +{{ c['points'] }} pts
+                                </div>
+                            </div>
+
+                            <h3 class="challenge-title">{{ c['title'] }}</h3>
+                            <p class="challenge-description">{{ c['description'] }}</p>
+
+                            {% if c['species_focus'] %}
+                            <span class="challenge-species-tag">&#128028; {{ c['species_focus'] }}</span>
+                            {% endif %}
+
+                            <div class="challenge-meta">
+                                <span>&#128100; {{ c['creator_name'] }}</span>
+                                {% if c['status'] == 'active' %}
+                                <span>&#9200; Ends {{ c['deadline'][:10] }}</span>
+                                {% else %}
+                                <span>&#9940; Ended {{ c['deadline'][:10] }}</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Submission count for teachers/admins -->
+                            {% if user['role'] in ['teacher', 'community-admin'] %}
+                            <div class="challenge-submissions-info">
+                                <span>&#128203; {{ c['submission_count'] }} submission{{ 's' if c['submission_count'] != 1 else '' }}</span>
+                            </div>
+                            {% endif %}
+
+                            <!-- Action buttons -->
+                            {% if user['role'] in ['student', 'community-member'] %}
+                                {% if c.get('my_submission_id') %}
+                                <button class="btn-challenge btn-done" disabled>&#9989; Completed</button>
+                                {% elif c['status'] == 'active' %}
+                                <button class="btn-challenge btn-submit"
+                                        onclick="openSubmitModal({{ c['challenge_id'] }}, '{{ c['title'] | replace("'", "\\'") }}', {{ c['points'] }})">
+                                    Submit Evidence
+                                </button>
+                                {% else %}
+                                <button class="btn-challenge btn-expired" disabled>Expired</button>
+                                {% endif %}
+
+                            {% elif user['role'] in ['teacher', 'community-admin'] %}
+                                {% if c['created_by'] == user['user_id'] %}
+                                <div class="challenge-card-actions">
+                                    {% if user['role'] == 'teacher' %}
+                                    <button class="btn-challenge btn-manage-classes"
+                                            onclick="openChallengeClassModal({{ c['challenge_id'] }})">
+                                        &#127979; Classes
+                                    </button>
+                                    {% endif %}
+                                    <button class="btn-challenge btn-delete-challenge"
+                                            onclick="deleteChallenge({{ c['challenge_id'] }})">
+                                        Delete
+                                    </button>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+
+                        </div>
+                        {% else %}
+                        <div class="no-challenges" data-placeholder>
+                            <p>
+                                {% if user['role'] in ['teacher', 'community-admin'] %}
+                                    No challenges yet. Create your first one!
+                                {% else %}
+                                    No challenges available yet. Check back soon!
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Right: Leaderboard -->
+                <div class="leaderboard-section">
+                    <div class="leaderboard-card">
+                    <h3 class="leaderboard-title">&#127942; Leaderboard</h3>
+                    <p class="leaderboard-subtitle">Top participants in your organisation</p>
+
+                    <div class="leaderboard-list">
+                        {% for p in leaderboard %}
+                        <div class="leaderboard-item {% if p['fullname'] == user['fullname'] %}is-me{% endif %}">
+                            <span class="leaderboard-rank
+                                {% if loop.index == 1 %}rank-gold
+                                {% elif loop.index == 2 %}rank-silver
+                                {% elif loop.index == 3 %}rank-bronze
+                                {% endif %}">
+                                {{ loop.index }}
+                            </span>
+                            <div class="leaderboard-avatar">
+                                {% if p['avatar'] %}
+                                    <img src="{{ url_for('static', filename=p['avatar']) }}"
+                                        style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                {% else %}
+                                    👤
+                                {% endif %}
+                            </div>
+                            <div class="leaderboard-info">
+                                <span class="leaderboard-name">
+                                    {{ p['fullname'] }}
+                                    {% if p['fullname'] == user['fullname'] %}
+                                    <span class="you-tag">You</span>
+                                    {% endif %}
+                                </span>
+                                <span class="leaderboard-role">{{ p['role'].replace('-',' ').title() }}</span>
+                            </div>
+                            <span class="leaderboard-points">{{ p['points'] or 0 }} pts</span>
+                        </div>
+                        {% else %}
+                        <div style="padding:32px; text-align:center; color:var(--text-muted); font-size:14px;">
+                            No participants yet.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                </div>
+
             </div>
-
-            <!-- Challenges List -->
-            <div class="challenges-container">
-
-                <!-- Challenge Card 1 - Active -->
-                <div class="challenge-card active" data-status="active">
-                    <div class="challenge-header">
-                        <div class="challenge-badge active-badge">&#128293; Active</div>
-                        <div class="challenge-points">+50 pts</div>
-                    </div>
-                    <h3 class="challenge-title">Spot a Sumatran Elephant</h3>
-                    <p class="challenge-description">Report a sighting of Sumatran Elephant in their natural habitat. Include photo evidence and location details.</p>
-                    <div class="challenge-meta">
-                        <span class="challenge-creator">&#128100; Created by Mr. Tevin</span>
-                        <span class="challenge-deadline">&#9200; 5 days left</span>
-                    </div>
-                    <div class="challenge-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 30%"></div>
-                        </div>
-                        <span class="progress-text">3 of 10 participants completed</span>
-                    </div>
-                    <button class="btn-accept-challenge" onclick="acceptChallenge(1)">Accept Challenge</button>
-                </div>
-
-                <!-- Challenge Card 2 - Active -->
-                <div class="challenge-card active" data-status="active">
-                    <div class="challenge-header">
-                        <div class="challenge-badge active-badge">&#128293; Active</div>
-                        <div class="challenge-points">+30 pts</div>
-                    </div>
-                    <h3 class="challenge-title">Document 3 Different Species</h3>
-                    <p class="challenge-description">Find and photograph three different endangered species. Share your findings with detailed observations.</p>
-                    <div class="challenge-meta">
-                        <span class="challenge-creator">&#128100; Created by Conservation Team</span>
-                        <span class="challenge-deadline">&#9200; 10 days left</span>
-                    </div>
-                    <div class="challenge-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 60%"></div>
-                        </div>
-                        <span class="progress-text">6 of 10 participants completed</span>
-                    </div>
-                    <button class="btn-in-progress" onclick="viewProgress(2)">In Progress</button>
-                </div>
-
-                <!-- Challenge Card 3 - Completed -->
-                <div class="challenge-card completed" data-status="completed">
-                    <div class="challenge-header">
-                        <div class="challenge-badge completed-badge">&#9989; Completed</div>
-                        <div class="challenge-points earned">+40 pts</div>
-                    </div>
-                    <h3 class="challenge-title">Visit Ujung Kulon National Park</h3>
-                    <p class="challenge-description">Visit the park and report at least one Javan Rhino sighting. Document your experience with photos.</p>
-                    <div class="challenge-meta">
-                        <span class="challenge-creator">&#128100; Created by Sir Myat</span>
-                        <span class="challenge-deadline">&#9989; Completed 2 days ago</span>
-                    </div>
-                    <div class="challenge-completion">
-                        <span class="completion-date">&#11088; Completed on Feb 25, 2026</span>
-                    </div>
-                    <button class="btn-view-submission" onclick="viewSubmission(3)">View Submission</button>
-                </div>
-
-                <!-- Challenge Card 4 - Active -->
-                <div class="challenge-card active" data-status="active">
-                    <div class="challenge-header">
-                        <div class="challenge-badge active-badge">&#128293; Active</div>
-                        <div class="challenge-points">+25 pts</div>
-                    </div>
-                    <h3 class="challenge-title">Learn About Bali Myna</h3>
-                    <p class="challenge-description">Research and create a presentation about Bali Myna conservation efforts. Share your findings.</p>
-                    <div class="challenge-meta">
-                        <span class="challenge-creator">&#128100; Created by Ms. Rodriguez</span>
-                        <span class="challenge-deadline">&#9200; 3 days left</span>
-                    </div>
-                    <div class="challenge-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 20%"></div>
-                        </div>
-                        <span class="progress-text">2 of 10 participants completed</span>
-                    </div>
-                    <button class="btn-accept-challenge" onclick="acceptChallenge(4)">Accept Challenge</button>
-                </div>
-
-                <!-- Challenge Card 5 - Expired -->
-                <div class="challenge-card expired" data-status="expired">
-                    <div class="challenge-header">
-                        <div class="challenge-badge expired-badge">&#9940; Expired</div>
-                        <div class="challenge-points">+35 pts</div>
-                    </div>
-                    <h3 class="challenge-title">Photo Contest: Best Tiger Shot</h3>
-                    <p class="challenge-description">Capture the best photograph of a Sumatran Tiger. Winner gets bonus points!</p>
-                    <div class="challenge-meta">
-                        <span class="challenge-creator">&#128100; Created by Community Admin</span>
-                        <span class="challenge-deadline">&#9940; Ended 3 days ago</span>
-                    </div>
-                    <div class="challenge-completion">
-                        <span class="completion-date">Challenge deadline passed</span>
-                    </div>
-                    <button class="btn-view-results" onclick="viewResults(5)">View Results</button>
-                </div>
-
-                <!-- Challenge Card 6 - Active -->
-                <div class="challenge-card active" data-status="active">
-                    <div class="challenge-header">
-                        <div class="challenge-badge active-badge">&#128293; Active</div>
-                        <div class="challenge-points">+60 pts</div>
-                    </div>
-                    <h3 class="challenge-title">Weekly Species Explorer</h3>
-                    <p class="challenge-description">Report sightings of at least 5 different species this week. Quality observations earn bonus points.</p>
-                    <div class="challenge-meta">
-                        <span class="challenge-creator">&#128100; Created by Conservation Team</span>
-                        <span class="challenge-deadline">&#9200; 4 days left</span>
-                    </div>
-                    <div class="challenge-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 40%"></div>
-                        </div>
-                        <span class="progress-text">4 of 10 participants completed</span>
-                    </div>
-                    <button class="btn-accept-challenge" onclick="acceptChallenge(6)">Accept Challenge</button>
-                </div>
-
-            </div>
-
         </main>
     </div>
 
-    <!-- Create Challenge Modal (Teachers/Community Admin) -->
-    <div id="create-challenge-modal" class="modal-overlay" style="display: none;">
+    <!-- Create Challenge Modal -->
+    {% if user['role'] in ['teacher', 'community-admin'] %}
+    <div id="create-challenge-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content challenge-modal">
             <div class="modal-header">
                 <h3>Create New Challenge</h3>
@@ -210,35 +249,31 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Challenge Title</label>
+                    <label>Challenge Title *</label>
                     <input type="text" id="challenge-title" placeholder="e.g., Spot a Komodo Dragon">
                 </div>
                 <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="challenge-description" rows="3" placeholder="Describe the challenge and what participants need to do..."></textarea>
+                    <label>Description *</label>
+                    <textarea id="challenge-description" rows="3"
+                              placeholder="Describe what participants need to do..."></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Points Reward</label>
-                        <input type="number" id="challenge-points" placeholder="e.g., 50" min="10" max="100">
+                        <label>Points Reward *</label>
+                        <input type="number" id="challenge-points" placeholder="e.g., 50" min="5" max="500">
                     </div>
                     <div class="form-group">
-                        <label>Duration (days)</label>
-                        <input type="number" id="challenge-duration" placeholder="e.g., 7" min="1" max="30">
+                        <label>Duration (days) *</label>
+                        <input type="number" id="challenge-duration" placeholder="e.g., 7" min="1" max="90">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Target Species (Optional)</label>
                     <select id="challenge-species">
                         <option value="">Any species</option>
-                        <option value="javan-rhino">Javan Rhinoceros</option>
-                        <option value="sumatran-tiger">Sumatran Tiger</option>
-                        <option value="bali-myna">Bali Myna</option>
-                        <option value="komodo-dragon">Komodo Dragon</option>
-                        <option value="javan-hawk-eagle">Javan Hawk-Eagle</option>
-                        <option value="celebes-macaque">Celebes Crested Macaque</option>
-                        <option value="sumatran-orangutan">Sumatran Orangutan</option>
-                        <option value="sumatran-elephant">Sumatran Elephant</option>
+                        {% for s in species %}
+                        <option value="{{ s['common_name'] }}">{{ s['common_name'] }}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
@@ -248,7 +283,72 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
-    <script src="../../static/js/tabs/activity.js"></script>
+    <!-- Submit Evidence Modal -->
+    {% if user['role'] in ['student', 'community-member'] %}
+    <div id="submit-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content challenge-modal">
+            <div class="modal-header">
+                <h3 id="submit-modal-title">Submit Evidence</h3>
+                <button class="modal-close" onclick="closeSubmitModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p id="submit-modal-points" class="submit-points-preview"></p>
+                <div class="form-group">
+                    <label>Photo or Video Evidence *</label>
+                    <div class="file-drop-zone" onclick="document.getElementById('evidence-input').click()">
+                        <span style="font-size:28px;">📸</span>
+                        <p style="margin:8px 0 4px; font-weight:600; font-size:14px;">Click to upload photo or video</p>
+                        <p style="margin:0; font-size:12px; color:var(--text-muted);">JPG, PNG, GIF, MP4, MOV supported</p>
+                    </div>
+                    <input type="file" id="evidence-input" accept="image/*,video/*"
+                           style="display:none;" onchange="previewEvidence(this)">
+                    <div id="evidence-preview" style="margin-top:10px; display:none;">
+                        <img id="evidence-img-preview" style="max-width:100%; max-height:200px; border-radius:8px; display:none;">
+                        <video id="evidence-vid-preview" controls style="max-width:100%; border-radius:8px; display:none;"></video>
+                        <p id="evidence-filename" style="font-size:13px; color:var(--text-muted); margin-top:6px;"></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes (Optional)</label>
+                    <textarea id="evidence-description" rows="3"
+                              placeholder="Describe your sighting or experience..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeSubmitModal()">Cancel</button>
+                <button class="btn-create" id="btn-submit-evidence" onclick="submitEvidence()">
+                    Submit &amp; Earn Points
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Challenge class mmodal -->
+    {% if user['role'] == 'teacher' %}
+    <div id="challenge-class-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content challenge-modal">
+            <div class="modal-header">
+                <h3>Assign to Classes</h3>
+                <button class="modal-close" onclick="closeChallengeClassModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:13px; color:var(--text-muted); margin:0;">
+                    Toggle which classes can see this challenge.
+                </p>
+                <div id="challenge-class-list" style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+                    <p style="color:var(--text-muted); font-size:13px;">Loading...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeChallengeClassModal()">Done</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='js/tabs/activity.js') }}"></script>
 </body>
 </html>

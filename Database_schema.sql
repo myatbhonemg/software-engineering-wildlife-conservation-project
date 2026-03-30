@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS organization(
     type  TEXT,
     email  VARCHAR(50) NOT NULL,
     address  TEXT,
-    avatar BLOB
+    avatar TEXT
 );
 
 
@@ -21,7 +21,13 @@ CREATE TABLE IF NOT EXISTS user(
     role TEXT,
     password TEXT NOT NULL,
     organization_id INTEGER,
+    avatar TEXT,
+    phone TEXT,
+    location TEXT,
     FOREIGN KEY (organization_id) REFERENCES organization(organization_id)
+    created_at TIMESTAMP DEFAULT '2025-01-01',
+    status TEXT DEFAULT 'active',
+    points INTEGER DEFAULT 0
 );
 
 --Registration table for student and teacher registrations in school
@@ -70,16 +76,140 @@ CREATE TABLE IF NOT EXISTS sighting (
 );
 
 --Email table takes senders id and receiver id as foreign key text message
-CREATE TABLE IF NOT EXISTS message(
-    message_id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE "message" (
+	"message_id"	INTEGER PRIMARY KEY AUTOINCREMENT,
+	"subject"	TEXT,
+	"body"	TEXT NOT NULL,
+	"sent_at"	DATETIME DEFAULT CURRENT_TIMESTAMP,
+	"is_read"	INTEGER DEFAULT 0,
+	"sender_id"	INTEGER NOT NULL,
+	"receiver_id"	INTEGER NOT NULL,
+	"attachment"	TEXT,
+	FOREIGN KEY("receiver_id") REFERENCES "user"("user_id"),
+	FOREIGN KEY("sender_id") REFERENCES "user"("user_id")
+);
+
+--Program details will be stored in programs table
+CREATE TABLE IF NOT EXISTS program (
+    program_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    species_focus TEXT,
+    duration TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by INTEGER NOT NULL,
+    organization_id INTEGER NOT NULL,
+    FOREIGN KEY (created_by) REFERENCES user(user_id),
+    FOREIGN KEY (organization_id) REFERENCES organization(organization_id)
+);
+
+--Files from programs will be stored in a seperate table
+CREATE TABLE IF NOT EXISTS program_file (
+    file_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    program_id INTEGER NOT NULL,
+    filename TEXT NOT NULL,
+    filepath TEXT NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (program_id) REFERENCES program(program_id)
+);
+
+-- Enrollment details table
+CREATE TABLE IF NOT EXISTS enrollment (
+    enrollment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    program_id INTEGER NOT NULL,
+    enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP,
+    status TEXT DEFAULT 'enrolled',
+    FOREIGN KEY (student_id) REFERENCES user(user_id),
+    FOREIGN KEY (program_id) REFERENCES program(program_id),
+    UNIQUE(student_id, program_id)
+);
+
+-- To store student progress on programs
+CREATE TABLE IF NOT EXISTS file_progress (
+    progress_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    file_id INTEGER NOT NULL,
+    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES user(user_id),
+    FOREIGN KEY (file_id) REFERENCES program_file(file_id),
+    UNIQUE(student_id, file_id)
+);
+
+-- Challenge table to stor challenges data
+CREATE TABLE IF NOT EXISTS challenge (
+    challenge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    points INTEGER NOT NULL DEFAULT 10,
+    duration_days INTEGER NOT NULL DEFAULT 7,
+    deadline TIMESTAMP NOT NULL,
+    species_focus TEXT,
+    created_by INTEGER NOT NULL,
+    organization_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES user(user_id),
+    FOREIGN KEY (organization_id) REFERENCES organization(organization_id)
+);
+
+-- To store the submision details for challenges
+CREATE TABLE IF NOT EXISTS challenge_submission (
+    submission_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    challenge_id INTEGER NOT NULL,
+    student_id INTEGER NOT NULL,
+    media_path TEXT,
+    description TEXT,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status TEXT DEFAULT 'completed',
+    FOREIGN KEY (challenge_id) REFERENCES challenge(challenge_id),
+    FOREIGN KEY (student_id) REFERENCES user(user_id),
+    UNIQUE(challenge_id, student_id)
+);
+
+-- Class table
+CREATE TABLE IF NOT EXISTS class (
+    class_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
     subject TEXT,
-    body TEXT NOT NULL,
-    sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    is_read INTEGER DEFAULT 0,
-    sender_id INTEGER NOT NULL,
-    receiver_id INTEGER NOT NULL,
-    FOREIGN KEY (sender_id) REFERENCES user(user_id),
-    FOREIGN KEY (receiver_id) REFERENCES user(user_id)
+    organization_id INTEGER NOT NULL,
+    teacher_id INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id) REFERENCES organization(organization_id),
+    FOREIGN KEY (teacher_id) REFERENCES user(user_id)
+);
+
+-- Class Enrollment table
+CREATE TABLE IF NOT EXISTS class_enrollment (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    class_id INTEGER NOT NULL,
+    student_id INTEGER NOT NULL,
+    enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (class_id) REFERENCES class(class_id),
+    FOREIGN KEY (student_id) REFERENCES user(user_id),
+    UNIQUE(class_id, student_id)
+);
+
+-- programs in the class
+CREATE TABLE IF NOT EXISTS program_class (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    program_id INTEGER NOT NULL,
+    class_id INTEGER NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (program_id) REFERENCES program(program_id),
+    FOREIGN KEY (class_id) REFERENCES class(class_id),
+    UNIQUE(program_id, class_id)
+);
+
+-- challenges in the class
+CREATE TABLE IF NOT EXISTS challenge_class (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    challenge_id INTEGER NOT NULL,
+    class_id INTEGER NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (challenge_id) REFERENCES challenge(challenge_id),
+    FOREIGN KEY (class_id) REFERENCES class(class_id),
+    UNIQUE(challenge_id, class_id)
 );
 
 /*
@@ -91,15 +221,6 @@ CREATE TABLE IF NOT EXISTS subscription(
     subscription_end DATE NOT NULL,
     organization_id INT NOT NULL,
     FOREIGN KEY (organization_id) REFERENCES organization(organization_id)
-);
-
---Program details will be stored in programs table
-CREATE TABLE IF NOT EXISTS program(
-    program_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    program_name VARCHAR(50) NOT NULL,
-    description TEXT NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL
 );
 
 --Activities Table
@@ -147,15 +268,4 @@ CREATE TABLE IF NOT EXISTS comment(
     FOREIGN KEY (post_id) REFERENCES post(post_id),
     FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
-
-CREATE TABLE IF NOT EXISTS enrollment (
-    enrollment_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    enrollment_date DATE NOT NULL,
-    progress_status REAL NOT NULL,
-    user_id INTEGER NOT NULL,
-    program_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(user_id),
-    FOREIGN KEY (program_id) REFERENCES program(program_id)
-);
-
 */

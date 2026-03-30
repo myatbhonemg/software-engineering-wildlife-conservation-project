@@ -3,29 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Komodo Hub - Principal Dashboard</title>
-
+    <title>Principal Dashboard - Komodo Hub</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body class="dashboard-body">
 
-    <!-- Top Navigation Bar -->
     {% include 'shared/navbar.html' %}
 
     <div class="dash-layout">
-
-        <!-- Sidebar -->
         {% include 'shared/sidebar.html' %}
 
-        <!-- Main Content -->
         <main class="dash-main">
 
             <!-- Welcome Banner -->
             <div class="welcome-banner principal-banner">
                 <div class="welcome-text">
-                    <h1 id="welcome-message">Welcome back, {{ user['fullname'] }}!</h1>
-                    <p>Review and manage your school's conservation activities.</p>
+                    <h1>Welcome back, {{ user['fullname'] }}!</h1>
+                    <p>Here's an overview of your school's conservation activity.</p>
                 </div>
                 <div class="welcome-icon">&#127979;</div>
             </div>
@@ -33,34 +28,60 @@
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon orange">&#9989;</div>
-                    <div class="stat-info">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">Pending Approvals</div>
-                    </div>
-                </div>
-                <div class="stat-card">
                     <div class="stat-icon green">&#128100;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">Total Teachers</div>
+                        <div class="stat-number">{{ teacher_count }}</div>
+                        <div class="stat-label">Teachers</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon orange">&#127891;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">Total Students</div>
+                        <div class="stat-number">{{ student_count }}</div>
+                        <div class="stat-label">Students</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon green">&#128248;</div>
+                    <div class="stat-icon green">&#127979;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number">{{ class_count }}</div>
+                        <div class="stat-label">Classes</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">&#128248;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ sighting_count }}</div>
                         <div class="stat-label">Total Sightings</div>
                     </div>
                 </div>
             </div>
+
+            <!-- Pending Alerts -->
+            {% if pending_staff > 0 or pending_students > 0 %}
+            <div class="pending-alerts">
+                {% if pending_staff > 0 %}
+                <div class="alert-box alert-orange">
+                    <span class="alert-icon">&#9203;</span>
+                    <div class="alert-info">
+                        <strong>{{ pending_staff }} staff invitation{{ 's' if pending_staff != 1 else '' }} pending</strong>
+                        <p>These people have been invited but haven't registered yet.</p>
+                    </div>
+                    <a href="/manage-staff" class="alert-btn">View Staff</a>
+                </div>
+                {% endif %}
+                {% if pending_students > 0 %}
+                <div class="alert-box alert-orange">
+                    <span class="alert-icon">&#9203;</span>
+                    <div class="alert-info">
+                        <strong>{{ pending_students }} student invitation{{ 's' if pending_students != 1 else '' }} pending</strong>
+                        <p>These students have been invited but haven't registered yet.</p>
+                    </div>
+                    <a href="/manage-students" class="alert-btn">View Students</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
 
             <!-- Quick Actions -->
             <div class="section-title-row">
@@ -68,22 +89,40 @@
             </div>
             <div class="quick-actions">
                 <div class="action-card">
-                    <div class="action-icon">&#9989;</div>
-                    <h3>Approve Student & Teachers</h3>
-                    <p>Review and approve or decline students registered by school admin.</p>
-                    <button class="btn-action btn-action-principal coming-soon-btn">Review Requests</button>
+                    <div class="action-icon">&#128188;</div>
+                    <h3>Manage Staff</h3>
+                    <p>View and manage all teachers and staff in your school.</p>
+                    <button class="btn-action btn-action-principal"
+                            onclick="window.location.href='/manage-staff'">
+                        View Staff
+                    </button>
                 </div>
                 <div class="action-card">
-                    <div class="action-icon">&#128100;</div>
-                    <h3>Manage Teachers</h3>
-                    <p>View and manage all teachers in your school.</p>
-                    <button class="btn-action btn-action-principal coming-soon-btn">View Teachers</button>
+                    <div class="action-icon">&#127891;</div>
+                    <h3>Manage Students</h3>
+                    <p>View and manage all students enrolled in your school.</p>
+                    <button class="btn-action btn-action-principal"
+                            onclick="window.location.href='/manage-students'">
+                        View Students
+                    </button>
                 </div>
                 <div class="action-card">
-                    <div class="action-icon">&#128202;</div>
-                    <h3>School Reports</h3>
-                    <p>View your school's overall conservation activity and progress.</p>
-                    <button class="btn-action btn-action-principal coming-soon-btn">View Reports</button>
+                    <div class="action-icon">&#127979;</div>
+                    <h3>Manage Classes</h3>
+                    <p>Create classes, assign teachers and enrol students.</p>
+                    <button class="btn-action btn-action-principal"
+                            onclick="window.location.href='/classes'">
+                        View Classes
+                    </button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">&#128248;</div>
+                    <h3>Sighting Reports</h3>
+                    <p>Review all species sightings submitted by your school.</p>
+                    <button class="btn-action btn-action-principal"
+                            onclick="window.location.href='/sighting-reports'">
+                        View Reports
+                    </button>
                 </div>
             </div>
 

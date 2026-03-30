@@ -538,3 +538,38 @@ input:checked + .toggle-slider:before {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+.admin-card-label {
+    background-color: var(--light-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px 40px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.org-avatar-placeholder {
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-green) 100%);
+    color: var(--white);
+    font-size: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: var(--white);
+    font-family: inherit;
+}
+
+.info-select:focus {
+    outline: none;
+    border-color: var(--secondary-green);
+}

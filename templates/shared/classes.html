@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Classes - Komodo Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/classes.css') }}">
+</head>
+<body class="dashboard-body">
+
+    {% include 'shared/navbar.html' %}
+
+    <div class="dash-layout">
+        {% include 'shared/sidebar.html' %}
+
+        <main class="dash-main">
+            <div class="page-header">
+                <h1>&#127979; Manage Classes</h1>
+                <p>Create classes, assign teachers, and manage student enrolments</p>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <button class="btn-create-class" onclick="openCreateClassModal()">
+                    + Create New Class
+                </button>
+            </div>
+
+            <!-- Classes Grid -->
+            <div class="classes-grid" id="classes-grid">
+                {% for c in classes %}
+                <div class="class-card" id="class-card-{{ c['class_id'] }}">
+                    <div class="class-card-header">
+                        <div class="class-icon">&#127979;</div>
+                        <button class="btn-delete-class"
+                                onclick="deleteClass({{ c['class_id'] }})"
+                                title="Delete class">✕</button>
+                    </div>
+
+                    <h3 class="class-name">{{ c['name'] }}</h3>
+                    {% if c['subject'] %}
+                    <p class="class-subject">{{ c['subject'] }}</p>
+                    {% endif %}
+
+                    <div class="class-stats">
+                        <span class="class-stat">
+                            &#128100;
+                            <strong>{{ c['student_count'] }}</strong> students
+                        </span>
+                        <span class="class-stat">
+                            &#128218;
+                            {% if c['teacher_name'] %}
+                                {{ c['teacher_name'] }}
+                            {% else %}
+                                <em>No teacher assigned</em>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <!-- Teacher assignment -->
+                    <div class="class-teacher-select">
+                        <label>Assigned Teacher</label>
+                        <select onchange="updateTeacher({{ c['class_id'] }}, this.value)">
+                            <option value="">— No teacher —</option>
+                            {% for t in teachers %}
+                            <option value="{{ t['user_id'] }}"
+                                {% if c['teacher_id'] == t['user_id'] %}selected{% endif %}>
+                                {{ t['fullname'] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button class="btn-manage-students"
+                            onclick="openStudentsModal({{ c['class_id'] }}, '{{ c['name'] }}')">
+                        &#128100; Manage Students
+                    </button>
+                </div>
+                {% else %}
+                <div class="no-classes" data-placeholder>
+                    <p>No classes yet. Create your first one!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Class Modal -->
+    <div id="create-class-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content class-modal">
+            <div class="modal-header">
+                <h3>Create New Class</h3>
+                <button class="modal-close" onclick="closeCreateClassModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Class Name *</label>
+                    <input type="text" id="class-name" placeholder="e.g., Grade 10A, Biology Group 1">
+                </div>
+                <div class="form-group">
+                    <label>Subject (Optional)</label>
+                    <input type="text" id="class-subject" placeholder="e.g., Biology, Environmental Science">
+                </div>
+                <div class="form-group">
+                    <label>Assign Teacher (Optional)</label>
+                    <select id="class-teacher">
+                        <option value="">— Assign later —</option>
+                        {% for t in teachers %}
+                        <option value="{{ t['user_id'] }}">{{ t['fullname'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeCreateClassModal()">Cancel</button>
+                <button class="btn-create" onclick="createClass()">Create Class</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Students Modal -->
+    <div id="students-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content students-modal">
+            <div class="modal-header">
+                <h3 id="students-modal-title">Manage Students</h3>
+                <button class="modal-close" onclick="closeStudentsModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="students-columns">
+                    <!-- Enrolled students -->
+                    <div class="students-column">
+                        <h4 class="column-title">&#9989; In This Class <span id="enrolled-count" class="count-badge">0</span></h4>
+                        <div class="students-list" id="enrolled-list">
+                            <p class="loading-text">Loading...</p>
+                        </div>
+                    </div>
+                    <!-- Available students -->
+                    <div class="students-column">
+                        <h4 class="column-title">&#128100; Available Students <span id="available-count" class="count-badge">0</span></h4>
+                        <input type="text" id="student-search" placeholder="Search students..."
+                               oninput="filterStudents(this.value)"
+                               class="student-search-input">
+                        <div class="students-list" id="available-list">
+                            <p class="loading-text">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeStudentsModal()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/tabs/classes.js') }}"></script>
+</body>
+</html>

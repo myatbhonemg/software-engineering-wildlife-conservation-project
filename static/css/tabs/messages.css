@@ -475,3 +475,63 @@
 .btn-start-chat:hover {
     background-color: var(--primary-green);
 }
+
+.btn-attach {
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-attach:hover {
+    background-color: var(--light-bg);
+}
+
+.attachment-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background-color: var(--light-bg);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-dark);
+    flex-shrink: 0;
+}
+
+.attachment-preview button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-muted);
+    line-height: 1;
+}
+
+.msg-attachment-img {
+    max-width: 260px;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-top: 6px;
+    cursor: pointer;
+    display: block;
+}
+
+.msg-attachment-file {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 8px 14px;
+    background-color: var(--light-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--secondary-green);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.msg-attachment-file:hover {
+    background-color: #E5EDE1;
+}

@@ -100,6 +100,9 @@
     flex-shrink: 0;
     transition: width 0.3s ease;
     position: sticky;
+    top: 60px;                  /* mathces navbar height */
+    height: calc(100vh - 60px); /* fills remaining screen height */
+    overflow-y: auto;           /* Scrollabe if menu is long */
 }
 
 .sidebar.collapsed {
@@ -447,4 +450,65 @@
 
 .btn-upgrade:hover {
     background-color: var(--primary-green);
+}
+
+/* ===== PENDING ALERTS ===== */
+.pending-alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.alert-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+}
+
+.alert-orange {
+    background-color: #FFF8F0;
+    border-color: #F6C89A;
+}
+
+.alert-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.alert-info {
+    flex: 1;
+}
+
+.alert-info strong {
+    font-size: 15px;
+    color: var(--text-dark);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.alert-info p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.alert-btn {
+    padding: 8px 18px;
+    background-color: #E17B3C;
+    color: white;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.alert-btn:hover {
+    background-color: #C96A2B;
 }

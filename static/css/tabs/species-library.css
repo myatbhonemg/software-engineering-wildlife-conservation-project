@@ -509,7 +509,10 @@
     line-height: 1.6;
     margin-top: 8px;
 }
-.species-grid.collapsed {
+/* Collapsed state for both sections */
+.species-grid.collapsed,
+.database-controls.collapsed,
+.feed-posts.collapsed {
     display: none;
 }
 

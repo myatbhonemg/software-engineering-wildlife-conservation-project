@@ -4,33 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messages - Komodo Hub</title>
-
-    <link rel="stylesheet" href="../../static/css/style.css">
-    <link rel="stylesheet" href="../../static/css/dashboard.css">
-    <link rel="stylesheet" href="../../static/css/tabs/messages.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/messages.css') }}">
 </head>
 <body class="dashboard-body">
 
-    <!-- Top Navigation Bar -->
     {% include 'shared/navbar.html' %}
 
     <div class="dash-layout">
-
-        <!-- Sidebar is a seperate helper file -->
         {% include 'shared/sidebar.html' %}
 
-        <!-- Main Content -->
         <main class="dash-main">
-
-            <!-- Page Header -->
             <div class="page-header">
                 <h1>&#128172; Messages</h1>
                 <p>Communicate with teachers, students, and community members</p>
             </div>
 
-            <!-- Messages Container -->
             <div class="messages-container">
-                
+
                 <!-- Conversations List -->
                 <div class="conversations-panel">
                     <div class="panel-header">
@@ -38,70 +30,37 @@
                         <button class="btn-new-message" onclick="newMessage()">+ New</button>
                     </div>
 
-                    <div class="conversations-list">
-                        
-                        <!-- Conversation 1 - Unread -->
-                        <div class="conversation-item unread active" onclick="openConversation(1)">
-                            <div class="conv-avatar">🐅</div>
+                    <div class="conversations-list" id="conversations-list">
+                        {% for c in conversations %}
+                        <div class="conversation-item {% if c['unread_count'] > 0 %}unread{% endif %}"
+                             data-user-id="{{ c['user_id'] }}"
+                             onclick="openConversation({{ c['user_id'] }}, '{{ c['fullname'] }}', '{{ c['role'] }}', '{{ c['avatar'] or '' }}')">
+                            <div class="conv-avatar">
+                                {% if c['avatar'] %}
+                                    <img src="{{ url_for('static', filename=c['avatar']) }}"
+                                         style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                {% else %}
+                                    👤
+                                {% endif %}
+                            </div>
                             <div class="conv-info">
                                 <div class="conv-header">
-                                    <span class="conv-name">Sir Myat</span>
-                                    <span class="conv-time">10:30 AM</span>
+                                    <span class="conv-name">{{ c['fullname'] }}</span>
+                                    <span class="conv-time">{{ c['last_time'][:10] if c['last_time'] else '' }}</span>
                                 </div>
-                                <p class="conv-preview">Great work on your sighting report! The photo...</p>
+                                <p class="conv-preview">
+                                    {{ c['last_message'][:40] if c['last_message'] else '' }}{% if c['last_message'] and c['last_message']|length > 40 %}...{% endif %}
+                                </p>
                             </div>
-                            <span class="unread-badge">2</span>
+                            {% if c['unread_count'] > 0 %}
+                            <span class="unread-badge">{{ c['unread_count'] }}</span>
+                            {% endif %}
                         </div>
-
-                        <!-- Conversation 2 -->
-                        <div class="conversation-item" onclick="openConversation(2)">
-                            <div class="conv-avatar">🐒</div>
-                            <div class="conv-info">
-                                <div class="conv-header">
-                                    <span class="conv-name">Kifo</span>
-                                    <span class="conv-time">Yesterday</span>
-                                </div>
-                                <p class="conv-preview">Did you see the Komodo Dragon yesterday?</p>
-                            </div>
+                        {% else %}
+                        <div data-placeholder style="padding:20px; text-align:center; color:var(--text-muted); font-size:14px;">
+                            No conversations yet. Start one with + New!
                         </div>
-
-                        <!-- Conversation 3 - Unread -->
-                        <div class="conversation-item unread" onclick="openConversation(3)">
-                            <div class="conv-avatar">🐘</div>
-                            <div class="conv-info">
-                                <div class="conv-header">
-                                    <span class="conv-name">Conservation Team</span>
-                                    <span class="conv-time">2 days ago</span>
-                                </div>
-                                <p class="conv-preview">Reminder: Field trip to Ujung Kulon next week</p>
-                            </div>
-                            <span class="unread-badge">1</span>
-                        </div>
-
-                        <!-- Conversation 4 -->
-                        <div class="conversation-item" onclick="openConversation(4)">
-                            <div class="conv-avatar">🦜</div>
-                            <div class="conv-info">
-                                <div class="conv-header">
-                                    <span class="conv-name">Odala</span>
-                                    <span class="conv-time">Feb 18</span>
-                                </div>
-                                <p class="conv-preview">Thanks for sharing the species info!</p>
-                            </div>
-                        </div>
-
-                        <!-- Conversation 5 -->
-                        <div class="conversation-item" onclick="openConversation(5)">
-                            <div class="conv-avatar">🦧</div>
-                            <div class="conv-info">
-                                <div class="conv-header">
-                                    <span class="conv-name">Mr. Tevin</span>
-                                    <span class="conv-time">Feb 15</span>
-                                </div>
-                                <p class="conv-preview">Your project proposal looks excellent. Let's...</p>
-                            </div>
-                        </div>
-
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -109,66 +68,28 @@
                 <div class="messages-panel">
                     <div class="thread-header">
                         <div class="thread-user">
-                            <div class="thread-avatar">🐅</div>
+                            <div class="thread-avatar">💬</div>
                             <div class="thread-info">
-                                <h3>Sir Myat</h3>
-                                <p>Teacher, Biology</p>
+                                <h3>Select a conversation</h3>
+                                <p></p>
                             </div>
                         </div>
                     </div>
 
                     <div class="messages-thread" id="messages-thread">
-                        
-                        <!-- Message 1 - Received -->
-                        <div class="message received">
-                            <div class="message-avatar">🐅</div>
-                            <div class="message-content">
-                                <div class="message-header">
-                                    <span class="message-sender">Sir Myat</span>
-                                    <span class="message-time">Yesterday, 2:30 PM</span>
-                                </div>
-                                <p class="message-text">Hi! I reviewed your sighting report from last week. The observations were very detailed and accurate.</p>
-                            </div>
+                        <div style="text-align:center; padding:40px; color:var(--text-muted);">
+                            <p>Select a conversation to start messaging</p>
                         </div>
-
-                        <!-- Message 2 - Sent -->
-                        <div class="message sent">
-                            <div class="message-content">
-                                <div class="message-header">
-                                    <span class="message-time">Yesterday, 3:15 PM</span>
-                                </div>
-                                <p class="message-text">Thank you, Sir Myat ! I tried to capture as many details as possible. The rhino was about 50 meters away from our observation point.</p>
-                            </div>
-                        </div>
-
-                        <!-- Message 3 - Received -->
-                        <div class="message received">
-                            <div class="message-avatar">🐅</div>
-                            <div class="message-content">
-                                <div class="message-header">
-                                    <span class="message-sender">Sir Myat</span>
-                                    <span class="message-time">Today, 10:30 AM</span>
-                                </div>
-                                <p class="message-text">Great work on your sighting report! The photo quality is excellent. Would you be interested in presenting this at our next conservation club meeting?</p>
-                            </div>
-                        </div>
-
-                        <!-- Message 4 - Received -->
-                        <div class="message received">
-                            <div class="message-avatar">🐅</div>
-                            <div class="message-content">
-                                <div class="message-header">
-                                    <span class="message-sender">Sir Myat</span>
-                                    <span class="message-time">Today, 10:32 AM</span>
-                                </div>
-                                <p class="message-text">I think your classmates would love to hear about your experience!</p>
-                            </div>
-                        </div>
-
                     </div>
 
-                    <!-- Message Input -->
                     <div class="message-input-container">
+                        <label class="btn-attach" for="attachment-input" title="Attach file">&#128206;</label>
+                        <input type="file" id="attachment-input" accept="image/*,.pdf,.doc,.docx"
+                            style="display:none;" onchange="handleAttachment(this)">
+                        <div class="attachment-preview" id="attachment-preview" style="display:none;">
+                            <span id="attachment-name"></span>
+                            <button onclick="clearAttachment()">×</button>
+                        </div>
                         <textarea id="message-input" placeholder="Type your message..." rows="1"></textarea>
                         <button class="btn-send" onclick="sendMessage()">Send</button>
                     </div>
@@ -176,27 +97,32 @@
 
             </div>
 
+            <!-- Hidden fields for current session info -->
+            <input type="hidden" id="current-receiver-id" value="">
+            <input type="hidden" id="current-user-id" value="{{ user['user_id'] }}">
+
         </main>
     </div>
 
     <!-- New Message Modal -->
-    <div id="new-message-modal" class="modal-overlay" style="display: none;">
+    <div id="new-message-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>New Message</h3>
                 <button class="modal-close" onclick="closeNewMessageModal()">×</button>
             </div>
             <div class="modal-body">
-                <label for="new-message-username">Enter username</label>
-                <input type="text" id="new-message-username" placeholder="e.g., Sarah Chen" autofocus>
+                <label for="new-message-username">Search for a user</label>
+                <input type="text" id="new-message-username" placeholder="Type a name..."
+                       autofocus oninput="searchUsers(this.value)">
+                <div id="user-search-results" style="margin-top:8px; max-height:200px; overflow-y:auto;"></div>
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeNewMessageModal()">Cancel</button>
-                <button class="btn-start-chat" onclick="startNewChat()">Start Chat</button>
             </div>
         </div>
     </div>
 
-    <script src="../../static/js/tabs/messages.js"></script>
+    <script src="{{ url_for('static', filename='js/tabs/messages.js') }}"></script>
 </body>
 </html>

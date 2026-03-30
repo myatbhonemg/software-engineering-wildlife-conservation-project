@@ -1,36 +1,6 @@
 // ===== MANAGE USERS JS =====
-
-// Check user authentication
-const user = JSON.parse(localStorage.getItem('user'));
-
-if (!user) {
-    window.location.href = '../login.html';
-}
-
-// Determine management type from URL parameter
-const urlParams = new URLSearchParams(window.location.search);
-const manageType = urlParams.get('type') || 'users';
-
-// Update UI with user info
-if (user) {
-    const navUsername = document.getElementById('nav-username');
-    if (navUsername) navUsername.textContent = user.name;
-
-    const roleBadge = document.getElementById('user-role-badge');
-    if (roleBadge) {
-        const roleNames = {
-            'teacher': 'Teacher',
-            'principal': 'Principal',
-            'school-admin': 'School Admin',
-            'community-admin': 'Community Admin',
-            'system-admin': 'System Admin'
-        };
-        roleBadge.textContent = roleNames[user.role] || user.role;
-    }
-
-    // Update page title and description based on management type
-    updatePageContent();
-}
+updatePageContent();
+updateSidebarActive();
 
 // Update page content based on what's being managed
 function updatePageContent() {
@@ -41,12 +11,12 @@ function updatePageContent() {
     const colHeader3 = document.getElementById('col-header-3');
 
     const contentMap = {
-        'teachers': {
-            title: '&#128100; Manage Teachers',
-            description: 'View and manage teacher accounts',
-            statLabel: 'Total Teachers',
+        'staff': {
+            title: '&#128188; Manage Staff',
+            description: 'View and manage teachers and principals',
+            statLabel: 'Total Staff',
             col2: 'Email',
-            col3: 'Subject',
+            col3: 'Role',
             showRoleFilter: false
         },
         'students': {
@@ -54,7 +24,7 @@ function updatePageContent() {
             description: 'View and manage student accounts',
             statLabel: 'Total Students',
             col2: 'Email',
-            col3: 'Grade',
+            col3: 'Role',
             showRoleFilter: false
         },
         'members': {
@@ -137,78 +107,85 @@ function toggleSidebar() {
     if (sidebar) sidebar.classList.toggle('collapsed');
 }
 
-// ===== MOCK DATA LOADING =====
-function loadMockData() {
-    const tbody = document.getElementById('users-tbody');
-    
-    const mockData = {
-        'teachers': [
-            { name: 'Mr. Tevin Rodriguez', email: 'tevin@school.edu', subject: 'Biology', joined: 'Jan 2024', status: 'active', avatar: '👨‍🏫' },
-            { name: 'Ms. Sarah Johnson', email: 'sarah@school.edu', subject: 'Environmental Science', joined: 'Mar 2024', status: 'active', avatar: '👩‍🏫' },
-            { name: 'Dr. Mike Anderson', email: 'mike@school.edu', subject: 'Chemistry', joined: 'Sep 2023', status: 'active', avatar: '👨‍🏫' },
-            { name: 'Mrs. Lisa Wong', email: 'lisa@school.edu', subject: 'Physics', joined: 'Feb 2024', status: 'inactive', avatar: '👩‍🏫' }
-        ],
-        'students': [
-            { name: 'Myat Noe', email: 'myat@student.edu', grade: '10', joined: 'Sep 2025', status: 'active', avatar: '👨‍🎓' },
-            { name: 'Kifo Chen', email: 'kifo@student.edu', grade: '11', joined: 'Sep 2025', status: 'active', avatar: '👩‍🎓' },
-            { name: 'Odala Kim', email: 'odala@student.edu', grade: '9', joined: 'Sep 2025', status: 'active', avatar: '👨‍🎓' },
-            { name: 'Emily Tan', email: 'emily@student.edu', grade: '12', joined: 'Sep 2024', status: 'active', avatar: '👩‍🎓' },
-            { name: 'David Lee', email: 'david@student.edu', grade: '10', joined: 'Sep 2025', status: 'inactive', avatar: '👨‍🎓' }
-        ],
-        'members': [
-            { name: 'Ahmad Putra', email: 'ahmad@community.org', role: 'Volunteer', joined: 'Nov 2025', status: 'active', avatar: '👨‍💼' },
-            { name: 'Siti Nurhaliza', email: 'siti@community.org', role: 'Member', joined: 'Dec 2025', status: 'active', avatar: '👩‍💼' },
-            { name: 'Budi Santoso', email: 'budi@community.org', role: 'Activist', joined: 'Oct 2025', status: 'active', avatar: '👨‍💼' }
-        ],
-        'schools': [
-            { name: 'Jakarta International School', location: 'Jakarta', members: '450', joined: 'Jan 2024', status: 'active', avatar: '🏫' },
-            { name: 'Bali Green School', location: 'Bali', members: '320', joined: 'Mar 2024', status: 'active', avatar: '🏫' },
-            { name: 'Surabaya Conservation Academy', location: 'Surabaya', members: '280', joined: 'Feb 2024', status: 'active', avatar: '🏫' }
-        ],
-        'communities': [
-            { name: 'Ujung Kulon Conservation Group', location: 'West Java', members: '85', joined: 'Feb 2024', status: 'active', avatar: '🌳' },
-            { name: 'Sumatra Wildlife Watchers', location: 'Sumatra', members: '120', joined: 'Jan 2024', status: 'active', avatar: '🌳' },
-            { name: 'Bali Bird Protectors', location: 'Bali', members: '65', joined: 'Mar 2024', status: 'active', avatar: '🌳' }
-        ],
-        'all-users': [
-            { name: 'Mr. Tevin Rodriguez', email: 'tevin@school.edu', role: 'Teacher', joined: 'Jan 2024', status: 'active', avatar: '👨‍🏫' },
-            { name: 'Myat Noe', email: 'myat@student.edu', role: 'Student', joined: 'Sep 2025', status: 'active', avatar: '👨‍🎓' },
-            { name: 'Ahmad Putra', email: 'ahmad@community.org', role: 'Community', joined: 'Nov 2025', status: 'active', avatar: '👨‍💼' }
-        ]
+// ===== ADD MEMBER MODAL =====
+function openAddMemberModal() {
+    const type = manageType;
+    const titleMap = {
+        'staff': 'Add Staff Member',
+        'students': 'Add Student',
+        'members': 'Add Community Member'
     };
+    document.getElementById('add-member-title').textContent = titleMap[type] || 'Add Member';
+    document.getElementById('add-member-modal').style.display = 'flex';
+    generateCode(); // Auto-generate a code on open
+}
 
-    const data = mockData[manageType] || mockData['all-users'];
+function closeAddMemberModal() {
+    document.getElementById('add-member-modal').style.display = 'none';
+    document.getElementById('add-name').value = '';
+    document.getElementById('add-email').value = '';
+    document.getElementById('add-code').value = '';
+}
+
+function generateCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById('add-code').value = code;
+}
+
+function submitAddMember() {
+    const roleEl = document.getElementById('add-role');
+    const role      = roleEl.tagName === 'SELECT' ? roleEl.value : roleEl.value;
+    const full_name = document.getElementById('add-name').value.trim();
+    const email     = document.getElementById('add-email').value.trim();
+    const access_code = document.getElementById('add-code').value.trim();
+
+    if (!full_name || !email || !access_code) {
+        alert('Please fill in all fields.');
+        return;
+    }
     
-    data.forEach((item, index) => {
-        const row = document.createElement('tr');
-        row.setAttribute('data-status', item.status);
-        row.setAttribute('data-search', `${item.name} ${item.email}`.toLowerCase());
-        
-        const col3Value = item.subject || item.grade || item.role || item.members || '';
-        
-        row.innerHTML = `
-            <td>
-                <div class="user-cell">
-                    <div class="user-avatar">${item.avatar}</div>
-                    <div class="user-info">
-                        <div class="user-name">${item.name}</div>
-                        <div class="user-id">${item.email || item.location}</div>
-                    </div>
-                </div>
-            </td>
-            <td>${item.email || item.location}</td>
-            <td>${col3Value}</td>
-            <td>${item.joined}</td>
-            <td><span class="status-badge status-${item.status}">${item.status === 'active' ? 'Active' : 'Inactive'}</span></td>
-            <td>
-                <div class="action-buttons">
-                    <button class="btn-edit-user" onclick="editUser(${index})">Edit</button>
-                    <button class="btn-delete-user" onclick="deleteUser(${index})">Delete</button>
-                </div>
-            </td>
-        `;
-        
-        tbody.appendChild(row);
+    //Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address.');
+        return;
+    }
+
+    fetch('/add-member', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role, full_name, email, access_code })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            closeAddMemberModal();
+            // Show the access code in a clear alert so admin can copy it
+            alert(`✅ Invitation created!\n\nName: ${full_name}\nEmail: ${email}\nAccess Code: ${access_code}\n\nShare this code with them to complete registration.`);
+            location.reload();
+        } else {
+            alert(data.message || 'Failed to create invitation.');
+        }
+    });
+}
+
+// ===== REVOKE INVITATION =====
+function revokeInvitation(regId) {
+    if (!confirm('Revoke this invitation? The access code will no longer work.')) return;
+
+    fetch(`/revoke-invitation/${regId}`, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            const row = document.getElementById(`pending-row-${regId}`);
+            if (row) row.remove();
+        } else {
+            alert(data.message || 'Could not revoke invitation.');
+        }
     });
 }
 
@@ -250,10 +227,12 @@ function filterUsers() {
 }
 
 // ===== USER ACTIONS =====
-function editUser(index) {
-    // TODO: Load user data into modal
+function editUser(userId, name, email, status) {
+    document.getElementById('edit-user-modal').setAttribute('data-user-id', userId);
+    document.getElementById('edit-name').value = name;
+    document.getElementById('edit-email').value = email;
+    document.getElementById('edit-status').value = status;
     document.getElementById('edit-user-modal').style.display = 'flex';
-    console.log('Editing user:', index);
 }
 
 function closeEditModal() {
@@ -261,27 +240,149 @@ function closeEditModal() {
 }
 
 function saveUser() {
-    const name = document.getElementById('edit-name').value;
-    const email = document.getElementById('edit-email').value;
-    
-    // TODO: Save to backend
-    alert(`User updated!\n\nName: ${name}\nEmail: ${email}`);
-    closeEditModal();
+    const userId = document.getElementById('edit-user-modal').getAttribute('data-user-id');
+    const status = document.getElementById('edit-status').value;
+
+    fetch('/update-user-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, status: status })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('User status updated successfully');
+            closeEditModal();
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    });
 }
 
-function deleteUser(index) {
-    const confirmDelete = confirm('Are you sure you want to delete this user?\n\nThis action cannot be undone.');
-    
-    if (confirmDelete) {
-        alert('User deleted successfully');
-        // TODO: Delete from backend and refresh list
-        console.log('Deleting user:', index);
+function deleteUser(userId) {
+    if (!confirm('Are you sure you want to delete this user?\n\nThis action cannot be undone.')) return;
+
+    fetch(`/delete-user/${userId}`, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('User deleted successfully');
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    });
+}
+
+function toggleExportMenu() {
+    const menu = document.getElementById('export-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+// Close menu if clicked outside
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('export-menu');
+    if (!e.target.closest('.controls-right')) {
+        menu.style.display = 'none';
     }
+});
+
+function getVisibleRows() {
+    // Only export rows currently visible (respects active filters)
+    return [...document.querySelectorAll('#users-tbody tr')]
+        .filter(row => row.style.display !== 'none' && row.getAttribute('data-status'));
 }
 
-function exportUsers() {
-    alert('Exporting users to CSV...\n\n[Feature coming soon]');
-    // TODO: Generate CSV export
+function exportCSV() {
+    document.getElementById('export-menu').style.display = 'none';
+
+    const headers = ['Name', 'Email', 'Role', 'Joined Date', 'Status'];
+    const rows = getVisibleRows();
+
+    const csvLines = [headers.join(',')];
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const name = cells[0].querySelector('.user-name')?.textContent.trim() || '';
+        const email = cells[1].textContent.trim();
+        const role = cells[2].textContent.trim();
+        const joined = cells[3].textContent.trim();
+        const status = cells[4].textContent.trim();
+        // Wrap in quotes to handle commas in names
+        csvLines.push([`"${name}"`, `"${email}"`, `"${role}"`, `"${joined}"`, `"${status}"`].join(','));
+    });
+
+    const blob = new Blob([csvLines.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${manageType}-export.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function exportPDF() {
+    document.getElementById('export-menu').style.display = 'none';
+
+    const rows = getVisibleRows();
+    const title = document.getElementById('page-title').textContent;
+
+    // Build a printable HTML page
+    const printContent = `
+        <html>
+        <head>
+            <title>${title}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 32px; color: #222; }
+                h1 { font-size: 22px; margin-bottom: 4px; }
+                p { color: #666; font-size: 13px; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; font-size: 13px; }
+                th { background: #2d6a4f; color: white; padding: 10px 12px; text-align: left; }
+                td { padding: 9px 12px; border-bottom: 1px solid #eee; }
+                tr:nth-child(even) td { background: #f9f9f9; }
+                .badge { padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+                .active { background: #d4edda; color: #1a6b35; }
+                .inactive { background: #f8d7da; color: #842029; }
+            </style>
+        </head>
+        <body>
+            <h1>${title}</h1>
+            <p>Exported on ${new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })}</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th><th>Email</th><th>Role</th><th>Joined Date</th><th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map(row => {
+                        const cells = row.querySelectorAll('td');
+                        const name = cells[0].querySelector('.user-name')?.textContent.trim() || '';
+                        const email = cells[1].textContent.trim();
+                        const role = cells[2].textContent.trim();
+                        const joined = cells[3].textContent.trim();
+                        const status = row.getAttribute('data-status');
+                        return `<tr>
+                            <td>${name}</td>
+                            <td>${email}</td>
+                            <td>${role}</td>
+                            <td>${joined}</td>
+                            <td><span class="badge ${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </body>
+        </html>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
 }
 
 console.log('Manage Users loaded - Type:', manageType);

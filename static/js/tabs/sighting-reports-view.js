@@ -1,43 +1,4 @@
 // ===== SIGHTING REPORTS VIEW JS =====
-
-// Check user authentication
-const user = JSON.parse(localStorage.getItem('user'));
-
-if (!user) {
-    window.location.href = '../login.html';
-}
-
-// Update UI with user info
-if (user) {
-    const navUsername = document.getElementById('nav-username');
-    if (navUsername) navUsername.textContent = user.name;
-
-    const roleBadge = document.getElementById('user-role-badge');
-    if (roleBadge) {
-        const roleNames = {
-            'teacher': 'Teacher',
-            'principal': 'Principal',
-            'school-admin': 'School Admin',
-            'community-admin': 'Community Admin',
-            'system-admin': 'System Admin'
-        };
-        roleBadge.textContent = roleNames[user.role] || user.role;
-    }
-
-    // Update header description based on role
-    const headerDesc = document.getElementById('header-description');
-    if (headerDesc) {
-        const descriptions = {
-            'teacher': 'View and manage sighting reports from your students',
-            'principal': 'View all sighting reports from your school',
-            'school-admin': 'View and manage all school sighting reports',
-            'community-admin': 'View all sighting reports from your community',
-            'system-admin': 'View all sighting reports across the platform'
-        };
-        headerDesc.textContent = descriptions[user.role] || 'View sighting reports';
-    }
-}
-
 // Sign out function
 function signOut() {
     localStorage.removeItem('user');
@@ -105,18 +66,17 @@ function deleteReport(button, reportId) {
     const title = card.querySelector('h3').textContent;
     
     if (confirm(`Delete this sighting report?\n\n${title}\nReported by: ${reporterName}`)) {
-        // Remove the card
-        card.remove();
-        
-        alert('Report deleted successfully');
-        
-        // TODO: Send delete request to backend
-        // fetch('/api/sightings/' + reportId, { method: 'DELETE' })
-        
-        console.log('Deleted report:', reportId);
-        
-        // Re-run filter to update "no results" message if needed
-        filterReports();
+        fetch(`/delete-sighting/${reportId}`, {method: 'POST'})
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                card.remove();
+                filterReports();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(() => alert('Server error. Please try again.'));
     }
 }
 
