@@ -21,7 +21,8 @@ The Two-Step Process
 Step 1: Admin Registers the User
 Who can register users:
 
-School Admin --> Can register Students and Teachers
+School Admin --> Can register Students and Teachers 
+
 Community Admin --> Can register Community Members
 
 What the admin does:
