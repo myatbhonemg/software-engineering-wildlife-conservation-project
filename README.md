@@ -1,3 +1,5 @@
+**PLEASE PULL ALL THE FILES AND FOLDERS INCLUDED IN MAIN BRANCH AND RUN APP.PY IN YOUR MACHINE**
+
 **#Log-in Accounts**
 System admin
 email: Admin@komodohub.com
