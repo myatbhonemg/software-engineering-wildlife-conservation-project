@@ -4,12 +4,12 @@ email: Admin@komodohun.com
 password: password 
 
 **#All the accounts below's password is "1".**
-studen1@email.com
-teacher1@email.com
-sadmin1@email.com #school admin
-principal1@email.com
-cadmin1@email.com #Community admin
-public1@email.com
+studen1@email.com /
+teacher1@email.com /
+sadmin1@email.com #school admin /
+principal1@email.com /
+cadmin1@email.com #Community admin /
+public1@email.com /
 
 # 5005CMD-Software-Engineering-Assessment
 
