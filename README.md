@@ -1,3 +1,18 @@
+**PLEASE PULL ALL THE FILES AND FOLDERS INCLUDED IN MAIN BRANCH AND RUN APP.PY IN YOUR MACHINE**
+
+**#Log-in Accounts**
+System admin
+email: Admin@komodohub.com
+password: password 
+
+**#All the accounts below's password is "1".**
+studen1@email.com /
+teacher1@email.com /
+sadmin1@email.com #school admin /
+principal1@email.com /
+cadmin1@email.com #Community admin /
+public1@email.com /
+
 # 5005CMD-Software-Engineering-Assessment
 
 How User Registration Works: 
@@ -8,8 +23,9 @@ The Two-Step Process
 Step 1: Admin Registers the User
 Who can register users:
 
-School Admin → Can register Students and Teachers
-Community Admin → Can register Community Members
+School Admin --> Can register Students and Teachers 
+
+Community Admin --> Can register Community Members
 
 What the admin does:
 
