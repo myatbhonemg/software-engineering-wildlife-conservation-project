@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Analytics - Komodo Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/platform-analytics.css') }}">
+</head>
+<body class="dashboard-body">
+
+    {% include 'shared/navbar.html' %}
+
+    <div class="dash-layout">
+        {% include 'shared/sidebar.html' %}
+
+        <main class="dash-main">
+
+            <div class="page-header">
+                <h1>&#128202; Platform Analytics</h1>
+                <p>Overview of platform-wide activity and engagement metrics</p>
+            </div>
+
+            <!-- User Statistics -->
+            <div class="analytics-section">
+                <h2 class="section-title">&#128100; User Statistics</h2>
+                <div class="stats-box">
+                    <div class="stat-row">
+                        <span class="stat-name">Total Users</span>
+                        <span class="stat-value">{{ total_users }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Students</span>
+                        <span class="stat-value">{{ role_map.get('student', 0) }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Teachers</span>
+                        <span class="stat-value">{{ role_map.get('teacher', 0) }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Community Members</span>
+                        <span class="stat-value">{{ role_map.get('community-member', 0) }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">School Admins</span>
+                        <span class="stat-value">{{ role_map.get('school-admin', 0) }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Principals</span>
+                        <span class="stat-value">{{ role_map.get('principal', 0) }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Community Admins</span>
+                        <span class="stat-value">{{ role_map.get('community-admin', 0) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Organizations -->
+            <div class="analytics-section">
+                <h2 class="section-title">&#127979; Organizations</h2>
+                <div class="stats-box">
+                    <div class="stat-row">
+                        <span class="stat-name">Total Schools</span>
+                        <span class="stat-value">{{ total_schools }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Total Communities</span>
+                        <span class="stat-value">{{ total_communities }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Avg School Size (students)</span>
+                        <span class="stat-value">{{ avg_school_size }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Avg Community Size</span>
+                        <span class="stat-value">{{ avg_community_size }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conservation Activity -->
+            <div class="analytics-section">
+                <h2 class="section-title">&#128248; Conservation Activity</h2>
+                <div class="stats-box">
+                    <div class="stat-row">
+                        <span class="stat-name">Total Sightings Reported</span>
+                        <span class="stat-value">{{ total_sightings }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Species Documented</span>
+                        <span class="stat-value">{{ species_count }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Most Reported Species</span>
+                        <span class="stat-value">
+                            {{ most_reported_species['common_name'] if most_reported_species else '—' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Performers -->
+            <div class="analytics-section">
+                <h2 class="section-title">&#11088; Top Performers</h2>
+                <div class="stats-box">
+                    <div class="stat-row">
+                        <span class="stat-name">Most Active School</span>
+                        <span class="stat-value">
+                            {{ most_active_school['name'] if most_active_school else '—' }}
+                        </span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">Most Active Community</span>
+                        <span class="stat-value">
+                            {{ most_active_community['name'] if most_active_community else '—' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schools Table -->
+            <div class="analytics-section" id='schools'>
+                <h2 class="section-title">&#127979; All Schools</h2>
+                <div class="org-table-wrapper">
+                    <table class="org-table">
+                        <thead>
+                            <tr>
+                                <th>School Name</th>
+                                <th>Email</th>
+                                <th>Students</th>
+                                <th>Teachers</th>
+                                <th>Sightings</th>
+                                <th>Contact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in schools %}
+                            <tr>
+                                <td>{{ s['name'] }}</td>
+                                <td>{{ s['email'] }}</td>
+                                <td>{{ s['student_count'] }}</td>
+                                <td>{{ s['teacher_count'] }}</td>
+                                <td>{{ s['sighting_count'] }}</td>
+                                <td>
+                                    {% if s['admin_user_id'] %}
+                                    <a href="/messages?open={{ s['admin_user_id'] }}" class="btn-msg-org">💬 Message</a>
+                                    {% else %}
+                                    <span style="color:var(--text-muted); font-size:12px;">No admin</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No schools registered yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Communities Table -->
+            <div class="analytics-section" id='communities'>
+                <h2 class="section-title">&#129309; All Communities</h2>
+                <div class="org-table-wrapper">
+                    <table class="org-table">
+                        <thead>
+                            <tr>
+                                <th>Community Name</th>
+                                <th>Email</th>
+                                <th>Members</th>
+                                <th>Sightings</th>
+                                <th>Contact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in communities %}
+                            <tr>
+                                <td>{{ c['name'] }}</td>
+                                <td>{{ c['email'] }}</td>
+                                <td>{{ c['member_count'] }}</td>
+                                <td>{{ c['sighting_count'] }}</td>
+                                <td>
+                                    {% if c['admin_user_id'] %}
+                                    <a href="/messages?open={{ c['admin_user_id'] }}" class="btn-msg-org">💬 Message</a>
+                                    {% else %}
+                                    <span style="color:var(--text-muted); font-size:12px;">No admin</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No communities registered yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/tabs/platform-analytics.js') }}"></script>
+</body>
+</html>

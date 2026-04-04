@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syllabus – {{ cls['name'] }} - Komodo Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/syllabus.css') }}">
+</head>
+<body class="dashboard-body">
+
+    {% include 'shared/navbar.html' %}
+
+    <div class="dash-layout">
+        {% include 'shared/sidebar.html' %}
+
+        <main class="dash-main">
+
+            <div class="page-header">
+                <div>
+                    <a href="javascript:history.back()" class="back-link">← Back</a>
+                    <h1>&#128218; Syllabus — {{ cls['name'] }}</h1>
+                    
+                </div>
+                <button class="btn-add-topic" onclick="openAddTopicModal()">+ Add Topic</button>
+            </div>
+
+            <!-- Summary strip -->
+            <div class="syllabus-summary">
+                <span class="summary-label">{{ topics|length }} topic{% if topics|length != 1 %}s{% endif %}</span>
+                <span class="summary-sep">·</span>
+                <span class="summary-label">
+                    {% set total_acts = namespace(n=0) %}
+                    {% for t in topics %}{% set total_acts.n = total_acts.n + t['activities']|length %}{% endfor %}
+                    {{ total_acts.n }} activit{% if total_acts.n != 1 %}ies{% else %}y{% endif %}
+                </span>
+            </div>
+
+            <!-- Empty state -->
+            {% if not topics %}
+            <div class="syllabus-empty">
+                <div class="empty-icon">&#128218;</div>
+                <h3>No topics yet</h3>
+                <p>Start building this class's syllabus by adding your first topic.</p>
+                <button class="btn-add-topic" onclick="openAddTopicModal()">+ Add First Topic</button>
+            </div>
+            {% endif %}
+
+            <!-- Topics list -->
+            <div class="topics-list" id="topics-list">
+                {% for topic in topics %}
+                <div class="topic-card" id="topic-card-{{ topic['topic_id'] }}" data-topic-id="{{ topic['topic_id'] }}">
+
+                    <div class="topic-header">
+                        <div class="topic-drag-handle" title="Drag to reorder">&#8801;</div>
+                        <div class="topic-number">{{ loop.index }}</div>
+                        <div class="topic-info">
+                            <h3 class="topic-title">{{ topic['title'] }}</h3>
+                            {% if topic['learning_objective'] %}
+                            <p class="topic-objective">&#127919; {{ topic['learning_objective'] }}</p>
+                            {% endif %}
+                            {% if topic['description'] %}
+                            <p class="topic-desc">{{ topic['description'] }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="topic-meta">
+                            <span class="activity-count">
+                                {{ topic['activities']|length }} activit{% if topic['activities']|length != 1 %}ies{% else %}y{% endif %}
+                            </span>
+                            <!-- ITEM 7: Pip progress track (NEW) -->
+                            {% if topic['activities']|length > 0 %}
+                            <div class="topic-pip-track">
+                                {% for act in topic['activities'] %}
+                                <span class="topic-pip pip-{{ act['activity_type'] }}"
+                                    title="{{ act['title'] }} ({{ act['activity_type'] }})"></span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="topic-actions">
+                            <button class="btn-icon"
+                                    onclick="openEditTopicModal({{ topic['topic_id'] }}, {{ topic|tojson }})"
+                                    title="Edit topic">&#9998;</button>
+                            <button class="btn-icon btn-icon-danger"
+                                    onclick="deleteTopic({{ topic['topic_id'] }})"
+                                    title="Delete topic">&#128465;</button>
+                            <button class="btn-icon btn-toggle-topic"
+                                    onclick="toggleTopic({{ topic['topic_id'] }})"
+                                    title="Expand / collapse">&#8964;</button>
+                        </div>
+                    </div>
+
+                    <div class="activities-list" id="activities-{{ topic['topic_id'] }}">
+                        {% for act in topic['activities'] %}
+                        <div class="activity-row" id="activity-row-{{ act['activity_id'] }}">
+                            <span class="activity-type-icon">
+                                {% if act['activity_type'] == 'program' %}&#127942;
+                                {% elif act['activity_type'] == 'challenge' %}&#9889;
+                                {% elif act['activity_type'] == 'sighting' %}&#128248;
+                                {% elif act['activity_type'] == 'reading' %}&#128214;
+                                {% else %}&#9989;{% endif %}
+                            </span>
+                            <div class="activity-info">
+                                <span class="activity-title">{{ act['title'] }}</span>
+                                {% if act['description'] %}
+                                <span class="activity-desc">{{ act['description'] }}</span>
+                                {% endif %}
+                                {% if act['program_title'] %}
+                                <span class="activity-link">&#10132; Linked to program: {{ act['program_title'] }}</span>
+                                {% elif act['challenge_title'] %}
+                                <span class="activity-link">&#10132; Linked to challenge: {{ act['challenge_title'] }}</span>
+                                {% endif %}
+                            </div>
+                            <span class="activity-type-badge type-{{ act['activity_type'] }}">
+                                {{ act['activity_type'].title() }}
+                            </span>
+                            <button class="btn-icon"onclick="openEditActivityModal({{ act['activity_id'] }}, {{ act|tojson }})"title="Edit activity">&#9998;</button>
+                            <button class="btn-icon btn-icon-danger btn-sm"onclick="deleteActivity({{ act['activity_id'] }}, {{ topic['topic_id'] }})">&#128465;</button>
+                        </div>
+                        {% endfor %}
+
+                        <div class="add-activity-row">
+                            <button class="btn-add-activity" onclick="openAddActivityModal({{ topic['topic_id'] }})">
+                                + Add Activity
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ADD TOPIC MODAL -->
+    <div id="add-topic-modal" class="modal-overlay" style="display:none;">
+        <div class="syllabus-modal">
+            <h2>Add Topic</h2>
+            <div class="syl-field">
+                <label for="topic-title">Topic Title *</label>
+                <input type="text" id="topic-title" placeholder="e.g., Introduction to Javan Rhinoceros">
+            </div>
+            <div class="syl-field">
+                <label for="topic-objective">Learning Objective</label>
+                <input type="text" id="topic-objective" placeholder="e.g., Students will understand habitat threats">
+            </div>
+            <div class="syl-field">
+                <label for="topic-desc">Description</label>
+                <textarea id="topic-desc" rows="3" placeholder="Brief overview of this topic..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('add-topic-modal')">Cancel</button>
+                <button class="btn-primary" onclick="submitAddTopic()">Add Topic</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT TOPIC MODAL -->
+    <div id="edit-topic-modal" class="modal-overlay" style="display:none;">
+        <div class="syllabus-modal">
+            <h2>Edit Topic</h2>
+            <input type="hidden" id="edit-topic-id">
+            <div class="syl-field">
+                <label for="edit-topic-title">Topic Title *</label>
+                <input type="text" id="edit-topic-title">
+            </div>
+            <div class="syl-field">
+                <label for="edit-topic-objective">Learning Objective</label>
+                <input type="text" id="edit-topic-objective">
+            </div>
+            <div class="syl-field">
+                <label for="edit-topic-desc">Description</label>
+                <textarea id="edit-topic-desc" rows="3"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('edit-topic-modal')">Cancel</button>
+                <button class="btn-primary" onclick="submitEditTopic()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD ACTIVITY MODAL -->
+    <div id="add-activity-modal" class="modal-overlay" style="display:none;">
+        <div class="syllabus-modal">
+            <h2>Add Activity</h2>
+            <input type="hidden" id="activity-topic-id">
+            <div class="syl-field">
+                <label for="activity-title">Activity Title *</label>
+                <input type="text" id="activity-title" placeholder="e.g., Watch documentary on Sumatran Tiger">
+            </div>
+            <div class="syl-field">
+                <label for="activity-type">Activity Type</label>
+                <select id="activity-type" onchange="onActivityTypeChange()">
+                    <option value="task">General Task</option>
+                    <option value="reading">Reading</option>
+                    <option value="sighting">Sighting Report</option>
+                    <option value="program">Linked Program</option>
+                    <option value="challenge">Linked Challenge</option>
+                </select>
+            </div>
+            <div class="syl-field" id="link-program-group" style="display:none;">
+                <label for="activity-program">Select Program</label>
+                <select id="activity-program">
+                    <option value="">— Choose a program —</option>
+                    {% for p in programs %}
+                    <option value="{{ p['program_id'] }}">{{ p['title'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="syl-field" id="link-challenge-group" style="display:none;">
+                <label for="activity-challenge">Select Challenge</label>
+                <select id="activity-challenge">
+                    <option value="">— Choose a challenge —</option>
+                    {% for c in challenges %}
+                    <option value="{{ c['challenge_id'] }}">{{ c['title'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="link-species-group" style="display:none;">
+                <label>Species Required</label>
+                <select id="activity-species">
+                    <option value="">— Select species —</option>
+                    {% for s in species %}
+                    <option value="{{ s['species_id'] }}">{{ s['common_name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="syl-field">
+                <label for="activity-desc">Description</label>
+                <textarea id="activity-desc" rows="2" placeholder="Optional details..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('add-activity-modal')">Cancel</button>
+                <button class="btn-primary" onclick="submitAddActivity()">Add Activity</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CLASS_ID = {{ cls['class_id'] }};
+    </script>
+    <script src="{{ url_for('static', filename='js/tabs/syllabus.js') }}"></script>
+</body>
+</html>

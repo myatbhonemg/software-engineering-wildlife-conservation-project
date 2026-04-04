@@ -74,8 +74,8 @@
 
 /* ===== REPORTS FEED ===== */
 .reports-feed {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 }
 
@@ -243,4 +243,23 @@
         flex-direction: column;
         gap: 8px;
     }
+}
+
+/* Assess Button */
+.btn-assess-card {
+    padding: 8px 20px;
+    background-color: var(--secondary-green);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-assess-card:hover {
+    opacity: 0.85;
 }

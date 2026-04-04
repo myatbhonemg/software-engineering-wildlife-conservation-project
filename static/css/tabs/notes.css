@@ -1,0 +1,214 @@
+/* =============================================================
+   notes.css
+   File: static/css/tabs/notes.css
+   ============================================================= */
+ 
+.notes-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+@media (max-width: 900px) { .notes-layout { grid-template-columns: 1fr; } }
+ 
+.notes-col {
+    background: var(--white);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    overflow: hidden;
+}
+.notes-col-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+.notes-col-header h2 { font-size: 16px; color: var(--text-dark); }
+ 
+.btn-add-note {
+    padding: 8px 16px;
+    background: var(--secondary-green);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-add-note:hover { background: var(--primary-green); }
+ 
+.announcements-list, .student-notes-list { padding: 16px; }
+.notes-empty { text-align: center; padding: 32px; color: var(--text-muted); font-size: 14px; }
+.notes-empty-msg { color: var(--text-muted); font-size: 14px; padding: 16px; }
+ 
+.note-card {
+    background: var(--light-bg);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--secondary-green);
+}
+.note-card.private { border-left-color: #9B59B6; }
+.note-body  { font-size: 14px; color: var(--text-dark); line-height: 1.5; margin-bottom: 8px; }
+.note-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+.btn-del-note {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    padding: 2px 4px;
+}
+.btn-del-note:hover { opacity: 1; }
+ 
+/* Student note rows */
+.student-note-row {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0;
+}
+.student-note-row:last-child { border-bottom: none; }
+ 
+.snr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    cursor: pointer;
+    user-select: none;
+}
+.snr-header:hover { background: none; }
+ 
+.snr-student { display: flex; align-items: center; gap: 10px; }
+.snr-avatar  {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--light-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; overflow: hidden;
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+.snr-avatar img { width:100%; height:100%; object-fit:cover; }
+.snr-name    { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+.snr-badge   {
+    background: var(--secondary-green);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 10px;
+}
+.snr-actions { display: flex; align-items: center; gap: 10px; }
+/* Message button - green, no underline */
+.btn-add-note-sm {
+    padding: 5px 12px;
+    background: var(--secondary-green);
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #fff;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+}
+.btn-add-note-sm:hover {
+    background: var(--primary-green);
+    color: #fff;
+    text-decoration: none;
+}
+.btn-add-note-sm:hover { border-color: var(--secondary-green); background: #ebf5e7; }
+.snr-chevron { font-size: 16px; color: var(--text-muted); transition: transform 0.2s; }
+.snr-notes   { padding: 0 0 12px 0; }
+.snr-empty   { font-size: 13px; color: var(--text-muted); padding: 8px 0 4px; }
+ 
+/* Note Modal */
+.note-modal-box {
+    background: var(--white);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: modalIn 0.25s ease;
+}
+@keyframes modalIn {
+    from { opacity:0; transform: translateY(-16px) scale(0.97); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
+}
+.note-modal-box .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border-color);
+}
+.note-modal-box .modal-header h2 { font-size: 18px; color: var(--text-dark); }
+.note-modal-box .modal-body { padding: 18px 22px; }
+.note-modal-box .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+}
+.note-modal-box textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-dark);
+    resize: vertical;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+.note-modal-box textarea:focus { outline: none; border-color: var(--secondary-green); }
+.note-modal-box textarea.input-error { border-color: #e53935; }
+.note-modal-box .modal-actions {
+    display: flex;
+    gap: 10px;
+    padding: 0 22px 20px;
+}
+.btn-cancel  {
+    flex: 1; padding: 11px; background: var(--light-bg);
+    border: 2px solid var(--border-color); border-radius: 8px;
+    font-size: 14px; font-weight: 700; cursor: pointer; color: var(--text-dark);
+    transition: background 0.2s;
+}
+.btn-cancel:hover { background: #dde8d8; }
+.btn-confirm {
+    flex: 2; padding: 11px; background: var(--secondary-green);
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 700;
+    cursor: pointer; color: #fff; transition: background 0.2s, transform 0.15s;
+}
+.btn-confirm:hover:not(:disabled) { background: var(--primary-green); transform: translateY(-1px); }
+.btn-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
+ 
+/* Notes link on syllabus/classes page */
+.btn-notes-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--light-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.btn-notes-link:hover { border-color: var(--secondary-green); background: #ebf5e7; }

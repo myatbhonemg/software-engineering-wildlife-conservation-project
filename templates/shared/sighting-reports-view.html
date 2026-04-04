@@ -42,14 +42,9 @@
                     <label for="filter-species">Species</label>
                     <select id="filter-species" onchange="filterReports()">
                         <option value="all">All Species</option>
-                        <option value="javan-rhino">Javan Rhinoceros</option>
-                        <option value="sumatran-tiger">Sumatran Tiger</option>
-                        <option value="bali-myna">Bali Myna</option>
-                        <option value="komodo-dragon">Komodo Dragon</option>
-                        <option value="javan-hawk-eagle">Javan Hawk-Eagle</option>
-                        <option value="celebes-macaque">Celebes Crested Macaque</option>
-                        <option value="sumatran-orangutan">Sumatran Orangutan</option>
-                        <option value="sumatran-elephant">Sumatran Elephant</option>
+                        {% for s in sightings | map(attribute='common_name') | unique %}
+                        <option value="{{ s.lower().replace(' ', '-') }}">{{ s }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
@@ -85,7 +80,6 @@
                                 <span class="user-meta">{{ s['reporter_role'].replace('-', ' ').title() }} • {{ s['sighting_date'] }}</span>
                             </div>
                         </div>
-                        <button class="btn-delete-card" onclick="deleteReport(this, {{ s['sighting_id'] }})">Delete</button>
                     </div>
 
                     <div class="report-content">

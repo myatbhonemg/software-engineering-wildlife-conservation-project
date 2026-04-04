@@ -40,19 +40,19 @@
     <section class="impact-stats">
         <div class="stats-container">
             <div class="stat-item">
-                <div class="stat-number">500+</div>
+                <div class="stat-number">{{ school_count }}+</div>
                 <div class="stat-label">Schools Enrolled</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number">3,000+</div>
+                <div class="stat-number">{{ community_member_count }}+</div>
                 <div class="stat-label">Community Members</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number">5,000+</div>
+                <div class="stat-number">{{ sighting_count }}+</div>
                 <div class="stat-label">Sightings Reported</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number">25+</div>
+                <div class="stat-number">{{ species_count }}+</div>
                 <div class="stat-label">Species Tracked</div>
             </div>
         </div>
@@ -82,6 +82,33 @@
         </div>
     </section>
 
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+        <div class="how-container">
+            <div class="section-header">
+                <h2>How It Works</h2>
+                <p>Komodo Hub connects schools, communities, and citizens in conservation</p>
+            </div>
+            <div class="how-grid">
+                <div class="how-card">
+                    <div class="how-icon">&#127979;</div>
+                    <h3>Schools</h3>
+                    <p>Teachers create conservation programs and challenges. Students report sightings, complete learning materials, and track their progress — all integrated into the classroom.</p>
+                </div>
+                <div class="how-card">
+                    <div class="how-icon">&#129309;</div>
+                    <h3>Communities</h3>
+                    <p>Local communities join as groups, participate in conservation challenges, report species sightings from their region, and contribute to Indonesia's national wildlife database.</p>
+                </div>
+                <div class="how-card">
+                    <div class="how-icon">&#128100;</div>
+                    <h3>General Public</h3>
+                    <p>Anyone can browse the species knowledge base and view sighting reports from across Indonesia — no account required. Join a school or community to contribute.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Endangered Species Section -->
     <section class="species-section" id="species">
         <div class="species-container">
@@ -93,25 +120,70 @@
             <div class="species-showcase">
                 <!-- Species Card  -->
                 {% for s in species %}
-                <div class="showcase-card">
-                    <div class="showcase-image">
-                        <img src="{{ url_for('static', filename=s['image']) }}" alt="{{ s['common_name'] }}">
+                <a href="{{ s['full_details_url'] }}" target="_blank" class="showcase-card-link">
+                    <div class="showcase-card">
+                        <div class="showcase-image">
+                            <img src="{{ url_for('static', filename=s['image']) }}" alt="{{ s['common_name'] }}">
+                        </div>
+                        <div class="showcase-info">
+                            <h3>{{ s['common_name'] }}</h3>
+                            <p class="showcase-scientific">{{ s['scientific_name'] }}</p>
+                            <span class="showcase-badge status-{{ s['status'].lower() }}">
+                                {% if s['status'] == 'CR' %} Critically Endangered
+                                {% elif s['status'] == 'EN' %}Endangered
+                                {% elif s['status'] == 'VU' %}Vulnerable
+                                {% endif %}
+                            </span>
+                            <p class="showcase-description">{{ s['description'] }}</p>
+                            <p class="species-fact">💡 {{ s['fun_fact'] }}</p>
+                            <span class="learn-more-link">Click here to learn more &#8599;</span>
+                        </div>
                     </div>
-                    <div class="showcase-info">
-                        <h3>{{ s['common_name'] }}</h3>
-                        <p class="showcase-scientific">{{ s['scientific_name'] }}</p>
-                        <span class="showcase-badge status-{{ s['status'].lower() }}">
-                            {% if s['status'] == 'CR' %} Critically Endangered
-                            {% elif s['status'] == 'EN' %}Endangered
-                            {% elif s['status'] == 'VU' %}Vulnerable
-                            {% endif %}
-                        </span>
-                        <p class="showcase-description">{{ s['description'] }}</p>
-                    </div>
-                </div>    
+                </a>   
                 {% endfor %}
-                
             </div>
+
+            <!-- Recent Sightings -->
+            <section class="recent-sightings">
+                <div class="sightings-container">
+                    <div class="section-header">
+                        <h2>Latest Sightings</h2>
+                        <p>Real reports from schools and communities across Indonesia</p>
+                    </div>
+                    {% if recent_sightings %}
+                    <div class="sightings-grid">
+                        {% for s in recent_sightings %}
+                        <div class="sighting-card">
+                            {% if s['photo'] %}
+                            <div class="sighting-photo">
+                                <img src="{{ url_for('static', filename=s['photo']) }}" alt="{{ s['common_name'] }}">
+                            </div>
+                            {% else %}
+                            <div class="sighting-photo no-photo">
+                                <span>📷 No photo</span>
+                            </div>
+                            {% endif %}
+
+                            <div class="sighting-card-body">
+                                <h4 class="sighting-title">Spotted {{ s['common_name'] }} in {{ s['location'] }}</h4>
+                                <p class="sighting-desc">{{ s['description'] }}</p>
+                                <div class="sighting-meta-row">
+                                    <span>📍 {{ s['location'] }}</span>
+                                    <span>👁️ {{ s['count'] }} individual{% if s['count'] > 1 %}s{% endif %}</span>
+                                </div>
+                                <div class="sighting-school-row">
+                                    <span class="sighting-school">🏫 {{ s['school_name'] or 'Independent Reporter' }}</span>
+                                    <span class="sighting-date">{{ s['sighting_date'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p style="text-align:center; color:#7F8C8D;">No sightings reported yet — be the first!</p>
+                    {% endif %}
+                </div>
+            </section>
 
             <div class="cta-section">
                 <h3>Ready to Make a Difference?</h3>

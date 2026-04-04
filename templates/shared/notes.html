@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes – {{ cls['name'] }} - Komodo Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/classes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/notes.css') }}">
+</head>
+<body class="dashboard-body">
+    {% include 'shared/navbar.html' %}
+    <div class="dash-layout">
+        {% include 'shared/sidebar.html' %}
+        <main class="dash-main">
+
+            <div class="page-header">
+                <div>
+                    <a href="javascript:history.back()" class="back-link">← Back</a>
+                    <h1>📌 Notes — {{ cls['name'] }}</h1>
+                    <p>Class-wide announcements and private student notes</p>
+                </div>
+            </div>
+
+            <div class="notes-layout">
+
+                <!-- LEFT: Announcements -->
+                <div class="notes-col">
+                    <div class="notes-col-header">
+                        <h2>📢 Announcements</h2>
+                        <button class="btn-add-note" onclick="openNoteModal('announcement', null)">
+                            + New
+                        </button>
+                    </div>
+
+                    <div class="announcements-list" id="announcements-list">
+                        {% if not announcements %}
+                        <div class="notes-empty" id="ann-empty">
+                            <p>No announcements yet. Post one for the whole class.</p>
+                        </div>
+                        {% else %}
+                        {% for a in announcements %}
+                        <div class="note-card" id="note-{{ a['note_id'] }}">
+                            <div class="note-body">{{ a['body'] }}</div>
+                            <div class="note-footer">
+                                <span>{{ a['author_name'] }} · {{ a['created_at'][:10] }}</span>
+                                <button class="btn-del-note"
+                                        onclick="deleteNote({{ a['note_id'] }})">🗑</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- RIGHT: Private student notes -->
+                <div class="notes-col">
+                    <div class="notes-col-header">
+                        <h2>🔒 Student Notes</h2>
+                    </div>
+
+                    <div class="student-notes-list">
+                        {% if not students %}
+                        <p class="notes-empty-msg">No students enrolled in this class.</p>
+                        {% endif %}
+                        {% for s in students %}
+                        <div class="student-note-row">
+                            <div class="snr-header" onclick="toggleStudentNotes({{ s['user_id'] }})">
+                                <div class="snr-student">
+                                    <div class="snr-avatar">
+                                        {% if s['avatar'] %}
+                                            <img src="{{ url_for('static', filename=s['avatar']) }}" alt="">
+                                        {% else %}
+                                            👤
+                                        {% endif %}
+                                    </div>
+                                    <span class="snr-name">{{ s['fullname'] }}</span>
+                                    {% if s['notes'] %}
+                                    <span class="snr-badge">{{ s['notes']|length }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="snr-actions">
+                                    <div class="snr-actions">
+                                        <a href="/messages?open={{ s['user_id'] }}" class="btn-add-note-sm">💬 Message</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Note Modal -->
+    <div class="modal-overlay" id="note-modal" style="display:none;">
+        <div class="note-modal-box">
+            <div class="modal-header">
+                <h2 id="note-modal-title">New Announcement</h2>
+                <button class="modal-close" onclick="closeNoteModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="note-type-val">
+                <input type="hidden" id="note-student-id">
+                <div class="form-group">
+                    <label id="note-label">Message</label>
+                    <textarea id="note-body" rows="5"
+                              placeholder="Type your note here…"></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeNoteModal()">Cancel</button>
+                <button class="btn-confirm" onclick="submitNote()">Post Note</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CLASS_ID = {{ cls['class_id'] }};
+    </script>
+    <script src="{{ url_for('static', filename='js/tabs/notes.js') }}"></script>
+</body>
+</html>

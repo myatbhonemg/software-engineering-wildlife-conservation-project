@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submissions – {{ challenge['title'] }} - Komodo Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/assess-submissions.css') }}">
+</head>
+<body class="dashboard-body">
+    {% include 'shared/navbar.html' %}
+    <div class="dash-layout">
+        {% include 'shared/sidebar.html' %}
+        <main class="dash-main">
+
+            <div class="page-header">
+                <a href="javascript:history.back()" class="back-link">← Back</a>
+                <div>
+                    <h1>👁 Public Submissions</h1>
+                    <p>{{ challenge['title'] }} &bull; {{ challenge['points'] }} pts &bull; Deadline {{ challenge['deadline'][:10] }}</p>
+                </div>
+            </div>
+
+            <div class="assess-summary">
+                <div class="assess-stat">
+                    <span class="assess-stat-n">{{ submissions|length }}</span>
+                    <span class="assess-stat-l">Total Submissions</span>
+                </div>
+                <div class="assess-stat">
+                    <span class="assess-stat-n">{{ submissions | selectattr('score', 'ne', None) | list | length }}</span>
+                    <span class="assess-stat-l">Graded</span>
+                </div>
+            </div>
+
+            {% if not submissions %}
+            <div class="assess-empty">
+                <span style="font-size:48px;">📭</span>
+                <p>No submissions yet.</p>
+            </div>
+            {% else %}
+            <div class="submissions-list">
+                {% for sub in submissions %}
+                <div class="submission-card {% if sub['score'] is not none %}graded{% endif %}">
+
+                    <div class="sub-student">
+                        <div class="sub-avatar" style="font-size:22px;">
+                            {% if sub['org_avatar'] %}
+                                <img src="{{ url_for('static', filename=sub['org_avatar']) }}"
+                                     style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                            {% else %}
+                                🏫
+                            {% endif %}
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <p class="sub-name">{{ sub['org_name'] or 'Unknown Organisation' }}</p>
+                            <p class="sub-meta">{{ sub['org_category'].title() if sub['org_category'] else '' }} • Submitted {{ sub['submitted_at'][:10] }}</p>
+                        </div>
+                        {% if sub['score'] is not none %}
+                        <span class="grade-badge">{{ sub['score'] }}/100</span>
+                        {% else %}
+                        <span class="grade-badge ungraded">Ungraded</span>
+                        {% endif %}
+                    </div>
+
+                    {% if sub['media_path'] %}
+                    <div class="sub-media">
+                        {% set ext = sub['media_path'].rsplit('.', 1)[-1].lower() %}
+                        {% if ext in ['mp4', 'mov'] %}
+                        <video controls class="sub-video">
+                            <source src="{{ url_for('static', filename=sub['media_path']) }}">
+                        </video>
+                        {% else %}
+                        <img src="{{ url_for('static', filename=sub['media_path']) }}"
+                             class="sub-image" alt="Evidence"
+                             onclick="this.classList.toggle('sub-image-expanded')">
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if sub['description'] %}
+                    <div class="sub-description"><p>{{ sub['description'] }}</p></div>
+                    {% endif %}
+
+                    {% if sub['score'] is not none %}
+                    <div class="my-grade-display" style="background:#e6f4ea; border-radius:8px; padding:10px 14px; border-left:3px solid var(--secondary-green);">
+                        <span style="font-size:11px; font-weight:700; color:var(--secondary-green); text-transform:uppercase;">Score</span>
+                        <span style="font-size:20px; font-weight:800; color:#1e6e3a;">{{ sub['score'] }}/100</span>
+                        {% if sub['feedback'] %}
+                        <span style="font-size:13px; color:#2d6a4f;">💬 {{ sub['feedback'] }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+</body>
+</html>

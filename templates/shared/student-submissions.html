@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% if view_mode == 'class' %}
+        Submissions – {{ class_['name'] }} - Komodo Hub
+        {% else %}
+        Submissions – {{ student['fullname'] }} - Komodo Hub
+        {% endif %}
+    </title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/assess-submissions.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/student-submissions.css') }}">
+</head>
+<body class="dashboard-body">
+    {% include 'shared/navbar.html' %}
+    <div class="dash-layout">
+        {% include 'shared/sidebar.html' %}
+        <main class="dash-main">
+
+            <div class="page-header">
+                <div>
+                    {% if view_mode == 'class' %}
+                    <a href="javascript:history.back()" class="back-link">← Back</a>
+                    <h1>📋 Submissions — {{ class_['name'] }}</h1>
+                    <p>{{ student['email'] }}</p>
+                    {% else %}
+                    <a href="javascript:history.back()" class="back-link">← Back</a>
+                    {% if user['role'] == 'student' %}
+                    <h1>📋 My Submissions & Grades</h1>
+                    <p>Track all your work and feedback from your teacher</p>
+                    {% else %}
+                    <h1>📋 Submissions — {{ student['fullname'] }}</h1>
+                    <p>{{ student['email'] }}</p>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                {% if view_mode != 'class' %}
+                    {% if user['role'] != 'student' %}
+                    <a href="/student-progress/{{ student['user_id'] }}" class="btn-switch-view">
+                        📊 View Progress Report →
+                    </a>
+                    {% else %}
+                    <a href="/student-progress/{{ student['user_id'] }}" class="btn-switch-view">
+                        📊 View Your Progress →
+                    </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <!-- Summary strip -->
+            <div class="assess-summary">
+                <div class="assess-stat">
+                    <span class="assess-stat-n">{{ programs|length }}</span>
+                    <span class="assess-stat-l">Programs</span>
+                </div>
+                <div class="assess-stat">
+                    <span class="assess-stat-n">{{ challenges|length }}</span>
+                    <span class="assess-stat-l">Challenges</span>
+                </div>
+                <div class="assess-stat">
+                    <span class="assess-stat-n">{{ sightings|length }}</span>
+                    <span class="assess-stat-l">Sightings</span>
+                </div>
+                <div class="assess-stat">
+                    <span class="assess-stat-n">{{ creative_files|length }}</span>
+                    <span class="assess-stat-l">Creative Files</span>
+                </div>
+                <div class="assess-stat">
+                    <span class="assess-stat-n">{{ student['points'] or 0 }}</span>
+                    <span class="assess-stat-l">Points</span>
+                </div>
+            </div>
+
+            <!-- Filter tabs -->
+            <div class="sub-filter-tabs">
+                <button class="sub-tab active" onclick="showSection('programs', this)">📁 Programs</button>
+                <button class="sub-tab" onclick="showSection('challenges', this)">⚡ Challenges</button>
+                <button class="sub-tab" onclick="showSection('sightings', this)">📷 Sightings</button>
+                <button class="sub-tab" onclick="showSection('creative', this)">🎨 Creative Canvas</button>
+            </div>
+
+            <!-- PROGRAMS -->
+            <div class="sub-section active" id="section-programs">
+                {% if not programs %}
+                <div class="assess-empty"><span style="font-size:40px;">📭</span><p>No program enrollments yet.</p></div>
+                {% else %}
+                <div class="submissions-list">
+                    {% for p in programs %}
+                    <div class="submission-card {% if p['status'] == 'completed' %}graded{% endif %}"
+                        id="prog-card-{{ p['program_id'] }}{% if view_mode == 'class' %}-{{ p['student_id'] }}{% endif %}">
+                        <div class="sub-student">
+                            <div class="sub-student-top">
+                                <div style="flex:1;">
+                                    {% if view_mode == 'class' %}
+                                    <p class="sub-name">{{ p['student_name'] }} — {{ p['title'] }}</p>
+                                    {% else %}
+                                    <p class="sub-name">{{ p['title'] }}</p>
+                                    {% endif %}
+                                    <p class="sub-meta">
+                                        {% if p['species_focus'] %}🦎 {{ p['species_focus'] }} &bull; {% endif %}
+                                        Enrolled {{ p['enrolled_at'][:10] }}
+                                        {% if p['completed_at'] %} · Completed {{ p['completed_at'][:10] }}{% endif %}
+                                    </p>
+                                </div>
+                                <span class="status-pill status-{{ p['status'] }}">
+                                    {% if p['status'] == 'completed' %}✅ Completed
+                                    {% elif p['status'] == 'doing' %}📖 In Progress
+                                    {% else %}🔵 Enrolled{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        {% if p['total_files'] > 0 %}
+                        <div style="margin-top:4px;">
+                            <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); margin-bottom:4px;">
+                                <span>File progress</span>
+                                <span>{{ p['done_files'] }}/{{ p['total_files'] }} files</span>
+                            </div>
+                            <div class="prc-track">
+                                <div class="prc-fill" style="width: {{ (p['done_files'] / p['total_files'] * 100) | int if p['total_files'] else 0 }}%"></div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if user['role'] == 'student' %}
+                            {% if p['teacher_score'] is not none or p['teacher_feedback'] %}
+                            <div class="my-grade-display">
+                                <span class="my-grade-label">📝 Teacher Assessment</span>
+                                {% if p['teacher_score'] is not none %}
+                                <span class="my-grade-score">{{ p['teacher_score'] }}/100</span>
+                                {% endif %}
+                                {% if p['teacher_feedback'] %}
+                                <span class="my-grade-feedback">💬 {{ p['teacher_feedback'] }}</span>
+                                {% endif %}
+                                {% if p['assessed_at'] %}
+                                <span class="my-grade-meta">by {{ p['assessor_name'] }} on {{ p['assessed_at'][:10] }}</span>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <p class="grade-pending">📋 Not assessed yet</p>
+                            {% endif %}
+                        {% else %}
+                            {% set sid = p['student_id'] if view_mode == 'class' else student['user_id'] %}
+                            {% set uid = p['student_id'] if view_mode == 'class' else student['user_id'] %}
+                            <div class="grading-panel">
+                                <div class="grade-row">
+                                    <div class="grade-field">
+                                        <label>Score (0–100)</label>
+                                        <input type="number" class="grade-score-input"
+                                            id="prog-score-{{ p['program_id'] }}-{{ uid }}"
+                                            value="{{ p['teacher_score'] if p['teacher_score'] is not none else '' }}"
+                                            min="0" max="100" placeholder="—">
+                                    </div>
+                                    <div class="grade-field grade-field-wide">
+                                        <label>Feedback</label>
+                                        <input type="text" class="grade-feedback-input"
+                                            id="prog-feedback-{{ p['program_id'] }}-{{ uid }}"
+                                            value="{{ p['teacher_feedback'] or '' }}"
+                                            placeholder="Optional comments…">
+                                    </div>
+                                    <button class="btn-save-grade"
+                                            onclick="saveGenericGrade('program', {{ p['program_id'] }}, 'prog-score-{{ p['program_id'] }}-{{ uid }}', 'prog-feedback-{{ p['program_id'] }}-{{ uid }}', 'prog-card-{{ p['program_id'] }}{% if view_mode == 'class' %}-{{ p['student_id'] }}{% endif %}', {{ uid }})">
+                                        Save
+                                    </button>
+                                </div>
+                                {% if p['assessed_at'] %}
+                                <p class="grade-meta">Assessed by {{ p['assessor_name'] }} on {{ p['assessed_at'][:10] }}</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- CHALLENGES -->
+            <div class="sub-section" id="section-challenges">
+                {% if not challenges %}
+                <div class="assess-empty"><span style="font-size:40px;">📭</span><p>No challenge submissions yet.</p></div>
+                {% else %}
+                <div class="submissions-list">
+                    {% for c in challenges %}
+                    <div class="submission-card {% if c['score'] is not none %}graded{% endif %}"
+                         id="sub-card-{{ c['submission_id'] }}">
+
+                        <div class="sub-student">
+                            <div class="sub-student-top">
+                                <div style="flex:1;">
+                                    {% if view_mode == 'class' %}
+                                    <p class="sub-name">{{ c['student_name'] }} — {{ c['challenge_title'] }}</p>
+                                    {% else %}
+                                    <p class="sub-name">{{ c['challenge_title'] }}</p>
+                                    {% endif %}
+                                    <p class="sub-meta">
+                                        {% if c['species_focus'] %}🦎 {{ c['species_focus'] }} &bull; {% endif %}
+                                        +{{ c['points'] }} pts &bull; Submitted {{ c['submitted_at'][:10] }}
+                                    </p>
+                                </div>
+                                {% if c['score'] is not none %}
+                                <span class="grade-badge">{{ c['score'] }}/100</span>
+                                {% else %}
+                                <span class="grade-badge ungraded">Ungraded</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if c['media_path'] %}
+                        <div class="sub-media">
+                            {% set ext = c['media_path'].rsplit('.', 1)[-1].lower() %}
+                            {% if ext in ['mp4', 'mov'] %}
+                            <video controls class="sub-video">
+                                <source src="{{ url_for('static', filename=c['media_path']) }}">
+                            </video>
+                            {% else %}
+                            <img src="{{ url_for('static', filename=c['media_path']) }}"
+                                 class="sub-image" alt="Evidence"
+                                 onclick="this.classList.toggle('sub-image-expanded')">
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if c['submission_note'] %}
+                        <div class="sub-description"><p>{{ c['submission_note'] }}</p></div>
+                        {% endif %}
+
+                        {% if user['role'] == 'student' %}
+                            {% if c['score'] is not none or c['feedback'] %}
+                            <div class="my-grade-display">
+                                <span class="my-grade-label">📝 Teacher Grade</span>
+                                {% if c['score'] is not none %}
+                                <span class="my-grade-score">{{ c['score'] }}/100</span>
+                                {% endif %}
+                                {% if c['feedback'] %}
+                                <span class="my-grade-feedback">💬 {{ c['feedback'] }}</span>
+                                {% endif %}
+                                {% if c['graded_at'] %}
+                                <span class="my-grade-meta">by {{ c['grader_name'] }} on {{ c['graded_at'][:10] }}</span>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <p class="grade-pending">📋 Awaiting teacher grade</p>
+                            {% endif %}
+                        {% else %}
+                            <div class="grading-panel">
+                                <div class="grade-row">
+                                    <div class="grade-field">
+                                        <label>Score (0–100)</label>
+                                        <input type="number" class="grade-score-input"
+                                            id="score-{{ c['submission_id'] }}"
+                                            value="{{ c['score'] if c['score'] is not none else '' }}"
+                                            min="0" max="100" placeholder="—">
+                                    </div>
+                                    <div class="grade-field grade-field-wide">
+                                        <label>Feedback</label>
+                                        <input type="text" class="grade-feedback-input"
+                                            id="feedback-{{ c['submission_id'] }}"
+                                            value="{{ c['feedback'] or '' }}"
+                                            placeholder="Optional comments…">
+                                    </div>
+                                    <button class="btn-save-grade"
+                                            onclick="saveGrade({{ c['submission_id'] }})">
+                                        Save
+                                    </button>
+                                </div>
+                                {% if c['graded_at'] %}
+                                <p class="grade-meta">Graded by {{ c['grader_name'] }} on {{ c['graded_at'][:10] }}</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- SIGHTINGS -->
+            <div class="sub-section" id="section-sightings">
+                {% if not sightings %}
+                <div class="assess-empty"><span style="font-size:40px;">📭</span><p>No sightings recorded yet.</p></div>
+                {% else %}
+                <div class="submissions-list">
+                    {% for s in sightings %}
+                    <div class="submission-card {% if s['teacher_score'] is not none %}graded{% endif %}"
+                        id="sight-card-{{ s['sighting_id'] }}">
+                        <div class="sub-student">
+                            <div class="sub-student-top">
+                                <div style="flex:1;">
+                                    {% if view_mode == 'class' %}
+                                    <p class="sub-name">{{ s['student_name'] }} — {{ s['common_name'] }}</p>
+                                    {% else %}
+                                    <p class="sub-name">{{ s['common_name'] }}</p>
+                                    {% endif %}
+                                    <p class="sub-meta">
+                                        📍 {{ s['location'] }}, {{ s['region'] }} &bull;
+                                        {{ s['sighting_date'] }} &bull;
+                                        {{ s['count'] }} individual{{ 's' if s['count'] != 1 else '' }}
+                                    </p>
+                                </div>
+                                {% if s['condition'] %}
+                                <span class="status-pill status-enrolled">{{ s['condition'] }}</span>
+                                {% endif %}
+                                {% if s['teacher_score'] is not none %}
+                                <span class="grade-badge">{{ s['teacher_score'] }}/100</span>
+                                {% else %}
+                                <span class="grade-badge ungraded">Ungraded</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if s['photo'] %}
+                        <div class="sub-media">
+                            <img src="{{ url_for('static', filename=s['photo']) }}"
+                                class="sub-image" alt="Sighting photo"
+                                onclick="this.classList.toggle('sub-image-expanded')">
+                        </div>
+                        {% endif %}
+                        {% if s['description'] %}
+                        <div class="sub-description"><p>{{ s['description'] }}</p></div>
+                        {% endif %}
+
+                        {% if user['role'] == 'student' %}
+                            {% if s['teacher_score'] is not none or s['teacher_feedback'] %}
+                            <div class="my-grade-display">
+                                <span class="my-grade-label">📝 Teacher Assessment</span>
+                                {% if s['teacher_score'] is not none %}
+                                <span class="my-grade-score">{{ s['teacher_score'] }}/100</span>
+                                {% endif %}
+                                {% if s['teacher_feedback'] %}
+                                <span class="my-grade-feedback">💬 {{ s['teacher_feedback'] }}</span>
+                                {% endif %}
+                                {% if s['assessed_at'] %}
+                                <span class="my-grade-meta">by {{ s['assessor_name'] }} on {{ s['assessed_at'][:10] }}</span>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <p class="grade-pending">📋 No assessed yet</p>
+                            {% endif %}
+                        {% else %}
+                            {% set uid = s['user_id'] if view_mode == 'class' else student['user_id'] %}
+                            <div class="grading-panel">
+                                <div class="grade-row">
+                                    <div class="grade-field">
+                                        <label>Score (0–100)</label>
+                                        <input type="number" class="grade-score-input"
+                                            id="sight-score-{{ s['sighting_id'] }}"
+                                            value="{{ s['teacher_score'] if s['teacher_score'] is not none else '' }}"
+                                            min="0" max="100" placeholder="—">
+                                    </div>
+                                    <div class="grade-field grade-field-wide">
+                                        <label>Feedback</label>
+                                        <input type="text" class="grade-feedback-input"
+                                            id="sight-feedback-{{ s['sighting_id'] }}"
+                                            value="{{ s['teacher_feedback'] or '' }}"
+                                            placeholder="Optional comments…">
+                                    </div>
+                                    <button class="btn-save-grade"
+                                            onclick="saveGenericGrade('sighting', {{ s['sighting_id'] }}, 'sight-score-{{ s['sighting_id'] }}', 'sight-feedback-{{ s['sighting_id'] }}', 'sight-card-{{ s['sighting_id'] }}', {{ uid }})">
+                                        Save
+                                    </button>
+                                </div>
+                                {% if s['assessed_at'] %}
+                                <p class="grade-meta">Assessed by {{ s['assessor_name'] }} on {{ s['assessed_at'][:10] }}</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- CREATIVE CANVAS -->
+            <div class="sub-section" id="section-creative">
+                {% if not creative_files %}
+                <div class="assess-empty"><span style="font-size:40px;">📭</span><p>No creative files yet.</p></div>
+                {% else %}
+                <div class="submissions-list">
+                    {% for f in creative_files %}
+                    <div class="submission-card {% if f['teacher_score'] is not none %}graded{% endif %}"
+                        id="creative-card-{{ f['file_id'] }}">
+                        <div class="sub-student">
+                            <div class="sub-student-top">
+                                <div class="sub-avatar" style="background:var(--light-bg); font-size:20px; display:flex; align-items:center; justify-content:center;">
+                                    {% if f['file_type'] == 'pdf' %}📄
+                                    {% elif f['file_type'] == 'ppt' %}📊
+                                    {% elif f['file_type'] == 'xls' %}📈
+                                    {% else %}📝{% endif %}
+                                </div>
+                                <div style="flex:1;">
+                                    {% if view_mode == 'class' %}
+                                    <p class="sub-name">{{ f['student_name'] }} — {{ f['title'] }}</p>
+                                    {% else %}
+                                    <p class="sub-name">{{ f['title'] }}</p>
+                                    {% endif %}
+                                    <p class="sub-meta">
+                                        {{ f['file_type'].upper() }} &bull; {{ f['filename'] }} &bull;
+                                        {{ f['uploaded_at'][:10] }}
+                                        {% if f['species_tag'] %} &bull; 🦎 {{ f['species_tag'] }}{% endif %}
+                                    </p>
+                                </div>
+                                {% if f['teacher_score'] is not none %}
+                                <span class="grade-badge">{{ f['teacher_score'] }}/100</span>
+                                {% else %}
+                                <span class="grade-badge ungraded">Ungraded</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if f['description'] %}
+                        <div class="sub-description"><p>{{ f['description'] }}</p></div>
+                        {% endif %}
+
+                        <div class="file-inline-actions">
+                            <div class="file-inline-viewer">
+                                <button class="btn-toggle-preview"
+                                        onclick="openFileViewer('{{ url_for('static', filename=f['filepath']) }}')">
+                                    {% if f['file_type'] == 'pdf' %}👁 Preview PDF
+                                    {% elif f['file_type'] == 'ppt' %}📊 Preview Presentation
+                                    {% elif f['file_type'] == 'doc' %}📝 Preview Document
+                                    {% elif f['file_type'] == 'xls' %}📈 Preview Spreadsheet
+                                    {% else %}👁 Preview{% endif %}
+                                </button>
+                                <div id="file-preview-{{ f['file_id'] }}" class="pdf-preview-frame" style="display:none;"></div>
+                            </div>
+                            {% if f['file_type'] == 'pdf' %}
+                            <a href="/download-creative-file/{{ f['file_id'] }}" class="btn-view-progress">
+                                ⬇ Download
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        {% if user['role'] == 'student' %}
+                            {% if f['teacher_score'] is not none or f['teacher_feedback'] %}
+                            <div class="my-grade-display">
+                                <span class="my-grade-label">📝 Teacher Assessment</span>
+                                {% if f['teacher_score'] is not none %}
+                                <span class="my-grade-score">{{ f['teacher_score'] }}/100</span>
+                                {% endif %}
+                                {% if f['teacher_feedback'] %}
+                                <span class="my-grade-feedback">💬 {{ f['teacher_feedback'] }}</span>
+                                {% endif %}
+                                {% if f['assessed_at'] %}
+                                <span class="my-grade-meta">by {{ f['assessor_name'] }} on {{ f['assessed_at'][:10] }}</span>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <p class="grade-pending">📋 No assessed yet</p>
+                            {% endif %}
+                        {% else %}
+                            {% set uid = f['user_id'] if view_mode == 'class' else student['user_id'] %}
+                            <div class="grading-panel">
+                                <div class="grade-row">
+                                    <div class="grade-field">
+                                        <label>Score (0–100)</label>
+                                        <input type="number" class="grade-score-input"
+                                            id="creative-score-{{ f['file_id'] }}"
+                                            value="{{ f['teacher_score'] if f['teacher_score'] is not none else '' }}"
+                                            min="0" max="100" placeholder="—">
+                                    </div>
+                                    <div class="grade-field grade-field-wide">
+                                        <label>Feedback</label>
+                                        <input type="text" class="grade-feedback-input"
+                                            id="creative-feedback-{{ f['file_id'] }}"
+                                            value="{{ f['teacher_feedback'] or '' }}"
+                                            placeholder="Optional comments…">
+                                    </div>
+                                    <button class="btn-save-grade"
+                                            onclick="saveGenericGrade('creative_file', {{ f['file_id'] }}, 'creative-score-{{ f['file_id'] }}', 'creative-feedback-{{ f['file_id'] }}', 'creative-card-{{ f['file_id'] }}', {{ uid }})">
+                                        Save
+                                    </button>
+                                </div>
+                                {% if f['assessed_at'] %}
+                                <p class="grade-meta">Assessed by {{ f['assessor_name'] }} on {{ f['assessed_at'][:10] }}</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+    <div id="grade-toast" class="grade-toast" style="display:none;"></div>
+    <script>window.__STUDENT_ID__ = {{ student['user_id'] | tojson }};</script>
+    <script src="{{ url_for('static', filename='js/tabs/assess-submissions.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tabs/student-submissions.js') }}"></script>
+</body>
+</html>

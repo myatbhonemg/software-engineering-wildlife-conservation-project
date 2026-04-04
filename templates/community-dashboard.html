@@ -35,29 +35,29 @@
                 <div class="stat-card">
                     <div class="stat-icon blue">&#128248;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">Sightings Reported</div>
+                        <div class="stat-number">{{ sighting_count }}</div>
+                        <div class="stat-label">My Sightings</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon orange">&#127942;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number">{{ challenges_joined }}</div>
                         <div class="stat-label">Challenges Joined</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon blue">&#127912;</div>
+                    <div class="stat-icon blue">&#128100;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">Canvas Submissions</div>
+                        <div class="stat-number">{{ community_members }}</div>
+                        <div class="stat-label">Community Members</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon orange">&#128218;</div>
+                    <div class="stat-icon orange">&#128248;</div>
                     <div class="stat-info">
-                        <div class="stat-number">25+</div>
-                        <div class="stat-label">Species to Explore</div>
+                        <div class="stat-number">{{ community_sightings }}</div>
+                        <div class="stat-label">Community Sightings</div>
                     </div>
                 </div>
             </div>
@@ -71,19 +71,22 @@
                     <div class="action-icon">&#128248;</div>
                     <h3>Report a Sighting</h3>
                     <p>Spotted an endangered species in your area? Log it here.</p>
-                    <button class="btn-action btn-action-community coming-soon-btn">Start Report</button>
+                    <button class="btn-action btn-action-community" 
+                            onclick="window.location.href='/report-sighting'">Start Report</button>
                 </div>
                 <div class="action-card">
                     <div class="action-icon">&#129309;</div>
                     <h3>My Community</h3>
                     <p>View your community group and conservation activities.</p>
-                    <button class="btn-action btn-action-community coming-soon-btn">View Community</button>
+                    <button class="btn-action btn-action-community"
+                            onclick="window.location.href='/my-organization'">View Community</button>
                 </div>
                 <div class="action-card">
                     <div class="action-icon">&#127942;</div>
                     <h3>Join a Challenge</h3>
                     <p>Participate in local and national conservation challenges.</p>
-                    <button class="btn-action btn-action-community coming-soon-btn">View Challenges</button>
+                    <button class="btn-action btn-action-community"
+                            onclick="window.location.href='/activities'">View Challenges</button>
                 </div>
             </div>
 

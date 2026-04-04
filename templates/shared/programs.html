@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/programs.css') }}">
+    <style>
+        /* Deep-link highlight pulse */
+        @keyframes syl-highlight {
+            0%   { box-shadow: 0 0 0 0 rgba(74,124,44,.55); }
+            50%  { box-shadow: 0 0 0 8px rgba(74,124,44,.15); }
+            100% { box-shadow: 0 0 0 0 rgba(74,124,44,0); }
+        }
+        .program-card.syl-linked {
+            outline: 2px solid var(--secondary-green, #4a7c2c);
+            animation: syl-highlight 1.4s ease 0.2s 2;
+        }
+    </style>
 </head>
 <body class="dashboard-body">
 
@@ -27,17 +39,34 @@
                 </p>
             </div>
 
-            <!-- Teacher: create button -->
             {% if user['role'] == 'teacher' %}
             <div style="margin-bottom: 24px;">
                 <button class="btn-create-program" onclick="openCreateProgramModal()">+ Create New Program</button>
             </div>
             {% endif %}
 
-            <!-- Programs Grid -->
+            <div class="programs-filters">
+                <div class="filter-group">
+                    <label for="filter-species">Species</label>
+                    <select id="filter-species" onchange="filterPrograms()">
+                        <option value="all">All Species</option>
+                        {% for s in species %}
+                        <option value="{{ s['common_name'].lower().replace(' ', '-') }}">{{ s['common_name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filter-search">Search</label>
+                    <input type="text" id="filter-search" placeholder="Search by title or description..." onkeyup="filterPrograms()">
+                </div>
+                <button class="btn-reset-filters" onclick="resetProgramFilters()">Reset</button>
+            </div>
+
             <div class="programs-container" id="programs-container">
                 {% for p in programs %}
-                <div class="program-card" id="program-card-{{ p['program_id'] }}">
+                <div class="program-card" 
+                    id="program-{{ p['program_id'] }}"
+                    data-species="{{ p['species_focus'].lower().replace(' ', '-') if p['species_focus'] else 'all' }}">
                     <div class="program-card-header">
                         <div class="program-meta">
                             {% if p['species_focus'] %}
@@ -46,9 +75,22 @@
                             {% if p['duration'] %}
                             <span class="program-duration-tag">&#128336; {{ p['duration'] }}</span>
                             {% endif %}
+
+                            <!-- Notifications for students/teachers/school-admin/principal if this program is on a class syllabus -->
+                            {% if user['role'] == 'student' and p.get('is_recommended') %}
+                            <span class="program-recommended-tag">⭐ On your class syllabus</span>
+                            {% endif %}
+                            {% if user['role'] == 'teacher' and p.get('linked_classes') %}
+                            <div class="program-syllabus-classes">
+                                <span class="syllabus-classes-label">📋 In syllabus of:</span>
+                                {% for cls in p['linked_classes'] %}
+                                <span class="syllabus-class-tag">{{ cls }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
                         </div>
                         {% if user['role'] == 'teacher' and p['created_by'] == user['user_id'] %}
-                        <button class="btn-delete-program" 
+                        <button class="btn-delete-program"
                                 onclick="deleteProgram({{ p['program_id'] }})"
                                 title="Delete program">✕</button>
                         {% endif %}
@@ -58,7 +100,6 @@
                     <p class="program-description">{{ p['description'] }}</p>
                     <p class="program-creator">Created by {{ p['creator_name'] }}</p>
 
-                    <!-- Files -->
                     {% if p['files'] %}
                     <div class="program-files">
                         <p class="files-label">&#128194; Materials ({{ p['files']|length }} file{{ 's' if p['files']|length > 1 else '' }})</p>
@@ -67,7 +108,7 @@
                             <li class="file-item {% if f['completed'] %}file-done{% endif %}"
                                 id="file-item-{{ f['file_id'] }}">
                                 <a href="{{ url_for('static', filename=f['filepath']) }}"
-                                target="_blank" class="file-link">
+                                   target="_blank" class="file-link">
                                     &#128196; {{ f['filename'] }}
                                 </a>
                                 {% if user['role'] == 'student' and p['is_enrolled'] %}
@@ -89,14 +130,13 @@
                             {% endfor %}
                         </ul>
 
-                        <!-- Progress bar (students only) -->
                         {% if user['role'] == 'student' and p['is_enrolled'] %}
                         {% set done_count = p['files'] | selectattr('completed', 'equalto', 1) | list | length %}
                         {% set total_count = p['files'] | length %}
                         <div class="program-progress" id="progress-{{ p['program_id'] }}">
                             <div class="progress-bar-track">
                                 <div class="progress-bar-fill"
-                                    style="width: {{ (done_count / total_count * 100) | int }}%">
+                                     style="width: {{ (done_count / total_count * 100) | int }}%">
                                 </div>
                             </div>
                             <span class="progress-text" id="progress-text-{{ p['program_id'] }}">
@@ -109,33 +149,46 @@
 
                     <div class="program-footer">
                         {% if user['role'] == 'teacher' %}
-                        <div class="program-stats-row">
-                            <span class="prog-stat">
-                                <span class="prog-stat-icon">👥</span>
-                                <span class="prog-stat-value">{{ p['enrolled_count'] }}</span>
-                                <span class="prog-stat-label">Enrolled</span>
-                            </span>
-                            <span class="prog-stat-divider"></span>
-                            <span class="prog-stat">
-                                <span class="prog-stat-icon">📖</span>
-                                <span class="prog-stat-value">{{ p['doing_count'] }}</span>
-                                <span class="prog-stat-label">In Progress</span>
-                            </span>
-                            <span class="prog-stat-divider"></span>
-                            <span class="prog-stat">
-                                <span class="prog-stat-icon">✅</span>
-                                <span class="prog-stat-value">{{ p['completed_count'] }}</span>
-                                <span class="prog-stat-label">Completed</span>
-                            </span>
-                        </div>
-
-                        <!--Button to manage classes for teachers -->
-                        {% if p['created_by'] == user['user_id'] %}
-                        <button class="btn-manage-classes"
-                                onclick="openProgramClassModal({{ p['program_id'] }})">
-                            &#127979; Manage Class Availability
-                        </button>
-                        {% endif %}
+                            <div class="program-stats-row">
+                                <span class="prog-stat">
+                                    <span class="prog-stat-icon">👥</span>
+                                    <span class="prog-stat-value">{{ p['enrolled_count'] }}</span>
+                                    <span class="prog-stat-label">Enrolled</span>
+                                </span>
+                                <span class="prog-stat-divider"></span>
+                                <span class="prog-stat">
+                                    <span class="prog-stat-icon">📖</span>
+                                    <span class="prog-stat-value">{{ p['doing_count'] }}</span>
+                                    <span class="prog-stat-label">In Progress</span>
+                                </span>
+                                <span class="prog-stat-divider"></span>
+                                <span class="prog-stat">
+                                    <span class="prog-stat-icon">✅</span>
+                                    <span class="prog-stat-value">{{ p['completed_count'] }}</span>
+                                    <span class="prog-stat-label">Completed</span>
+                                </span>
+                            </div>
+                        
+                        {% elif user['role'] in ['school-admin', 'principal'] %}
+                            <div class="program-stats-row">
+                                <span class="prog-stat">
+                                    <span class="prog-stat-icon">👥</span>
+                                    <span class="prog-stat-value">{{ p['enrolled_count'] }}</span>
+                                    <span class="prog-stat-label">Enrolled</span>
+                                </span>
+                                <span class="prog-stat-divider"></span>
+                                <span class="prog-stat">
+                                    <span class="prog-stat-icon">📖</span>
+                                    <span class="prog-stat-value">{{ p['doing_count'] }}</span>
+                                    <span class="prog-stat-label">In Progress</span>
+                                </span>
+                                <span class="prog-stat-divider"></span>
+                                <span class="prog-stat">
+                                    <span class="prog-stat-icon">✅</span>
+                                    <span class="prog-stat-value">{{ p['completed_count'] }}</span>
+                                    <span class="prog-stat-label">Completed</span>
+                                </span>
+                            </div>
 
                         {% elif user['role'] == 'student' %}
                             {% if p['is_enrolled'] %}
@@ -156,7 +209,6 @@
                             </button>
                             {% endif %}
                         {% endif %}
-
                     </div>
                 </div>
                 {% else %}
@@ -175,7 +227,6 @@
         </main>
     </div>
 
-    <!-- Create Program Modal (Teachers only) -->
     {% if user['role'] == 'teacher' %}
     <div id="create-program-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content program-modal">
@@ -190,7 +241,7 @@
                 </div>
                 <div class="form-group">
                     <label>Description *</label>
-                    <textarea id="program-description" rows="3" 
+                    <textarea id="program-description" rows="3"
                               placeholder="Describe what students will learn..."></textarea>
                 </div>
                 <div class="form-row">
@@ -210,15 +261,16 @@
                 </div>
                 <div class="form-group">
                     <label>Upload Materials (PDF, PPT, DOCX)</label>
-                    <div class="file-drop-zone" id="file-drop-zone" onclick="document.getElementById('program-files').click()">
+                    <div class="file-drop-zone" id="file-drop-zone"
+                         onclick="document.getElementById('program-files').click()">
                         <span class="file-drop-icon">📂</span>
                         <p class="file-drop-text">Click to add files or drag and drop</p>
                         <p class="file-drop-hint">PDF, PPT, PPTX, DOC, DOCX supported</p>
                     </div>
-                    <input type="file" id="program-files" multiple 
-                        accept=".pdf,.ppt,.pptx,.doc,.docx" 
-                        style="display:none;"
-                        onchange="handleFileSelect(this)">
+                    <input type="file" id="program-files" multiple
+                           accept=".pdf,.ppt,.pptx,.doc,.docx"
+                           style="display:none;"
+                           onchange="handleFileSelect(this)">
                     <div id="selected-files-list" class="selected-files-list"></div>
                 </div>
             </div>
@@ -230,28 +282,24 @@
     </div>
     {% endif %}
 
-    {% if user['role'] == 'teacher' %}
-    <div id="program-class-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content program-modal">
-            <div class="modal-header">
-                <h3>Assign to Classes</h3>
-                <button class="modal-close" onclick="closeProgramClassModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <p style="font-size:13px; color:var(--text-muted); margin:0;">
-                    Toggle which classes can see this program.
-                </p>
-                <div id="program-class-list" style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
-                    <p style="color:var(--text-muted); font-size:13px;">Loading...</p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeProgramClassModal()">Done</button>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
     <script src="{{ url_for('static', filename='js/tabs/programs.js') }}"></script>
+    <script>
+        // ── Syllabus deep-link: scroll to and highlight the target program card ──
+        (function () {
+            const hash = window.location.hash; // e.g. "#program-3"
+            if (!hash.startsWith('#program-')) return;
+
+            const target = document.querySelector(hash);
+            if (!target) return;
+
+            // Wait one frame so layout is complete, then scroll + flash
+            requestAnimationFrame(() => {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                target.classList.add('syl-linked');
+                // Remove class after animation finishes (2 × 1.4s + buffer)
+                setTimeout(() => target.classList.remove('syl-linked'), 3200);
+            });
+        })();
+    </script>
 </body>
 </html>

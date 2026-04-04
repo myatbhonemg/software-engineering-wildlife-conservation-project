@@ -1,91 +1,224 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Komodo Hub - Teacher Dashboard</title>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_teacher.css') }}">
 </head>
 <body class="dashboard-body">
 
-    <!-- Top Navigation Bar -->
     {% include 'shared/navbar.html' %}
 
     <div class="dash-layout">
-
-        <!-- Sidebar -->
         {% include 'shared/sidebar.html' %}
 
-        <!-- Main Content -->
         <main class="dash-main">
 
             <!-- Welcome Banner -->
             <div class="welcome-banner">
                 <div class="welcome-text">
-                    <h1 id="welcome-message">Welcome back, {{ user['fullname'] }}!</h1>
-                    <p>Manage your class and track student conservation activities.</p>
+                    <h1>Welcome back, {{ user['fullname'] }}! 👋</h1>
+                    <p>Here's what's happening with your classes today.</p>
                 </div>
                 <div class="welcome-icon">&#128218;</div>
             </div>
 
-            <!-- Stats Cards -->
+            <!-- Stats -->
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card green">
+                    <div class="stat-icon green">&#127979;</div>
+                    <div>
+                        <div class="stat-number">{{ class_count }}</div>
+                        <div class="stat-label">My Classes</div>
+                    </div>
+                </div>
+                <div class="stat-card green">
                     <div class="stat-icon green">&#128100;</div>
-                    <div class="stat-info">
-                        <div class="stat-number">0</div>
+                    <div>
+                        <div class="stat-number">{{ student_count }}</div>
                         <div class="stat-label">My Students</div>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card orange">
                     <div class="stat-icon orange">&#128248;</div>
-                    <div class="stat-info">
-                        <div class="stat-number">0</div>
+                    <div>
+                        <div class="stat-number">{{ sighting_count }}</div>
                         <div class="stat-label">Student Sightings</div>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon green">&#127942;</div>
-                    <div class="stat-info">
-                        <div class="stat-number">0</div>
+                <div class="stat-card orange">
+                    <div class="stat-icon orange">&#127942;</div>
+                    <div>
+                        <div class="stat-number">{{ active_challenges }}</div>
                         <div class="stat-label">Active Challenges</div>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon orange">&#127912;</div>
-                    <div class="stat-info">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">Canvas Submissions</div>
+                <div class="stat-card blue">
+                    <div class="stat-icon blue">&#128196;</div>
+                    <div>
+                        <div class="stat-number">{{ programs_count }}</div>
+                        <div class="stat-label">My Programs</div>
+                    </div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-icon red">&#9998;</div>
+                    <div>
+                        <div class="stat-number">{{ pending_grades }}</div>
+                        <div class="stat-label">Pending Grades</div>
                     </div>
                 </div>
             </div>
 
             <!-- Quick Actions -->
-            <div class="section-title-row">
+            <div class="section-title-row" style="margin-top:28px;">
                 <h2>Quick Actions</h2>
             </div>
-            <div class="quick-actions">
-                <div class="action-card">
-                    <div class="action-icon">&#128100;</div>
-                    <h3>View My Students</h3>
-                    <p>See your students' profiles and conservation activity.</p>
-                    <button class="btn-action coming-soon-btn">View Students</button>
-                </div>
-                <div class="action-card">
-                    <div class="action-icon">&#128248;</div>
-                    <h3>Review Sightings</h3>
-                    <p>Check and approve sighting reports submitted by students.</p>
-                    <button class="btn-action coming-soon-btn">Review Reports</button>
-                </div>
-                <div class="action-card">
+            <div class="quick-actions-grid">
+                <a href="/classes" class="action-card">
                     <div class="action-icon">&#127979;</div>
-                    <h3>Class Programs</h3>
-                    <p>Manage conservation programs assigned to your class.</p>
-                    <button class="btn-action coming-soon-btn">Manage Programs</button>
+                    <h3>My Classes</h3>
+                    <p>Manage enrolments, syllabuses, notes and sightings per class.</p>
+                </a>
+                <a href="/programs" class="action-card">
+                    <div class="action-icon">&#128196;</div>
+                    <h3>Programs</h3>
+                    <p>Create and manage conservation learning programs.</p>
+                </a>
+                <a href="/activities" class="action-card">
+                    <div class="action-icon">&#127942;</div>
+                    <h3>Challenges</h3>
+                    <p>Create challenges and track student submissions.</p>
+                </a>
+                <a href="/sighting-reports" class="action-card">
+                    <div class="action-icon">&#128248;</div>
+                    <h3>Sighting Reports</h3>
+                    <p>Review conservation sightings from your students.</p>
+                </a>
+                <a href="/creative-canvas" class="action-card">
+                    <div class="action-icon">&#127912;</div>
+                    <h3>Creative Canvas</h3>
+                    <p>Browse and assess student creative work and uploads.</p>
+                </a>
+                <a href="/messages" class="action-card">
+                    <div class="action-icon">&#128172;</div>
+                    <h3>Messages</h3>
+                    <p>Communicate with your students and school staff.</p>
+                </a>
+            </div>
+
+            <!-- Main grid -->
+            <div class="dashboard-grid">
+
+                <!-- LEFT: Recent activity -->
+                <div class="dashboard-left">
+
+                    <!-- Recent submissions -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3>⚡ Recent Challenge Submissions</h3>
+                            <a href="/activities" class="dash-card-link">View all →</a>
+                        </div>
+                        <div class="dash-card-body">
+                            {% if recent_submissions %}
+                            <div class="activity-list">
+                                {% for s in recent_submissions %}
+                                <div class="activity-item">
+                                    <div class="activity-dot dot-orange"></div>
+                                    <div class="activity-text">
+                                        <strong>{{ s['student_name'] }}</strong>
+                                        <span>{{ s['challenge_title'] }} &bull; {{ s['submitted_at'][:10] }}</span>
+                                    </div>
+                                    {% if s['score'] is not none %}
+                                    <span class="activity-score score-graded">{{ s['score'] }}/100</span>
+                                    {% else %}
+                                    <a href="/assess-submissions/{{ s['challenge_id'] }}"
+                                       class="activity-score score-ungraded">Grade →</a>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="dash-empty">No submissions yet.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Recent sightings -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3>📷 Recent Student Sightings</h3>
+                            <a href="/sighting-reports" class="dash-card-link">View all →</a>
+                        </div>
+                        <div class="dash-card-body">
+                            {% if recent_sightings %}
+                            <div class="activity-list">
+                                {% for s in recent_sightings %}
+                                <div class="activity-item">
+                                    <div class="activity-dot dot-green"></div>
+                                    <div class="activity-text">
+                                        <strong>{{ s['common_name'] }} — {{ s['student_name'] }}</strong>
+                                        <span>📍 {{ s['location'] }} &bull; {{ s['sighting_date'] }} &bull; {{ s['count'] }} spotted</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="dash-empty">No sightings from your students yet.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
                 </div>
+
+                <!-- RIGHT: My classes -->
+                <div class="dashboard-right">
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3>🏫 My Classes</h3>
+                            <a href="/classes" class="dash-card-link">Manage →</a>
+                        </div>
+                        <div class="dash-card-body">
+                            {% if my_classes %}
+                            <div class="class-list">
+                                {% for c in my_classes %}
+                                <a href="/syllabus/{{ c['class_id'] }}" class="class-list-item">
+                                    <div>
+                                        <div class="class-list-name">{{ c['name'] }}</div>
+                                        {% if c['subject'] %}
+                                        <div class="class-list-sub">{{ c['subject'] }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <span class="class-list-count">{{ c['student_count'] }} students</span>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="dash-empty">No classes assigned yet.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Pending grades alert -->
+                    {% if pending_grades > 0 %}
+                    <div class="dash-card dash-card--alert">
+                        <div class="dash-card-body dash-card-body--alert">
+                            <span class="alert-icon">⚠️</span>
+                            <div>
+                                <p class="alert-title">
+                                    {{ pending_grades }} submission{{ 's' if pending_grades != 1 else '' }} awaiting your grade
+                                </p>
+                                <a href="/activities" class="alert-link">
+                                    Go grade them →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
             </div>
 
         </main>

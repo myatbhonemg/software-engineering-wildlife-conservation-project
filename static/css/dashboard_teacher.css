@@ -1,0 +1,220 @@
+/* ── Dashboard layout ── */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-top: 28px;
+}
+.dashboard-left  { display: flex; flex-direction: column; gap: 24px; }
+.dashboard-right { display: flex; flex-direction: column; gap: 24px; }
+
+/* ── Section cards ── */
+.dash-card {
+    background: var(--white);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    overflow: hidden;
+}
+.dash-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border-color);
+}
+.dash-card-header h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+.dash-card-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--secondary-green);
+    text-decoration: none;
+}
+.dash-card-link:hover { text-decoration: underline; }
+.dash-card-body { padding: 16px 22px; }
+
+/* ── Stats grid ── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+}
+.stat-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+}
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+}
+.stat-card.green::before  { background: var(--secondary-green); }
+.stat-card.orange::before { background: #E17B3C; }
+.stat-card.blue::before   { background: #3B5FBB; }
+.stat-card.red::before    { background: #D64545; }
+
+.stat-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.stat-icon.green  { background: #E8F5E9; }
+.stat-icon.orange { background: #FFF3E0; }
+.stat-icon.blue   { background: #EEF4FF; }
+.stat-icon.red    { background: #FFF5F5; }
+.stat-number { font-size: 28px; font-weight: 800; color: var(--text-dark); line-height: 1; }
+.stat-label  { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
+
+/* ── Pending badge ── */
+.pending-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: #FDECEA;
+    color: #C62828;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ── Quick actions ── */
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.action-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+}
+.action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    border-color: var(--secondary-green);
+}
+.action-icon { font-size: 28px; }
+.action-card h3 { font-size: 14px; font-weight: 700; color: var(--text-dark); margin: 0; }
+.action-card p  { font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.4; flex: 1; }
+
+/* ── Recent activity list ── */
+.activity-list { display: flex; flex-direction: column; }
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+.dot-green  { background: var(--secondary-green); }
+.dot-orange { background: #E17B3C; }
+.dot-blue   { background: #3B5FBB; }
+.activity-text { flex: 1; min-width: 0; }
+.activity-text strong { font-size: 13px; color: var(--text-dark); display: block; }
+.activity-text span   { font-size: 12px; color: var(--text-muted); }
+.activity-score {
+    font-size: 12px; font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.score-graded   { background: #E8F5E9; color: #1a6b35; }
+.score-ungraded { background: var(--light-bg); color: var(--text-muted); }
+
+/* ── Classes list ── */
+.class-list { display: flex; flex-direction: column; gap: 8px; }
+.class-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--light-bg);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.class-list-item:hover { background: #E5EDE1; }
+.class-list-name  { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+.class-list-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.class-list-count {
+    font-size: 12px; font-weight: 700;
+    color: var(--secondary-green);
+    white-space: nowrap;
+}
+
+/* ── Pending grades alert card ── */
+.dash-card--alert {
+    border-left: 4px solid #D64545;
+}
+.dash-card-body--alert {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.alert-icon {
+    font-size: 32px;
+}
+.alert-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+.alert-link {
+    font-size: 12px;
+    color: #D64545;
+    font-weight: 600;
+    text-decoration: none;
+}
+.alert-link:hover { text-decoration: underline; }
+
+/* ── Empty state ── */
+.dash-empty {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .quick-actions-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .quick-actions-grid { grid-template-columns: 1fr; }
+}

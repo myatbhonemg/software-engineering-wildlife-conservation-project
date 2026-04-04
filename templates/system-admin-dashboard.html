@@ -36,29 +36,64 @@
                 <div class="stat-card">
                     <div class="stat-icon green">&#127979;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number">{{ total_schools }}</div>
                         <div class="stat-label">Total Schools</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon orange">&#129309;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number">{{ total_communities }}</div>
                         <div class="stat-label">Total Communities</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon green">&#128100;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number">{{ total_users }}</div>
                         <div class="stat-label">Total Users</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon orange">&#128248;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number">{{ total_sightings }}</div>
                         <div class="stat-label">Total Sightings</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role breakdown -->
+            <div class="section-title-row">
+                <h2>User Breakdown</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green">&#127891;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ role_map.get('student', 0) }}</div>
+                        <div class="stat-label">Students</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">&#128218;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ role_map.get('teacher', 0) }}</div>
+                        <div class="stat-label">Teachers</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">&#129309;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ role_map.get('community-member', 0) }}</div>
+                        <div class="stat-label">Community Members</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">&#128100;</div>
+                    <div class="stat-info">
+                        <div class="stat-number">{{ role_map.get('principal', 0) + role_map.get('school-admin', 0) + role_map.get('community-admin', 0) }}</div>
+                        <div class="stat-label">Admins & Principals</div>
                     </div>
                 </div>
             </div>
@@ -71,20 +106,30 @@
                 <div class="action-card">
                     <div class="action-icon">&#127979;</div>
                     <h3>Manage Schools</h3>
-                    <p>View, add, and manage all registered schools across the platform.</p>
-                    <button class="btn-action btn-action-system-admin coming-soon-btn">View Schools</button>
+                    <p>View and manage all registered schools across the platform.</p>
+                    <button class="btn-action btn-action-system-admin"
+                            onclick="window.location.href='/platform-analytics'">View Schools</button>
                 </div>
                 <div class="action-card">
                     <div class="action-icon">&#129309;</div>
                     <h3>Manage Communities</h3>
-                    <p>View, add, and manage all registered community groups.</p>
-                    <button class="btn-action btn-action-system-admin coming-soon-btn">View Communities</button>
+                    <p>View and manage all registered community groups.</p>
+                    <button class="btn-action btn-action-system-admin"
+                            onclick="window.location.href='/platform-analytics'">View Communities</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">&#128100;</div>
+                    <h3>Manage All Users</h3>
+                    <p>View and manage every user registered on the platform.</p>
+                    <button class="btn-action btn-action-system-admin"
+                            onclick="window.location.href='/manage-all-users'">View Users</button>
                 </div>
                 <div class="action-card">
                     <div class="action-icon">&#128202;</div>
                     <h3>Platform Analytics</h3>
-                    <p>View system-wide conservation activity, growth metrics, and reports.</p>
-                    <button class="btn-action btn-action-system-admin coming-soon-btn">View Analytics</button>
+                    <p>View system-wide conservation activity and growth metrics.</p>
+                    <button class="btn-action btn-action-system-admin"
+                            onclick="window.location.href='/platform-analytics'">View Analytics</button>
                 </div>
             </div>
 

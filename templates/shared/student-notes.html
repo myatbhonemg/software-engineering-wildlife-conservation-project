@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Notes – {{ cls['name'] }} - Komodo Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/student-notes.css') }}">
+</head>
+<body class="dashboard-body">
+    {% include 'shared/navbar.html' %}
+    <div class="dash-layout">
+        {% include 'shared/sidebar.html' %}
+        <main class="dash-main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <a href="javascript:history.back()" class="back-link">← Back</a>
+                    <h1>📌 Class Announcements — {{ cls['name'] }}</h1>
+                    
+                </div>
+            </div>
+
+            <div class="sn-layout">
+
+                <!-- LEFT: Class-wide announcements -->
+                <div class="sn-col">
+                    <div class="sn-col-header">
+                        <span class="sn-col-icon">📢</span>
+                        <h2>Announcements</h2>
+                        <span class="sn-col-badge">{{ announcements|length }}</span>
+                    </div>
+
+                    <div class="sn-list">
+                        {% if not announcements %}
+                        <div class="sn-empty">
+                            <span style="font-size:36px;">📭</span>
+                            <p>No announcements yet.</p>
+                            <p class="sn-empty-sub">Your teacher hasn't posted anything to the class yet.</p>
+                        </div>
+                        {% else %}
+                        {% for a in announcements %}
+                        <div class="sn-note-card announcement">
+                            <div class="sn-note-body">{{ a['body'] }}</div>
+                            <div class="sn-note-footer">
+                                <span class="sn-author">
+                                    <span class="sn-author-dot">●</span>
+                                    {{ a['author_name'] }}
+                                </span>
+                                <span class="sn-date">{{ a['created_at'][:10] }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- RIGHT: Class members -->
+                <div class="sn-col">
+                    <div class="sn-col-header">
+                        <span class="sn-col-icon">👥</span>
+                        <h2>Class Members</h2>
+                        <span class="sn-col-badge">{{ (1 if teacher else 0) + classmates|length }}</span>
+                    </div>
+
+                    <div class="sn-list">
+
+                        {% if teacher %}
+                        <div class="sn-member-row">
+                            <div class="sn-member-avatar">
+                                {% if teacher['avatar'] %}
+                                    <img src="{{ url_for('static', filename=teacher['avatar']) }}" alt="">
+                                {% else %}
+                                    👤
+                                {% endif %}
+                            </div>
+                            <div class="sn-member-info">
+                                <span class="sn-member-name">{{ teacher['fullname'] }}</span>
+                                <span class="sn-member-role">Teacher</span>
+                            </div>
+                            <a href="/messages?open={{ teacher['user_id'] }}" class="btn-msg-member">💬 Message</a>
+                        </div>
+                        {% endif %}
+
+                        {% if not classmates and not teacher %}
+                        <div class="sn-empty">
+                            <span style="font-size:36px;">👥</span>
+                            <p>No classmates yet.</p>
+                        </div>
+                        {% endif %}
+
+                        {% for c in classmates %}
+                        <div class="sn-member-row">
+                            <div class="sn-member-avatar">
+                                {% if c['avatar'] %}
+                                    <img src="{{ url_for('static', filename=c['avatar']) }}" alt="">
+                                {% else %}
+                                    👤
+                                {% endif %}
+                            </div>
+                            <div class="sn-member-info">
+                                <span class="sn-member-name">{{ c['fullname'] }}</span>
+                                <span class="sn-member-role">Student</span>
+                            </div>
+                            <a href="/messages?open={{ c['user_id'] }}" class="btn-msg-member">💬 Message</a>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+</body>
+</html>

@@ -212,60 +212,106 @@ CREATE TABLE IF NOT EXISTS challenge_class (
     UNIQUE(challenge_id, class_id)
 );
 
-/*
---Subscription Table
-CREATE TABLE IF NOT EXISTS subscription(
-    subscription_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    subscription_status TEXT CHECK(subscription_status IN ('active', 'expired')) NOT NULL,
-    subscription_start DATE NOT NULL,
-    subscription_end DATE NOT NULL,
-    organization_id INT NOT NULL,
-    FOREIGN KEY (organization_id) REFERENCES organization(organization_id)
-);
-
---Activities Table
-CREATE TABLE IF NOT EXISTS activity (
-    activity_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    created_by VARCHAR(50) NOT NULL,
-    title VARCHAR(50) NOT NULL,
-    description TEXT NOT NULL,
-    due_date DATETIME NOT NULL,
-    program_id INTEGER NOT NULL,
-    FOREIGN KEY (program_id) REFERENCES program(program_id)
-);
-
-
---When user participates in a program, completes an activity, 
---reports a sigting, records will be stored in contribution table
---to track user activities in platform
-CREATE TABLE IF NOT EXISTS submission(
-    submission_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    submission BLOB,
-    submission_date DATETIME NOT NULL,
-    grade REAL,
-    teacher_note TEXT,
-    activity_id INTEGER NOT NULL,
+#Table for creative canvas files
+CREATE TABLE IF NOT EXISTS creative_file (
+    file_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    FOREIGN KEY (activity_id) REFERENCES activity(activity_id),
-    FOREIGN KEY (user_id) REFERENCES user(user_id)
-);
-
-CREATE TABLE IF NOT EXISTS post(
-    post_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    post_date DATETIME NOT NULL,
+    title TEXT NOT NULL,
     description TEXT,
-    post BLOB,
-    user_id INTEGER NOT NULL,
+    species_tag TEXT,
+    filename TEXT NOT NULL,
+    filepath TEXT NOT NULL,
+    file_type TEXT NOT NULL,       -- 'pdf', 'ppt', 'doc', 'xls'
+    file_size INTEGER,             -- in bytes
+    uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 
-CREATE TABLE IF NOT EXISTS comment(
-    comment_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    description TEXT NOT NULL,
-    comment_date DATETIME NOT NULL,
-    post_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    FOREIGN KEY (post_id) REFERENCES post(post_id),
-    FOREIGN KEY (user_id) REFERENCES user(user_id)
+-- ============================================================
+-- SYLLABUS FEATURE — Schema additions
+-- ============================================================
+-- 1. Syllabus topics — ordered list of topics for a class
+CREATE TABLE IF NOT EXISTS syllabus_topic (
+    topic_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    class_id       INTEGER NOT NULL,
+    title          TEXT    NOT NULL,
+    description    TEXT,
+    learning_objective TEXT,
+    order_index    INTEGER NOT NULL DEFAULT 0,
+    created_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (class_id) REFERENCES class(class_id) ON DELETE CASCADE
 );
-*/
+
+-- 2. Activities linked to a syllabus topic
+--    Each activity can optionally link to an existing program OR challenge
+CREATE TABLE IF NOT EXISTS syllabus_activity (
+    activity_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+    topic_id       INTEGER NOT NULL,
+    title          TEXT    NOT NULL,
+    description    TEXT,
+    activity_type  TEXT    NOT NULL DEFAULT 'task',
+    -- 'task' | 'program' | 'challenge' | 'sighting' | 'reading'
+    linked_program_id   INTEGER DEFAULT NULL,
+    linked_challenge_id INTEGER DEFAULT NULL,
+    linked_species_id INTEGER REFERENCES species(species_id);
+    order_index    INTEGER NOT NULL DEFAULT 0,
+    created_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (topic_id)              REFERENCES syllabus_topic(topic_id)  ON DELETE CASCADE,
+    FOREIGN KEY (linked_program_id)     REFERENCES program(program_id)       ON DELETE SET NULL,
+    FOREIGN KEY (linked_challenge_id)   REFERENCES challenge(challenge_id)   ON DELETE SET NULL
+);
+
+-- 3. Student completion of individual activities
+CREATE TABLE IF NOT EXISTS syllabus_activity_completion (
+    completion_id  INTEGER PRIMARY KEY AUTOINCREMENT,
+    activity_id    INTEGER NOT NULL,
+    student_id     INTEGER NOT NULL,
+    completed_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (activity_id, student_id),
+    FOREIGN KEY (activity_id)  REFERENCES syllabus_activity(activity_id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id)   REFERENCES user(user_id)                  ON DELETE CASCADE
+);
+
+-- ============================================================
+-- NEW TABLES — run these once against your SQLite database
+-- ============================================================
+
+-- Item 1: Assessment grades on challenge submissions
+CREATE TABLE IF NOT EXISTS assessment_grade (
+    grade_id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    submission_id INTEGER NOT NULL UNIQUE,
+    score         INTEGER,           -- 0-100, nullable (feedback-only is allowed)
+    feedback      TEXT,
+    graded_by     INTEGER NOT NULL,
+    graded_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (submission_id) REFERENCES challenge_submission(submission_id),
+    FOREIGN KEY (graded_by)     REFERENCES user(user_id)
+);
+
+-- Item 3: Notes (class-wide announcements + private student notes)
+CREATE TABLE IF NOT EXISTS note (
+    note_id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    class_id          INTEGER NOT NULL,
+    created_by        INTEGER NOT NULL,
+    target_student_id INTEGER,          -- NULL = class-wide announcement
+    note_type         TEXT DEFAULT 'announcement',  -- 'announcement' | 'private'
+    body              TEXT NOT NULL,
+    created_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (class_id)          REFERENCES class(class_id),
+    FOREIGN KEY (created_by)        REFERENCES user(user_id),
+    FOREIGN KEY (target_student_id) REFERENCES user(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS student_assessment (
+    assessment_id  INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id     INTEGER NOT NULL,
+    assessor_id    INTEGER NOT NULL,
+    subject_type   TEXT NOT NULL,  -- 'program' | 'sighting' | 'creative_file'
+    subject_id     INTEGER NOT NULL,
+    score          INTEGER,        -- 0-100, nullable
+    feedback       TEXT,
+    assessed_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id)  REFERENCES user(user_id),
+    FOREIGN KEY (assessor_id) REFERENCES user(user_id),
+    UNIQUE(student_id, subject_type, subject_id)
+);

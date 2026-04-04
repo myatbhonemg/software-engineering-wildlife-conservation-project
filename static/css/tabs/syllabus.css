@@ -1,0 +1,548 @@
+/* ============================================================
+   syllabus.css  — shared by syllabus.html and student-syllabus.html
+   Place at:  static/css/tabs/syllabus.css
+   ============================================================ */
+
+/* ── Page header ─────────────────────────────────────────── */
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.back-link {
+    font-size: 13px;
+    color: var(--secondary-green);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 6px;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* ── Summary strip ───────────────────────────────────────── */
+.syllabus-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.summary-sep { opacity: .4; }
+
+/* ── Add topic button ────────────────────────────────────── */
+.btn-add-topic {
+    padding: 10px 20px;
+    background: var(--primary-green, #2e7d32);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.btn-add-topic:hover { opacity: .9; }
+
+/* ── Empty state ─────────────────────────────────────────── */
+.syllabus-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+.syllabus-empty .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.syllabus-empty h3 { margin: 0 0 8px; font-size: 18px; color: var(--text-primary); }
+.syllabus-empty p  { margin: 0 0 20px; font-size: 14px; }
+
+/* ── Topics list ─────────────────────────────────────────── */
+.topics-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ── Topic card ──────────────────────────────────────────── */
+.topic-card {
+    background: var(--white, #fff);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.topic-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: default;
+}
+.topic-drag-handle {
+    font-size: 18px;
+    color: var(--text-muted);
+    cursor: grab;
+    padding-top: 2px;
+    user-select: none;
+    flex-shrink: 0;
+}
+.topic-number {
+    width: 28px;
+    height: 28px;
+    background: var(--primary-green, #2e7d32);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.topic-info { flex: 1; min-width: 0; }
+.topic-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: var(--text-dark);
+}
+.topic-objective {
+    font-size: 13px;
+    color: var(--secondary-green, #388e3c);
+    margin: 0 0 4px;
+    font-style: italic;
+}
+.topic-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+}
+.topic-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.activity-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.topic-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* ── Icon buttons ────────────────────────────────────────── */
+.btn-icon {
+    background: none;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 6px;
+    padding: 5px 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1;
+}
+.btn-icon:hover { background: var(--light-bg, #f9fafb); color: var(--text-dark); }
+.btn-icon-danger:hover { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
+.btn-sm { padding: 3px 6px; font-size: 12px; }
+.btn-toggle-topic { font-size: 16px; }
+
+/* ── Activities list ─────────────────────────────────────── */
+.activities-list {
+    border-top: 1px solid var(--border-color, #e5e7eb);
+}
+.activity-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    transition: background .15s;
+}
+.activity-row:last-child { border-bottom: none; }
+.activity-row:hover { background: var(--light-bg, #f9fafb); }
+
+/* student specific */
+.student-activity-row.activity-done { opacity: .6; }
+
+.activity-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color, #d1d5db);
+    background: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    margin-top: 1px;
+}
+.activity-check.checked {
+    background: var(--primary-green, #2e7d32);
+    border-color: var(--primary-green, #2e7d32);
+}
+.activity-check:hover { border-color: var(--primary-green, #2e7d32); }
+
+.activity-type-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.activity-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.activity-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+.activity-title.strikethrough { text-decoration: line-through; }
+.activity-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.activity-link {
+    font-size: 12px;
+    color: var(--secondary-green, #388e3c);
+    text-decoration: none;
+}
+.activity-link:hover { text-decoration: underline; }
+
+/* Activity type badges */
+.activity-type-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    align-self: flex-start;
+    margin-top: 2px;
+}
+.type-task      { background: #f0fdf4; color: #166534; }
+.type-reading   { background: #eff6ff; color: #1e40af; }
+.type-sighting  { background: #fff7ed; color: #9a3412; }
+.type-program   { background: #fdf4ff; color: #7e22ce; }
+.type-challenge { background: #fefce8; color: #854d0e; }
+
+/* Add activity row */
+.add-activity-row {
+    padding: 10px 20px;
+}
+.btn-add-activity {
+    background: none;
+    border: 1px dashed var(--border-color, #d1d5db);
+    border-radius: 6px;
+    padding: 7px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+.btn-add-activity:hover {
+    border-color: var(--primary-green, #2e7d32);
+    color: var(--primary-green, #2e7d32);
+    background: #f0fdf4;
+}
+
+/* ── Student overall progress bar ────────────────────────── */
+.student-progress-bar-wrap {
+    background: var(--white, #fff);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+}
+.student-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.progress-label { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+.progress-pct   { font-size: 20px; font-weight: 700; color: var(--primary-green, #2e7d32); }
+.progress-track {
+    width: 100%;
+    height: 10px;
+    background: var(--border-color, #e5e7eb);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+.progress-fill {
+    height: 100%;
+    background: var(--primary-green, #2e7d32);
+    border-radius: 5px;
+    transition: width .4s ease;
+}
+.progress-sub { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+/* no-activities placeholder */
+.no-activities-msg {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 12px 20px;
+    font-style: italic;
+    margin: 0;
+}
+
+/* ── Modal overlay ───────────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* ── Modal box ───────────────────────────────────────────── */
+.syllabus-modal {
+    background: var(--white, #fff);
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .18);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 90%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.syllabus-modal h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+/* ── Modal form fields ───────────────────────────────────── */
+/* Use .syl-field instead of .form-group to avoid conflicts with style.css */
+.syl-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.syl-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.syl-field input,
+.syl-field textarea,
+.syl-field select {
+    padding: 9px 12px;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-dark);
+    background: var(--light-bg, #f9fafb);
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color .15s;
+}
+
+.syl-field input:focus,
+.syl-field textarea:focus,
+.syl-field select:focus {
+    outline: none;
+    border-color: var(--primary-green, #2e7d32);
+    background: #fff;
+}
+
+/* ── Modal action buttons ────────────────────────────────── */
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
+.btn-primary {
+    padding: 9px 20px;
+    background: var(--primary-green, #2e7d32);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-primary:hover { opacity: .9; }
+
+.btn-secondary {
+    padding: 9px 20px;
+    background: none;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.btn-secondary:hover { background: var(--light-bg, #f9fafb); }
+
+/* =============================================================
+   ADD TO: static/css/tabs/syllabus.css
+   Pip track for teacher view (Item 7) + drag-drop styles (Item 5)
+   ============================================================= */
+
+/* ── Item 7: Pip progress track ─────────────────────────────── */
+.topic-pip-track {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    max-width: 200px;
+}
+.topic-pip {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    cursor: default;
+    transition: transform 0.15s;
+}
+.topic-pip:hover { transform: scale(1.4); }
+
+/* Pip colours match activity type */
+.pip-task      { background: #4CAF50; }
+.pip-reading   { background: #1A73E8; }
+.pip-program   { background: #F4A229; }
+.pip-challenge { background: #E53935; }
+.pip-sighting  { background: #9B59B6; }
+
+/* ── Item 5: Drag-and-drop styles ────────────────────────────── */
+.topic-card.dragging {
+    opacity: 0.5;
+    transform: scale(0.98);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+}
+.topic-drag-handle {
+    cursor: grab;
+    font-size: 18px;
+    color: var(--text-muted);
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+    user-select: none;
+}
+.topic-drag-handle:hover {
+    color: var(--text-dark);
+    background: var(--light-bg);
+}
+.topic-drag-handle:active { cursor: grabbing; }
+
+.btn-view-notes {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    background: var(--light-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-top: 10px;
+}
+.btn-view-notes:hover {
+    border-color: var(--secondary-green);
+    background: #ebf5e7;
+}
+/* Student syllabus page header layout */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+}
+
+.page-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.page-header-left h1 {
+    font-size: 28px;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.syllabus-subtitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin: 12px 0 0 0;  /* bigger gap between class name and subtitle */
+}
+
+.class-subject-tag {
+    font-size: 13px;
+    color: var(--secondary-green);
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Class Notes button — green background */
+.btn-view-notes {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--secondary-green);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.btn-view-notes:hover {
+    background: var(--primary-green);
+    transform: translateY(-1px);
+}
+
+/* Non-reading activities show a read-only completion indicator */
+.activity-check-placeholder {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+    background: var(--light-bg);
+}
+
+.activity-check-placeholder.checked {
+    background: var(--secondary-green);
+    border-color: var(--secondary-green);
+    color: #fff;
+}

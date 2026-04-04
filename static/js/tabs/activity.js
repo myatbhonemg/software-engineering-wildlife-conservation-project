@@ -24,7 +24,7 @@ function filterChallenges(filter, btn) {
         else if (filter === 'active') show = status === 'active' && !done;
         else if (filter === 'expired') show = status === 'expired';
 
-        card.style.display = show ? 'block' : 'none';
+        card.style.display = show ? '' : 'none';
     });
 }
 
@@ -260,6 +260,27 @@ function showToast(message) {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 400);
     }, 3500);
+}
+
+function unsubmitChallenge(challengeId, btn) {
+    if (!confirm('Withdraw your submission? This will remove your earned points.')) return;
+
+    fetch(`/unsubmit-challenge/${challengeId}`, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // Swap button back to submit state
+                btn.textContent = 'Submit Evidence';
+                btn.className = 'btn-submit-challenge';
+                btn.setAttribute('onclick', `openSubmitModal(${challengeId}, this)`);
+
+                // Update points display if visible
+                const pointsEl = document.getElementById('user-points');
+                if (pointsEl) pointsEl.textContent = data.new_total;
+            } else {
+                alert(data.message || 'Could not withdraw submission.');
+            }
+        });
 }
 
 console.log('Activity loaded successfully');

@@ -125,19 +125,26 @@ function renderEnrolled() {
 
     list.innerHTML = enrolledStudents.map(s => `
         <div class="student-item" id="enrolled-${s.user_id}">
-            <div class="student-avatar">
-                ${s.avatar
-                    ? `<img src="/static/${s.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-                    : '👤'}
+            <div class="student-item-top">
+                <div class="student-avatar">
+                    ${s.avatar
+                        ? `<img src="/static/${s.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                        : '👤'}
+                </div>
+                <div class="student-info">
+                    <span class="student-name">${s.fullname}</span>
+                    <span class="student-email">${s.email}</span>
+                </div>
+                <button class="btn-student-action btn-remove"
+                        onclick="removeStudent(${s.user_id}, '${s.fullname}')">
+                    Remove
+                </button>
             </div>
-            <div class="student-info">
-                <span class="student-name">${s.fullname}</span>
-                <span class="student-email">${s.email}</span>
+            <div class="student-item-actions">
+                <a href="/student-progress/${s.user_id}" class="btn-student-nav btn-progress">📊 Progress</a>
+                <a href="/student-submissions/${s.user_id}" class="btn-student-nav btn-submissions">📋 Submissions</a>
+                <a href="/messages?open=${s.user_id}" class="btn-student-nav btn-message">💬 Message</a>
             </div>
-            <button class="btn-student-action btn-remove"
-                    onclick="removeStudent(${s.user_id}, '${s.fullname}')">
-                Remove
-            </button>
         </div>
     `).join('');
 }
@@ -223,5 +230,8 @@ function updateCardStudentCount(delta) {
     const statEl = card.querySelector('.class-stat strong');
     if (statEl) statEl.textContent = parseInt(statEl.textContent) + delta;
 }
+document.getElementById('students-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeStudentsModal();
+});
 
 console.log('Classes loaded successfully');

@@ -22,9 +22,11 @@
             </div>
 
             <div style="margin-bottom: 24px;">
+                {% if user['role'] in ['school-admin', 'principal'] %}
                 <button class="btn-create-class" onclick="openCreateClassModal()">
                     + Create New Class
                 </button>
+                {% endif %}
             </div>
 
             <!-- Classes Grid -->
@@ -33,15 +35,15 @@
                 <div class="class-card" id="class-card-{{ c['class_id'] }}">
                     <div class="class-card-header">
                         <div class="class-icon">&#127979;</div>
-                        <button class="btn-delete-class"
-                                onclick="deleteClass({{ c['class_id'] }})"
-                                title="Delete class">✕</button>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <a href="/notes/{{ c['class_id'] }}" class="btn-notes-corner">📌 Announcements</a>
+                            {% if user['role'] in ['school-admin', 'principal'] %}
+                            <button class="btn-delete-class" onclick="deleteClass({{ c['class_id'] }})">✕</button>
+                            {% endif %}
+                        </div>
                     </div>
 
                     <h3 class="class-name">{{ c['name'] }}</h3>
-                    {% if c['subject'] %}
-                    <p class="class-subject">{{ c['subject'] }}</p>
-                    {% endif %}
 
                     <div class="class-stats">
                         <span class="class-stat">
@@ -58,7 +60,7 @@
                         </span>
                     </div>
 
-                    <!-- Teacher assignment -->
+                    {% if user['role'] in ['school-admin', 'principal'] %}
                     <div class="class-teacher-select">
                         <label>Assigned Teacher</label>
                         <select onchange="updateTeacher({{ c['class_id'] }}, this.value)">
@@ -70,6 +72,12 @@
                             </option>
                             {% endfor %}
                         </select>
+                    </div>
+                    {% endif %}
+
+                    <div class="class-card-actions">
+                        <a href="/class-submissions/{{ c['class_id'] }}" class="btn-notes-link">📋 Submissions</a>
+                        <a href="/syllabus/{{ c['class_id'] }}" class="btn-notes-link btn-syllabus">&#128218; Syllabus</a>
                     </div>
 
                     <button class="btn-manage-students"

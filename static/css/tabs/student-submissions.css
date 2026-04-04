@@ -1,0 +1,236 @@
+/* ===== STUDENT SUBMISSIONS PAGE ===== */
+
+.back-link {
+    display: inline-block;
+    font-size: 13px;
+    color: var(--secondary-green);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.back-link:hover { text-decoration: underline; }
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.btn-switch-view {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: #EEF4FF;
+    color: #3B5FBB;
+    border: 1px solid #C7D7F5;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.btn-switch-view:hover {
+    background: #3B5FBB;
+    color: var(--white);
+}
+
+/* Filter tabs */
+.sub-filter-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.sub-tab {
+    padding: 9px 20px;
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.sub-tab:hover {
+    border-color: var(--secondary-green);
+    background: var(--light-bg);
+}
+.sub-tab.active {
+    background: var(--secondary-green);
+    border-color: var(--secondary-green);
+    color: var(--white);
+}
+
+/* Sections */
+.sub-section { display: none; }
+.sub-section.active { display: block; }
+
+/* Progress bar reuse from student-progress */
+.prc-track {
+    height: 7px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.prc-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary-green), var(--primary-green));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+/* Sub student top row */
+.sub-student-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Status pills — colour coded */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.status-enrolled {
+    background: #EEF4FF;
+    color: #3B5FBB;
+    border: 1px solid #C7D7F5;
+}
+
+.status-doing {
+    background: #FFF3E0;
+    color: #E17B3C;
+    border: 1px solid #FFCC80;
+}
+
+.status-completed {
+    background: #E8F5E9;
+    color: #1a6b35;
+    border: 1px solid #A5D6A7;
+}
+
+/* PDF inline preview */
+.file-inline-viewer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-toggle-preview {
+    align-self: flex-start;
+    padding: 7px 14px;
+    background: #EEF4FF;
+    color: #3B5FBB;
+    border: 1px solid #C7D7F5;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-toggle-preview:hover {
+    background: #3B5FBB;
+    color: var(--white);
+}
+
+.pdf-preview-frame {
+    margin-top: 4px;
+}
+
+.file-inline-actions {
+    display: flex;
+    gap: 8px;
+}
+/* ===== FILE PREVIEW UNAVAILABLE STATE ===== */
+.preview-unavailable {
+    padding: 32px 24px;
+    background: var(--light-bg);
+    border-radius: 8px;
+    border: 1px dashed var(--border-color);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.preview-unavailable p { margin: 4px 0; }
+.preview-unavailable strong { color: var(--text-dark); }
+.my-grade-display {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    background: #e6f4ea;
+    border-radius: 8px;
+    border-left: 3px solid var(--secondary-green);
+}
+.my-grade-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--secondary-green);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.my-grade-score {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1e6e3a;
+    line-height: 1;
+}
+.my-grade-feedback {
+    font-size: 13px;
+    color: #2d6a4f;
+    line-height: 1.5;
+}
+.my-grade-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+/* Make the list a grid with 3 columns */
+.submissions-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: stretch; /* cards stretch to match the tallest in each row */
+}
+
+/* Cards must fill the full grid cell height */
+.submission-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Push the grading panel / grade display to the bottom */
+.grading-panel,
+.my-grade-display,
+.grade-pending {
+    margin-top: auto;
+}
+@media (max-width: 1024px) {
+    .submissions-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .submissions-list {
+        grid-template-columns: 1fr;
+    }
+}

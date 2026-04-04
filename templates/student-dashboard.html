@@ -36,29 +36,29 @@
                 <div class="stat-card">
                     <div class="stat-icon green">&#128248;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number">{{ sighting_count }}</div>
                         <div class="stat-label">Sightings Reported</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon orange">&#127942;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
+                        <div class="stat-number">{{ challenges_joined }}</div>
                         <div class="stat-label">Challenges Joined</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon green">&#128218;</div>
                     <div class="stat-info">
-                        <div class="stat-number">25+</div>
-                        <div class="stat-label">Species to Explore</div>
+                        <div class="stat-number">{{ programs_enrolled }}</div>
+                        <div class="stat-label">Programs Enrolled</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon orange">&#127912;</div>
+                    <div class="stat-icon orange">&#9989;</div>
                     <div class="stat-info">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">Canvas Submissions</div>
+                        <div class="stat-number">{{ programs_completed }}</div>
+                        <div class="stat-label">Programs Completed</div>
                     </div>
                 </div>
             </div>
@@ -86,6 +86,20 @@
                     <p>Participate in conservation challenges.</p>
                     <button class="btn-action">View Challenges</button>
                 </div>
+                <div class="action-card">
+                    <div class="action-icon">&#128218;</div>
+                    <h3>My Syllabus</h3>
+                    <p>Track your class topics and activities.</p>
+                    {% if enrolled_class %}
+                    <button class="btn-action"
+                            onclick="window.location.href='/my-syllabus/{{ enrolled_class['class_id'] }}'">
+                        View Syllabus
+                    </button>
+                    {% else %}
+                    <button class="btn-action" disabled>Not enrolled in a class</button>
+                    {% endif %}
+                </div>
+
             </div>
 
         </main>

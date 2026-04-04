@@ -339,12 +339,13 @@
 }
 
 .post-image-placeholder {
-    background-color: var(--secondary-green);
     border-radius: 8px;
-    padding: 40px;
-    text-align: center;
     margin-bottom: 16px;
-    color: var(--white);
+}
+
+.post-image-placeholder img {
+    border: 4px solid var(--secondary-green);  /* reduce this value to taste */
+    border-radius: 8px;
 }
 
 .post-image-placeholder p {
@@ -518,4 +519,56 @@
 
 .database-controls.collapsed {
     display: none;
+}
+.showcase-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Feed controls (search + species filter) */
+.feed-controls {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    align-items: center;
+}
+
+.feed-controls.collapsed {
+    display: none;
+}
+
+.feed-controls input[type="text"] {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--light-bg);
+    color: var(--text-primary);
+}
+
+.feed-controls select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--light-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+/* 2-column grid for feed posts */
+.feed-posts {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+.feed-posts.collapsed {
+    display: none;
+}
+
+/* Override the display:block from JS filters to keep grid working */
+.feed-post {
+    display: block; /* grid handles layout */
 }

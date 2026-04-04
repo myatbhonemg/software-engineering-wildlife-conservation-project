@@ -46,7 +46,7 @@ function filterReports() {
         feedContainer.style.display = 'none';
     } else {
         noResults.style.display = 'none';
-        feedContainer.style.display = 'flex';
+        feedContainer.style.display = 'grid'; // ← was 'flex'
     }
 }
 

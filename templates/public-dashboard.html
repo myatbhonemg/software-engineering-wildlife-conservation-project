@@ -31,39 +31,33 @@
                 <div class="welcome-icon">&#129422;</div>
             </div>
 
-            <!-- Read Only Notice -->
-            <div class="readonly-notice">
-                &#128274; You are viewing as General Public (Read Only) — 
-                <a href="/login">Join a community</a> to submit sightings and join programs.
-            </div>
-
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon green">&#129422;</div>
                     <div class="stat-info">
-                        <div class="stat-number">25+</div>
+                        <div class="stat-number">{{ species_count }}</div>
                         <div class="stat-label">Species to Browse</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon orange">&#128248;</div>
                     <div class="stat-info">
-                        <div class="stat-number">5000+</div>
+                        <div class="stat-number">{{ sighting_count }}</div>
                         <div class="stat-label">Sighting Reports</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon green">&#127979;</div>
                     <div class="stat-info">
-                        <div class="stat-number">500+</div>
+                        <div class="stat-number">{{ school_count }}</div>
                         <div class="stat-label">Schools Enrolled</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon orange">&#129309;</div>
                     <div class="stat-info">
-                        <div class="stat-number">3000+</div>
+                        <div class="stat-number">{{ community_member_count }}</div>
                         <div class="stat-label">Community Members</div>
                     </div>
                 </div>
@@ -78,19 +72,28 @@
                     <div class="action-icon">&#128218;</div>
                     <h3>Browse Species Library</h3>
                     <p>View our comprehensive knowledge base of Indonesia's endangered species.</p>
-                    <button class="btn-action btn-action-public coming-soon-btn">Browse Library</button>
+                    <button class="btn-action btn-action-public"
+                            onclick="window.location.href='/species-library'">Browse Library</button>
                 </div>
                 <div class="action-card">
                     <div class="action-icon">&#128248;</div>
                     <h3>View Sighting Reports</h3>
                     <p>See what endangered species have been spotted across Indonesia.</p>
-                    <button class="btn-action btn-action-public coming-soon-btn">View Reports</button>
+                    <button class="btn-action btn-action-public"
+                            onclick="window.location.href='/sighting-reports'">View Reports</button>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">&#128248;</div>
+                    <h3>Report a Sighting</h3>
+                    <p>Spotted an endangered species? Submit a sighting report.</p>
+                    <button class="btn-action btn-action-public"
+                            onclick="window.location.href='/report-sighting'">Report Sighting</button>
                 </div>
                 <div class="action-card">
                     <div class="action-icon">&#9989;</div>
-                    <h3>Want to Contribute?</h3>
-                    <p>Create an account to submit sightings and join conservation programs.</p>
-                    <a href="login.html" class="btn-action btn-action-public">Create Account</a>
+                    <h3>Want Full Access?</h3>
+                    <p>Join a school or community to access programs, challenges, and messaging.</p>
+                    <a href="/login" class="btn-action btn-action-public">Join Now</a>
                 </div>
             </div>
 

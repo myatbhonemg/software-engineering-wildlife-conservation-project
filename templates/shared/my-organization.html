@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'My School' if is_school else 'My Community' }} - Komodo Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/my-organization.css') }}">
+</head>
+<body class="dashboard-body">
+
+    {% include 'shared/navbar.html' %}
+
+    <div class="dash-layout">
+        {% include 'shared/sidebar.html' %}
+
+        <main class="dash-main">
+
+            <div class="page-header">
+                {% if org and org['avatar'] %}
+                    <img src="{{ url_for('static', filename=org['avatar']) }}" 
+                        alt="{{ org['name'] }}"
+                        style="width:64px;height:64px;object-fit:cover;border-radius:12px;margin-bottom:12px;display:block;">
+                {% else %}
+                    <div style="font-size:48px;margin-bottom:8px;">
+                        {% if is_school %}🏫{% else %}🤝{% endif %}
+                    </div>
+                {% endif %}
+
+                <h1>{% if is_school %}My School{% else %}My Community{% endif %}</h1>
+                <p>Information about the {{ 'school' if is_school else 'community' }} and contacts</p>
+            </div>
+
+            <!-- Organization Info -->
+            <div class="info-section">
+                <h2 class="section-title">{{ 'School' if is_school else 'Community' }} Information</h2>
+                <div class="info-box">
+                    <div class="info-row">
+                        <span class="info-label">{{ 'School' if is_school else 'Community' }} Name</span>
+                        <span class="info-value">{{ org['name'] if org else '—' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Type</span>
+                        <span class="info-value">{{ org['type'].title() if org and org['type'] else '—' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Address</span>
+                        <span class="info-value">{{ org['address'] if org and org['address'] else '—' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ org['email'] if org else '—' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">{{ 'Total Students' if is_school else 'Total Members' }}</span>
+                        <span class="info-value">{{ member_count }}</span>
+                    </div>
+                    {% if is_school and staff_count is not none %}
+                    <div class="info-row">
+                        <span class="info-label">Total Teachers</span>
+                        <span class="info-value">{{ staff_count }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Principal (schools only) -->
+            {% if is_school and leader %}
+            <div class="contact-card">
+                <div class="contact-avatar">
+                    {% if leader['avatar'] %}
+                        <img src="{{ url_for('static', filename=leader['avatar']) }}"
+                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                    {% else %}&#128100;{% endif %}
+                </div>
+                <div class="contact-details">
+                    <h3 class="contact-name">{{ leader['fullname'] }}</h3>
+                    <p class="contact-role">Principal</p>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">&#128231;</span>
+                            <span>{{ leader['email'] }}</span>
+                        </div>
+                        {% if leader['phone'] %}
+                        <div class="contact-item">
+                            <span class="contact-icon">&#128222;</span>
+                            <span>{{ leader['phone'] }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <a href="/messages?open={{ leader['user_id'] }}" class="btn-contact-message">
+                    💬 Message
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Admin contact -->
+            {% if admin %}
+            <div class="contact-card">
+                <div class="contact-avatar">
+                    {% if admin['avatar'] %}
+                        <img src="{{ url_for('static', filename=admin['avatar']) }}"
+                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                    {% else %}&#128100;{% endif %}
+                </div>
+                <div class="contact-details">
+                    <h3 class="contact-name">{{ admin['fullname'] }}</h3>
+                    <p class="contact-role">{{ 'School Administrator' if is_school else 'Community Administrator' }}</p>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">&#128231;</span>
+                            <span>{{ admin['email'] }}</span>
+                        </div>
+                        {% if admin['phone'] %}
+                        <div class="contact-item">
+                            <span class="contact-icon">&#128222;</span>
+                            <span>{{ admin['phone'] }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <a href="/messages?open={{ admin['user_id'] }}" class="btn-contact-message">
+                    💬 Message
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Staff/Members grid -->
+            <div class="info-section">
+                <h2 class="section-title">{{ 'Teachers' if is_school else 'Members' }}</h2>
+                {% if staff %}
+                <div class="contacts-grid">
+                    {% for person in staff %}
+                    <div class="contact-card-small">
+                        <div class="contact-avatar-small">
+                            {% if person['avatar'] %}
+                                <img src="{{ url_for('static', filename=person['avatar']) }}"
+                                     style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                            {% else %}&#128100;{% endif %}
+                        </div>
+                        <h4 class="contact-name-small">{{ person['fullname'] }}</h4>
+                        <div class="contact-email-small">{{ person['email'] }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="color: var(--text-muted); padding: 20px 0;">
+                    No {{ 'teachers' if is_school else 'members' }} registered yet.
+                </p>
+                {% endif %}
+            </div>
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/tabs/my-organization.js') }}"></script>
+</body>
+</html>

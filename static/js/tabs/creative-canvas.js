@@ -1,189 +1,228 @@
 // ===== CREATIVE CANVAS JS =====
+// File: static/js/tabs/creative-canvas.js
 
-// Check user authentication
-const user = JSON.parse(localStorage.getItem('user'));
-
-if (!user) {
-    window.location.href = '../login.html';
-}
-
-// Update UI with user info
-if (user) {
-    const navUsername = document.getElementById('nav-username');
-    if (navUsername) navUsername.textContent = user.name;
-
-    const roleBadge = document.getElementById('user-role-badge');
-    if (roleBadge) {
-        const roleNames = {
-            'student': 'Student',
-            'teacher': 'Teacher',
-            'principal': 'Principal',
-            'school-admin': 'School Admin',
-            'community-member': 'Community',
-            'community-admin': 'Community Admin',
-            'system-admin': 'System Admin',
-            'public': 'Guest'
-        };
-        roleBadge.textContent = roleNames[user.role] || user.role;
-    }
-}
-
-// Sign out function
 function signOut() {
-    localStorage.removeItem('user');
     window.location.href = '/logout';
 }
 
-// Toggle sidebar
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) sidebar.classList.toggle('collapsed');
-}
+// ── State ────────────────────────────────────────────────────────────────────
+let pendingFile   = null;   // File object waiting for modal confirmation
+let activeFilter  = 'all';
 
-// ===== DRAG AND DROP =====
+// ── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    setupDragDrop();
+    document.getElementById('file-input').addEventListener('change', handleFileSelect);
+});
+
+// ── Drag & Drop ──────────────────────────────────────────────────────────────
 function setupDragDrop() {
-    const uploadZone = document.getElementById('upload-zone');
+    const zone = document.getElementById('upload-zone');
+    if (!zone) return;
 
-    uploadZone.addEventListener('dragover', (e) => {
+    zone.addEventListener('dragover', (e) => {
         e.preventDefault();
-        uploadZone.classList.add('dragover');
+        zone.classList.add('dragover');
     });
 
-    uploadZone.addEventListener('dragleave', () => {
-        uploadZone.classList.remove('dragover');
+    zone.addEventListener('dragleave', (e) => {
+        if (!zone.contains(e.relatedTarget)) {
+            zone.classList.remove('dragover');
+        }
     });
 
-    uploadZone.addEventListener('drop', (e) => {
+    zone.addEventListener('drop', (e) => {
         e.preventDefault();
-        uploadZone.classList.remove('dragover');
-        
+        zone.classList.remove('dragover');
         const files = e.dataTransfer.files;
-        handleFiles(files);
+        if (files.length > 0) validateAndQueue(files[0]);
     });
 }
 
-// ===== FILE HANDLING =====
+// ── File Selection ────────────────────────────────────────────────────────────
 function handleFileSelect(e) {
     const files = e.target.files;
-    handleFiles(files);
+    if (files.length > 0) validateAndQueue(files[0]);
+    e.target.value = ''; // reset so same file can be re-selected
 }
 
-function handleFiles(files) {
-    const maxSize = 25 * 1024 * 1024; // 25MB
-    const allowedTypes = [
-        'application/vnd.ms-powerpoint',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/pdf',
-        'text/plain',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ];
+function validateAndQueue(file) {
+    const MAX_SIZE    = 25 * 1024 * 1024; // 25 MB
+    const ALLOWED_EXT = /\.(ppt|pptx|doc|docx|pdf|txt|xls|xlsx)$/i;
 
-    for (let file of files) {
-        // Check file size
-        if (file.size > maxSize) {
-            alert(`File "${file.name}" is too large. Maximum size is 25MB.`);
-            continue;
-        }
-
-        // Check file type
-        if (!allowedTypes.includes(file.type) && !file.name.match(/\.(ppt|pptx|doc|docx|pdf|txt|xls|xlsx)$/i)) {
-            alert(`File "${file.name}" is not a supported format.`);
-            continue;
-        }
-
-        // Upload file
-        uploadFile(file);
+    if (!ALLOWED_EXT.test(file.name)) {
+        showError(`"${file.name}" is not a supported format. Please upload PPT, PPTX, DOC, DOCX, PDF, XLS, XLSX, or TXT.`);
+        return;
     }
 
-    // Clear input
-    document.getElementById('file-input').value = '';
+    if (file.size > MAX_SIZE) {
+        showError(`"${file.name}" exceeds the 25 MB limit (${(file.size / 1024 / 1024).toFixed(1)} MB).`);
+        return;
+    }
+
+    // Queue and open modal for metadata
+    pendingFile = file;
+    openUploadModal(file.name);
 }
 
-function uploadFile(file) {
-    // TODO: Upload to backend
-    console.log('Uploading file:', file.name);
-    
-    alert(`File "${file.name}" uploaded successfully!\n\nSize: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
-    
-    // In real app, this would:
-    // 1. Show upload progress
-    // 2. Send to backend
-    // 3. Add to files grid
+// ── Upload Modal ──────────────────────────────────────────────────────────────
+function openUploadModal(filename) {
+    document.getElementById('modal-file-name').textContent = `📎 ${filename}`;
+    document.getElementById('upload-title').value       = '';
+    document.getElementById('upload-description').value = '';
+    document.getElementById('upload-species').value     = '';
+    document.getElementById('upload-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('upload-title').focus(), 100);
 }
 
-// ===== FILTER FILES =====
-function filterFiles(filter) {
-    // Update active tab
-    document.querySelectorAll('.canvas-tab').forEach(tab => {
-        tab.classList.remove('active');
-        if (tab.getAttribute('data-filter') === filter) {
-            tab.classList.add('active');
+function closeUploadModal() {
+    document.getElementById('upload-modal').style.display = 'none';
+    pendingFile = null;
+}
+
+// Close modal on overlay click
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('upload-modal');
+    if (e.target === modal) closeUploadModal();
+});
+
+// ── Confirm Upload ────────────────────────────────────────────────────────────
+async function confirmUpload() {
+    const title = document.getElementById('upload-title').value.trim();
+    if (!title) {
+        document.getElementById('upload-title').classList.add('input-error');
+        document.getElementById('upload-title').focus();
+        return;
+    }
+    document.getElementById('upload-title').classList.remove('input-error');
+
+    if (!pendingFile) return;
+
+    const btn = document.getElementById('btn-upload-confirm');
+    btn.disabled    = true;
+    btn.textContent = 'Uploading…';
+
+    const formData = new FormData();
+    formData.append('file',        pendingFile);
+    formData.append('title',       title);
+    formData.append('description', document.getElementById('upload-description').value.trim());
+    formData.append('species_tag', document.getElementById('upload-species').value);
+
+    try {
+        const res  = await fetch('/upload-creative-file', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.success) {
+            closeUploadModal();
+            showSuccess();
+            // Reload page to show new file card
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            showError(data.message || 'Upload failed. Please try again.');
+            btn.disabled    = false;
+            btn.textContent = 'Upload File';
         }
+    } catch (err) {
+        showError('Network error. Please check your connection and try again.');
+        btn.disabled    = false;
+        btn.textContent = 'Upload File';
+    }
+}
+
+// ── Delete File ───────────────────────────────────────────────────────────────
+async function deleteFile(fileId, btn) {
+    if (!confirm('Are you sure you want to delete this file?\n\nThis action cannot be undone.')) return;
+
+    try {
+        const res  = await fetch(`/delete-creative-file/${fileId}`, { method: 'POST' });
+        const data = await res.json();
+
+        if (data.success) {
+            // Remove card from DOM with animation
+            const card = btn.closest('.file-card');
+            card.style.transition = 'opacity 0.3s, transform 0.3s';
+            card.style.opacity    = '0';
+            card.style.transform  = 'scale(0.95)';
+            setTimeout(() => {
+                card.remove();
+                updateStats();
+                checkEmptyState();
+            }, 300);
+        } else {
+            alert(data.message || 'Failed to delete file.');
+        }
+    } catch (err) {
+        alert('Network error. Please try again.');
+    }
+}
+
+// ── Filter Files ──────────────────────────────────────────────────────────────
+function filterFiles(filter) {
+    activeFilter = filter;
+
+    // Update tab styles
+    document.querySelectorAll('.canvas-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-filter') === filter);
     });
 
-    // Show/hide files
     const cards = document.querySelectorAll('.file-card');
-    let visibleCount = 0;
+    let visible = 0;
 
     cards.forEach(card => {
-        const type = card.getAttribute('data-type');
+        const type  = card.getAttribute('data-type');
         const owner = card.getAttribute('data-owner');
 
         let show = false;
+        if (filter === 'all')      show = true;
+        else if (filter === 'my-files') show = owner === 'mine';
+        else                            show = type === filter;
 
-        if (filter === 'all') {
-            show = true;
-        } else if (filter === 'my-files') {
-            show = owner === 'mine';
-        } else {
-            show = type === filter;
-        }
-
-        if (show) {
-            card.style.display = 'block';
-            visibleCount++;
-        } else {
-            card.style.display = 'none';
-        }
+        card.style.display = show ? 'block' : 'none';
+        if (show) visible++;
     });
 
-    // Show no results message
+    const grid          = document.getElementById('files-grid');
+    const noFilter      = document.getElementById('no-filter-results');
+    const noResults     = document.getElementById('no-results');
+
+    if (grid) grid.style.display = visible > 0 ? 'grid' : 'none';
+    if (noFilter) noFilter.style.display = (visible === 0 && cards.length > 0) ? 'block' : 'none';
+    if (noResults) noResults.style.display = (cards.length === 0) ? 'block' : 'none';
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function showSuccess() {
+    const el = document.getElementById('upload-success');
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+function showError(msg) {
+    const el = document.getElementById('upload-error');
+    el.textContent   = '❌ ' + msg;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+function updateStats() {
+    const allCards  = document.querySelectorAll('.file-card');
+    const mineCards = document.querySelectorAll('.file-card[data-owner="mine"]');
+    const total     = allCards.length;
+
+    const statTotal = document.getElementById('stat-total');
+    const statMine  = document.getElementById('stat-mine');
+    if (statTotal) statTotal.textContent = `${total} file${total !== 1 ? 's' : ''}`;
+    if (statMine)  statMine.textContent  = `${mineCards.length} uploaded by you`;
+}
+
+function checkEmptyState() {
+    const cards     = document.querySelectorAll('.file-card');
     const noResults = document.getElementById('no-results');
-    const filesGrid = document.getElementById('files-grid');
-
-    if (visibleCount === 0) {
-        noResults.style.display = 'block';
-        filesGrid.style.display = 'none';
-    } else {
-        noResults.style.display = 'none';
-        filesGrid.style.display = 'grid';
+    const grid      = document.getElementById('files-grid');
+    if (cards.length === 0) {
+        if (grid)      grid.style.display      = 'none';
+        if (noResults) noResults.style.display = 'block';
     }
 }
 
-// ===== FILE ACTIONS =====
-function downloadFile(fileId) {
-    alert('Downloading file...\n\n[Feature coming soon: Download file to your device]');
-    console.log('Downloading file:', fileId);
-    // TODO: Implement actual download
-}
-
-function viewFile(fileId) {
-    alert('Opening file viewer...\n\n[Feature coming soon: View file in browser]');
-    console.log('Viewing file:', fileId);
-    // TODO: Open file viewer modal
-}
-
-function deleteFile(fileId) {
-    const confirmDelete = confirm('Are you sure you want to delete this file?\n\nThis action cannot be undone.');
-    
-    if (confirmDelete) {
-        alert('File deleted successfully');
-        console.log('Deleted file:', fileId);
-        // TODO: Remove from backend and UI
-    }
-}
-
-console.log('Creative Canvas loaded successfully');
+console.log('Creative Canvas v2 loaded');

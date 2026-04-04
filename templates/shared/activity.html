@@ -27,7 +27,6 @@
                 </p>
             </div>
 
-            <!-- Create button -->
             {% if user['role'] in ['teacher', 'community-admin'] %}
             <div style="margin-bottom: 24px;">
                 <button class="btn-create-challenge" onclick="openCreateChallengeModal()">
@@ -36,7 +35,6 @@
             </div>
             {% endif %}
 
-            <!-- Stats -->
             <div class="activity-stats">
                 <div class="stat-box">
                     <div class="stat-icon">&#127942;</div>
@@ -50,7 +48,7 @@
                     <div class="stat-info">
                         <div class="stat-number">{{ completed_count }}</div>
                         <div class="stat-label">
-                            {% if user['role'] in ['teacher', 'community-admin'] %}
+                            {% if user['role'] in ['teacher', 'community-admin', 'school-admin', 'principal'] %}
                                 Total Submissions
                             {% else %}
                                 My Completions
@@ -93,17 +91,16 @@
 
             <div class="activity-layout">
 
-                <!-- Left: Challenges -->
                 <div class="challenges-section">
-                    <!-- Filters -->
                     <div class="challenge-filters">
                         <button class="filter-btn active" data-filter="all" onclick="filterChallenges('all', this)">All</button>
                         <button class="filter-btn" data-filter="active" onclick="filterChallenges('active', this)">Active</button>
+                        {% if user['role'] in ['student', 'community-member'] %}
                         <button class="filter-btn" data-filter="completed" onclick="filterChallenges('completed', this)">Completed</button>
+                        {% endif %}
                         <button class="filter-btn" data-filter="expired" onclick="filterChallenges('expired', this)">Expired</button>
                     </div>
 
-                    <!-- Challenges Grid -->
                     <div class="challenges-container" id="challenges-container">
                         {% for c in challenges %}
                         <div class="challenge-card {{ c['status'] }} {% if c.get('my_submission_id') %}done{% endif %}"
@@ -124,6 +121,17 @@
                             </div>
 
                             <h3 class="challenge-title">{{ c['title'] }}</h3>
+                            {% if user['role'] == 'student' and c.get('is_in_syllabus') %}
+                            <span class="challenge-syllabus-tag">📋 On your class syllabus</span>
+                            {% endif %}
+                            {% if user['role'] in ['teacher', 'school-admin', 'principal'] and c.get('linked_classes') %}
+                            <div class="program-syllabus-classes">
+                                <span class="syllabus-classes-label">📋 In syllabus of:</span>
+                                {% for cls in c['linked_classes'] %}
+                                <span class="syllabus-class-tag">{{ cls }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
                             <p class="challenge-description">{{ c['description'] }}</p>
 
                             {% if c['species_focus'] %}
@@ -139,41 +147,42 @@
                                 {% endif %}
                             </div>
 
-                            <!-- Submission count for teachers/admins -->
-                            {% if user['role'] in ['teacher', 'community-admin'] %}
+                            {% if user['role'] in ['teacher', 'community-admin', 'school-admin', 'principal'] %}
                             <div class="challenge-submissions-info">
                                 <span>&#128203; {{ c['submission_count'] }} submission{{ 's' if c['submission_count'] != 1 else '' }}</span>
                             </div>
                             {% endif %}
 
-                            <!-- Action buttons -->
                             {% if user['role'] in ['student', 'community-member'] %}
                                 {% if c.get('my_submission_id') %}
-                                <button class="btn-challenge btn-done" disabled>&#9989; Completed</button>
+                                    <button class="btn-challenge btn-done" disabled>&#9989; Completed</button>
+                                    {% if c.get('my_score') is not none %}
+                                    <div class="student-grade-display">
+                                        <span class="grade-score">{{ c['my_score'] }}/100</span>
+                                        {% if c.get('my_feedback') %}
+                                        <span class="grade-feedback">💬 {{ c['my_feedback'] }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% else %}
+                                    <p class="grade-pending">📋 Awaiting teacher assessment</p>
+                                    {% endif %}
                                 {% elif c['status'] == 'active' %}
                                 <button class="btn-challenge btn-submit"
-                                        onclick="openSubmitModal({{ c['challenge_id'] }}, '{{ c['title'] | replace("'", "\\'") }}', {{ c['points'] }})">
+                                        onclick="openSubmitModal({{ c['challenge_id'] }}, '{{ c['title'] | replace("'", "\'") }}', {{ c['points'] }})">
                                     Submit Evidence
                                 </button>
                                 {% else %}
                                 <button class="btn-challenge btn-expired" disabled>Expired</button>
                                 {% endif %}
 
-                            {% elif user['role'] in ['teacher', 'community-admin'] %}
-                                {% if c['created_by'] == user['user_id'] %}
+                            {% elif user['role'] in ['teacher', 'community-admin', 'school-admin', 'principal'] %}
                                 <div class="challenge-card-actions">
-                                    {% if user['role'] == 'teacher' %}
-                                    <button class="btn-challenge btn-manage-classes"
-                                            onclick="openChallengeClassModal({{ c['challenge_id'] }})">
-                                        &#127979; Classes
-                                    </button>
-                                    {% endif %}
+                                    <a href="/assess-submissions/{{ c['challenge_id'] }}" class="btn-challenge btn-assess-submissions">📋 View submissions</a>
                                     <button class="btn-challenge btn-delete-challenge"
                                             onclick="deleteChallenge({{ c['challenge_id'] }})">
                                         Delete
                                     </button>
                                 </div>
-                                {% endif %}
                             {% endif %}
 
                         </div>
@@ -191,12 +200,10 @@
                     </div>
                 </div>
 
-                <!-- Right: Leaderboard -->
                 <div class="leaderboard-section">
                     <div class="leaderboard-card">
                     <h3 class="leaderboard-title">&#127942; Leaderboard</h3>
                     <p class="leaderboard-subtitle">Top participants in your organisation</p>
-
                     <div class="leaderboard-list">
                         {% for p in leaderboard %}
                         <div class="leaderboard-item {% if p['fullname'] == user['fullname'] %}is-me{% endif %}">
@@ -239,7 +246,6 @@
         </main>
     </div>
 
-    <!-- Create Challenge Modal -->
     {% if user['role'] in ['teacher', 'community-admin'] %}
     <div id="create-challenge-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content challenge-modal">
@@ -285,7 +291,6 @@
     </div>
     {% endif %}
 
-    <!-- Submit Evidence Modal -->
     {% if user['role'] in ['student', 'community-member'] %}
     <div id="submit-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content challenge-modal">
@@ -326,7 +331,6 @@
     </div>
     {% endif %}
 
-    <!-- Challenge class mmodal -->
     {% if user['role'] == 'teacher' %}
     <div id="challenge-class-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content challenge-modal">
@@ -350,5 +354,29 @@
     {% endif %}
 
     <script src="{{ url_for('static', filename='js/tabs/activity.js') }}"></script>
+    <style>
+        @keyframes syl-highlight {
+            0%   { box-shadow: 0 0 0 0 rgba(74,124,44,.55); }
+            50%  { box-shadow: 0 0 0 8px rgba(74,124,44,.15); }
+            100% { box-shadow: 0 0 0 0 rgba(74,124,44,0); }
+        }
+        .challenge-card.syl-linked {
+            outline: 2px solid var(--secondary-green, #4a7c2c);
+            animation: syl-highlight 1.4s ease 0.2s 2;
+        }
+    </style>
+    <script>
+        (function () {
+            const hash = window.location.hash;
+            if (!hash.startsWith('#challenge-card-')) return;
+            const target = document.querySelector(hash);
+            if (!target) return;
+            requestAnimationFrame(() => {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                target.classList.add('syl-linked');
+                setTimeout(() => target.classList.remove('syl-linked'), 3200);
+            });
+        })();
+    </script>
 </body>
 </html>

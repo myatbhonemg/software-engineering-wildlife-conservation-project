@@ -300,6 +300,26 @@ document.addEventListener('DOMContentLoaded', function () {
             if (e.key === 'Escape') closeNewMessageModal();
         });
     }
+        // Auto-open conversation if ?open=userId is in URL
+    const params = new URLSearchParams(window.location.search);
+    const openUserId = params.get('open');
+    if (openUserId) {
+        const item = document.querySelector(`.conversation-item[data-user-id="${openUserId}"]`);
+        if (item) {
+            // Conversation already exists, just open it
+            item.click();
+        } else {
+            // Fetch user info and start new conversation
+            fetch(`/search-users?q=id:${openUserId}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.users && data.users.length > 0) {
+                        startChatWith(data.users[0]);
+                    }
+                });
+        }
+    }
+
 });
 
 console.log('Messages loaded successfully');

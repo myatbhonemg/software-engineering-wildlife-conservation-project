@@ -1,0 +1,132 @@
+/* ===== PAGE HEADER ===== */
+.page-header {
+    margin-bottom: 32px;
+}
+
+.page-header h1 {
+    font-size: 32px;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.page-header p {
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+/* ===== ANALYTICS SECTIONS ===== */
+.analytics-section {
+    margin-bottom: 32px;
+}
+
+.section-title {
+    font-size: 20px;
+    color: var(--text-dark);
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+
+/* ===== STATS BOX ===== */
+.stats-box {
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 2px solid var(--border-color);
+    overflow: hidden;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+.stat-row:hover {
+    background-color: var(--light-bg);
+}
+
+.stat-name {
+    font-size: 16px;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 20px;
+    color: var(--secondary-green);
+    font-weight: 700;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .stat-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .stat-value {
+        font-size: 18px;
+    }
+}
+
+.org-table-wrapper {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.org-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    font-size: 14px;
+}
+
+.org-table th {
+    background: var(--light-bg);
+    padding: 14px 20px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text-dark);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.org-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-dark);
+}
+
+.org-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.org-table tbody tr:hover {
+    background-color: var(--light-bg);
+}
+.btn-msg-org {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--secondary-green);
+    color: var(--white);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.btn-msg-org:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}

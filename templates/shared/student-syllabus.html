@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Syllabus – {{ cls['name'] }} - Komodo Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/syllabus.css') }}">
+</head>
+<body class="dashboard-body">
+
+    {% include 'shared/navbar.html' %}
+
+    <div class="dash-layout">
+        {% include 'shared/sidebar.html' %}
+
+        <main class="dash-main">
+
+            <div class="page-header">
+                <div class="page-header-left">
+                    <h1>&#128218; {{ cls['name'] }}</h1>
+                    <h2 class="syllabus-subtitle">Class Syllabus</h2>
+                </div>
+                <a href="/my-notes/{{ cls['class_id'] }}" class="btn-view-notes">📌 Announcements</a>
+            </div>
+
+            <!-- Overall progress -->
+            <div class="student-progress-bar-wrap">
+                <div class="student-progress-header">
+                    <span class="progress-label">Overall Progress</span>
+                    <span class="progress-pct">{{ overall_pct }}%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: {{ overall_pct }}%"></div>
+                </div>
+                <p class="progress-sub">{{ total_completed }} of {{ total_activities }} activit{% if total_activities != 1 %}ies{% else %}y{% endif %} completed</p>
+            </div>
+
+            <!-- Empty state -->
+            {% if not topics %}
+            <div class="syllabus-empty">
+                <div class="empty-icon">&#128218;</div>
+                <h3>No syllabus yet</h3>
+                <p>Your teacher hasn't added any topics to this class yet. Check back soon!</p>
+            </div>
+            {% endif %}
+
+            <!-- Topics -->
+            <div class="topics-list">
+                {% for topic in topics %}
+                <div class="topic-card">
+                    <div class="topic-header">
+                        <div class="topic-number">{{ loop.index }}</div>
+                        <div class="topic-info">
+                            <h3 class="topic-title">{{ topic['title'] }}</h3>
+                            {% if topic['learning_objective'] %}
+                            <p class="topic-objective">&#127919; {{ topic['learning_objective'] }}</p>
+                            {% endif %}
+                            {% if topic['description'] %}
+                            <p class="topic-desc">{{ topic['description'] }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="topic-meta">
+                            <span class="activity-count">
+                                {{ topic['topic_completed'] }}/{{ topic['topic_total'] }} done
+                            </span>
+                            {% if topic['topic_total'] > 0 %}
+                            <div class="topic-pip-track">
+                                <div class="topic-pip-fill"
+                                     style="width: {{ (topic['topic_completed'] / topic['topic_total'] * 100)|round|int }}%">
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <button class="btn-icon btn-toggle-topic" onclick="toggleTopic(this)">&#8964;</button>
+                    </div>
+
+                    <div class="activities-list">
+                        {% if not topic['activities'] %}
+                        <p class="no-activities-msg">No activities added yet.</p>
+                        {% endif %}
+
+                        {% for act in topic['activities'] %}
+                        <div class="activity-row student-activity-row {% if act['is_completed'] %}activity-done{% endif %}"
+                             id="act-row-{{ act['activity_id'] }}">
+
+                            {% if act['activity_type'] == 'reading' %}
+                            <button class="activity-check {% if act['is_completed'] %}checked{% endif %}"
+                                    onclick="toggleActivityComplete({{ act['activity_id'] }}, this)"
+                                    title="Mark complete">
+                                {% if act['is_completed'] %}&#10003;{% endif %}
+                            </button>
+                            {% else %}
+                            <div class="activity-check-placeholder {% if act['is_completed'] %}checked{% endif %}">
+                                {% if act['is_completed'] %}&#10003;{% endif %}
+                            </div>
+                            {% endif %}
+
+                            <span class="activity-type-icon activity-type-{{ act['activity_type'] }}">
+                                {% if act['activity_type'] == 'program' %}&#127942;
+                                {% elif act['activity_type'] == 'challenge' %}&#9889;
+                                {% elif act['activity_type'] == 'sighting' %}&#128248;
+                                {% elif act['activity_type'] == 'reading' %}&#128214;
+                                {% else %}&#9989;{% endif %}
+                            </span>
+
+                            <div class="activity-info">
+                                <span class="activity-title">
+                                    {{ act['title'] }}
+                                </span>
+                                {% if act['description'] %}
+                                <span class="activity-desc">{{ act['description'] }}</span>
+                                {% endif %}
+
+                                {# ── Contextual deep links ── #}
+                                {% if act['linked_program_id'] and act['program_title'] %}
+                                <a href="/programs#program-{{ act['linked_program_id'] }}" class="activity-link">
+                                    &#10132; Go to program: {{ act['program_title'] }}
+                                </a>
+                                {% elif act['linked_challenge_id'] and act['challenge_title'] %}
+                                <a href="/activities#challenge-card-{{ act['linked_challenge_id'] }}" class="activity-link">
+                                    &#10132; Go to challenge: {{ act['challenge_title'] }}
+                                </a>
+                                {% elif act['activity_type'] == 'sighting' %}
+                                <a href="/report-sighting" class="activity-link">&#10132; Go to sighting form</a>
+                                {% endif %}
+                            </div>
+
+                            <span class="activity-type-badge type-{{ act['activity_type'] }}">
+                                {{ act['activity_type'].title() }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/tabs/student-syllabus.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assess Submissions – {{ challenge['title'] }} - Komodo Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/assess-submissions.css') }}">
+</head>
+<body class="dashboard-body">
+    {% include 'shared/navbar.html' %}
+    <div class="dash-layout">
+        {% include 'shared/sidebar.html' %}
+        <main class="dash-main">
+            
+            <div class="page-header">
+                <a href="javascript:history.back()" class="back-link">← Back</a>
+                <div>
+                    <h1>📋Submissions</h1>
+                    <p>{{ challenge['title'] }} &bull; {{ challenge['points'] }} pts &bull; Deadline {{ challenge['deadline'][:10] }}</p>
+                </div>
+            </div>
+
+            <!-- Summary strip -->
+            <div class="assess-summary">
+                <div class="assess-stat">
+                    <span class="assess-stat-n">{{ submissions|length }}</span>
+                    <span class="assess-stat-l">Total Submissions</span>
+                </div>
+                <div class="assess-stat">
+                    <span class="assess-stat-n">{{ submissions | selectattr('score', 'ne', None) | list | length }}</span>
+                    <span class="assess-stat-l">Graded</span>
+                </div>
+                <div class="assess-stat">
+                    <span class="assess-stat-n">{{ submissions | selectattr('score', 'equalto', None) | list | length }}</span>
+                    <span class="assess-stat-l">Awaiting Grade</span>
+                </div>
+                {% set graded = submissions | selectattr('score', 'ne', None) | list %}
+                {% if graded %}
+                <div class="assess-stat">
+                    <span class="assess-stat-n">{{ (graded | sum(attribute='score') / graded|length) | round(1) }}</span>
+                    <span class="assess-stat-l">Average Score</span>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if not submissions %}
+            <div class="assess-empty">
+                <span style="font-size:48px;">📭</span>
+                <p>No submissions yet for this challenge.</p>
+            </div>
+            {% else %}
+            <div class="submissions-list">
+                {% for sub in submissions %}
+                <div class="submission-card {% if sub['score'] is not none %}graded{% endif %}"
+                    id="sub-card-{{ sub['submission_id'] }}">
+
+                    <!-- Student info -->
+                    <div class="sub-student">
+                        <div class="sub-avatar">
+                            {% if sub['student_avatar'] %}
+                                <img src="{{ url_for('static', filename=sub['student_avatar']) }}"
+                                     alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                            {% else %}
+                                👤
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="sub-name">{{ sub['student_name'] }}</p>
+                            <p class="sub-meta">{{ sub['student_role'].replace('-',' ').title() }}
+                                &bull; Submitted {{ sub['submitted_at'][:10] }}</p>
+                        </div>
+                            <a href="/student-progress/{{ sub['student_id'] }}" class="btn-view-progress">
+                                📊 Progress →
+                            </a>
+                        {% if sub['score'] is not none %}
+                        <span class="grade-badge">{{ sub['score'] }}/100</span>
+                        {% else %}
+                        <span class="grade-badge ungraded">Ungraded</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submission evidence -->
+                    {% if sub['media_path'] %}
+                    <div class="sub-media">
+                        {% set ext = sub['media_path'].rsplit('.', 1)[-1].lower() %}
+                        {% if ext in ['mp4', 'mov'] %}
+                        <video controls class="sub-video">
+                            <source src="{{ url_for('static', filename=sub['media_path']) }}">
+                        </video>
+                        {% else %}
+                        <img src="{{ url_for('static', filename=sub['media_path']) }}"
+                             class="sub-image" alt="Evidence"
+                             onclick="this.classList.toggle('sub-image-expanded')">
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if sub['description'] %}
+                    <div class="sub-description">
+                        <p>{{ sub['description'] }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Grading panel -->
+                    <!-- Grading panel — only for teachers/community-admin -->
+                    {% if user['role'] in ['teacher', 'community-admin'] %}
+                    <div class="grading-panel">
+                        <div class="grade-row">
+                            <div class="grade-field">
+                                <label>Score (0–100)</label>
+                                <input type="number" class="grade-score-input"
+                                    id="score-{{ sub['submission_id'] }}"
+                                    value="{{ sub['score'] if sub['score'] is not none else '' }}"
+                                    min="0" max="100" placeholder="—">
+                            </div>
+                            <div class="grade-field grade-field-wide">
+                                <label>Feedback</label>
+                                <input type="text" class="grade-feedback-input"
+                                    id="feedback-{{ sub['submission_id'] }}"
+                                    value="{{ sub['feedback'] or '' }}"
+                                    placeholder="Optional comments for this student…">
+                            </div>
+                            <button class="btn-save-grade"
+                                    onclick="saveGrade({{ sub['submission_id'] }})">
+                                Save
+                            </button>
+                        </div>
+                        {% if sub['graded_at'] %}
+                        <p class="grade-meta">
+                            Graded by {{ sub['grader_name'] }} on {{ sub['graded_at'][:10] }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <!-- Read-only grade display for school-admin / principal -->
+                    {% if sub['score'] is not none %}
+                    <div class="grading-panel">
+                        <p class="grade-meta">Score: <strong>{{ sub['score'] }}/100</strong>
+                            {% if sub['feedback'] %} — {{ sub['feedback'] }}{% endif %}
+                        </p>
+                        {% if sub['graded_at'] %}
+                        <p class="grade-meta">Graded by {{ sub['grader_name'] }} on {{ sub['graded_at'][:10] }}</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                </div>  
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+    <div id="grade-toast" class="grade-toast" style="display:none;"></div>
+    <script src="{{ url_for('static', filename='js/tabs/assess-submissions.js') }}"></script>
+</body>
+</html>

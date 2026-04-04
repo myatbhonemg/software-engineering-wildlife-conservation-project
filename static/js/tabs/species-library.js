@@ -3,7 +3,6 @@
 
 // Sign out function
 function signOut() {
-    localStorage.removeItem('user');
     window.location.href = '/logout';
 }
 
@@ -56,24 +55,16 @@ if (statusFilter) {
 
 // ===== COMMUNITY FEED FUNCTIONALITY =====
 
-// Feed filter tabs
+// Track the current org filter separately
+let currentOrgFilter = 'all';
+
 function filterFeed(filter, clickedBtn) {
-    // Update active tab
     document.querySelectorAll('.feed-tab').forEach(btn => btn.classList.remove('active'));
     clickedBtn.classList.add('active');
-
-    const userOrgId = document.getElementById('user-data').getAttribute('data-org-id');
-    const posts = document.querySelectorAll('.feed-post');
-
-    posts.forEach(post => {
-        const postOrg = post.getAttribute('data-org');
-        if (filter === 'all') {
-            post.style.display = 'block';
-        } else {
-            post.style.display = (postOrg == userOrgId) ? 'block' : 'none';
-        }
-    });
+    currentOrgFilter = filter;
+    applyFeedFilters();
 }
+
 
 // Load more posts button
 console.log('Species Library loaded successfully');
@@ -97,14 +88,115 @@ function toggleSpeciesGrid() {
 }
 
 // Toggle Feeds visibility
-// Toggle feed visibility
 function toggleFeed() {
     const feed = document.getElementById('feed-posts');
+    const controls = document.getElementById('feed-controls');
     const arrow = document.getElementById('feed-arrow');
     const btn = document.getElementById('feed-toggle-btn');
 
     feed.classList.toggle('collapsed');
+    controls.classList.toggle('collapsed');
     btn.classList.toggle('collapsed');
 
     arrow.textContent = feed.classList.contains('collapsed') ? 'View All' : 'Hide All';
+}
+
+function filterFeedPosts() {
+    applyFeedFilters();
+}
+
+function applyFeedFilters() {
+    const search = document.getElementById('feed-search').value.toLowerCase();
+    const species = document.getElementById('feed-species-filter').value.toLowerCase();
+    const userOrgId = document.getElementById('user-data').getAttribute('data-org-id');
+    const posts = document.querySelectorAll('.feed-post');
+
+    posts.forEach(post => {
+        const matchesOrg = currentOrgFilter === 'all' || post.dataset.org == userOrgId;
+        const matchesSpecies = species === 'all' || post.dataset.species === species;
+        const matchesSearch = !search ||
+            (post.dataset.location && post.dataset.location.includes(search));
+
+        post.style.display = (matchesOrg && matchesSpecies && matchesSearch) ? 'block' : 'none';
+    });
+}
+
+// ===== PROGRAMS SECTION =====
+let currentProgramOrgFilter = 'all';
+
+function togglePrograms() {
+    const posts = document.getElementById('programs-posts');
+    const controls = document.getElementById('programs-controls');
+    const arrow = document.getElementById('programs-arrow');
+    const btn = document.getElementById('programs-toggle-btn');
+
+    posts.classList.toggle('collapsed');
+    controls.classList.toggle('collapsed');
+    btn.classList.toggle('collapsed');
+    arrow.textContent = posts.classList.contains('collapsed') ? 'View All' : 'Hide All';
+}
+
+function filterPrograms(filter, clickedBtn) {
+    document.querySelectorAll('#programs-posts')
+        .forEach(() => {});
+    const btns = document.querySelectorAll('.community-feed:nth-of-type(3) .feed-tab');
+    btns.forEach(b => b.classList.remove('active'));
+    if (clickedBtn) clickedBtn.classList.add('active');
+    currentProgramOrgFilter = filter;
+    filterProgramPosts();
+}
+
+function filterProgramPosts() {
+    const search = document.getElementById('programs-search').value.toLowerCase();
+    const species = document.getElementById('programs-species-filter').value.toLowerCase();
+    const userOrgId = document.getElementById('user-data').getAttribute('data-org-id');
+    const posts = document.querySelectorAll('#programs-posts .feed-post');
+
+    posts.forEach(post => {
+        const matchesOrg = currentProgramOrgFilter === 'all' || post.dataset.org == userOrgId;
+        const matchesSpecies = species === 'all' || post.dataset.species === species;
+        const matchesSearch = !search || post.querySelector('h3').textContent.toLowerCase().includes(search)
+            || post.querySelector('p').textContent.toLowerCase().includes(search);
+
+        post.style.display = (matchesOrg && matchesSpecies && matchesSearch) ? 'block' : 'none';
+    });
+}
+
+// ===== CHALLENGES SECTION =====
+let currentChallengeOrgFilter = 'all';
+
+function toggleChallenges() {
+    const posts = document.getElementById('challenges-posts');
+    const controls = document.getElementById('challenges-controls');
+    const arrow = document.getElementById('challenges-arrow');
+    const btn = document.getElementById('challenges-toggle-btn');
+
+    posts.classList.toggle('collapsed');
+    controls.classList.toggle('collapsed');
+    btn.classList.toggle('collapsed');
+    arrow.textContent = posts.classList.contains('collapsed') ? 'View All' : 'Hide All';
+}
+
+function filterChallengesLib(filter, clickedBtn) {
+    const btns = document.querySelectorAll('.community-feed:nth-of-type(4) .feed-tab');
+    btns.forEach(b => b.classList.remove('active'));
+    if (clickedBtn) clickedBtn.classList.add('active');
+    currentChallengeOrgFilter = filter;
+    filterChallengePosts();
+}
+
+function filterChallengePosts() {
+    const search = document.getElementById('challenges-search').value.toLowerCase();
+    const species = document.getElementById('challenges-species-filter').value.toLowerCase();
+    const userOrgId = document.getElementById('user-data').getAttribute('data-org-id');
+    const posts = document.querySelectorAll('#challenges-posts .feed-post');
+
+    posts.forEach(post => {
+        const matchesOrg = currentChallengeOrgFilter === 'all' || post.dataset.org == userOrgId;
+        const matchesSpecies = species === 'all' || post.dataset.species === species;
+        const matchesSearch = !search || post.querySelector('h3').textContent.toLowerCase().includes(search)
+            || post.querySelector('p').textContent.toLowerCase().includes(search);
+
+        post.style.display = (matchesOrg && matchesSpecies && matchesSearch) ? 'block' : 'none';
+    });
 }

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress – {{ student['fullname'] }} - Komodo Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs/student-progress.css') }}">
+</head>
+<body class="dashboard-body">
+    {% include 'shared/navbar.html' %}
+    <div class="dash-layout">
+        {% include 'shared/sidebar.html' %}
+        <main class="dash-main">
+
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <a href="javascript:history.back()" class="back-link">← Back</a>
+                    <h1>📊 Progress Report</h1>
+                </div>
+            </div>
+
+            <!-- Student identity card -->
+            <div class="student-id-card">
+                <div class="sid-avatar">
+                    {% if student['avatar'] %}
+                        <img src="{{ url_for('static', filename=student['avatar']) }}" alt="">
+                    {% else %}
+                        👤
+                    {% endif %}
+                </div>
+                <div class="sid-info">
+                    <h2>{{ student['fullname'] }}</h2>
+                    <p>{{ student['email'] }}</p>
+                    <p>Joined {{ student['created_at'][:10] if student['created_at'] else '—' }}</p>
+                </div>
+                <div class="sid-stats">
+                    <div class="sid-stat">
+                        <span class="sid-n">{{ submissions|length }}</span>
+                        <span class="sid-l">Challenges Done</span>
+                    </div>
+                    <div class="sid-stat">
+                        <span class="sid-n">{{ programs|length }}</span>
+                        <span class="sid-l">Programs</span>
+                    </div>
+                    <div class="sid-stat">
+                        <span class="sid-n">{{ sightings|length }}</span>
+                        <span class="sid-l">Sightings</span>
+                    </div>
+                    <div class="sid-stat">
+                        <span class="sid-n">{{ student['points'] or 0 }}</span>
+                        <span class="sid-l">Points</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section tabs -->
+            <div class="progress-tabs">
+                <button class="ptab active" onclick="showTab('syllabus')">📚 Syllabus</button>
+                <button class="ptab" onclick="showTab('programs')">📁 Programs</button>
+                <button class="ptab" onclick="showTab('challenges')">⚡ Challenges</button>
+                <button class="ptab" onclick="showTab('sightings')">📷 Sightings</button>
+            </div>
+
+            <!-- ── TAB: Syllabus ── -->
+            <div class="ptab-content active" id="tab-syllabus">
+                {% if not classes_progress %}
+                <div class="progress-empty">Not enrolled in any classes yet.</div>
+                {% else %}
+                {% for cls in classes_progress %}
+                <div class="progress-section-card">
+                    <div class="psc-header">
+                        <div>
+                            <h3>{{ cls['name'] }}</h3>
+                            {% if cls['subject'] %}<p>{{ cls['subject'] }}</p>{% endif %}
+                            <p class="psc-teacher">Teacher: {{ cls['teacher_name'] or '—' }}</p>
+                        </div>
+                        <div class="psc-pct-ring">
+                            <svg viewBox="0 0 36 36" class="ring-svg">
+                                <path class="ring-bg" d="M18 2 a16 16 0 0 1 0 32 a16 16 0 0 1 0-32"/>
+                                <path class="ring-fill" stroke-dasharray="{{ cls['pct'] }}, 100"
+                                      d="M18 2 a16 16 0 0 1 0 32 a16 16 0 0 1 0-32"/>
+                            </svg>
+                            <span class="ring-label">{{ cls['pct'] }}%</span>
+                        </div>
+                    </div>
+                    <p class="psc-sub">{{ cls['done'] }} / {{ cls['total'] }} activities completed</p>
+
+                    {% for topic in cls['topics'] %}
+                    <div class="topic-progress-row">
+                        <div class="tpr-info">
+                            <span class="tpr-title">{{ topic['title'] }}</span>
+                            <span class="tpr-count">{{ topic['done'] }}/{{ topic['total'] }}</span>
+                        </div>
+                        <div class="tpr-track">
+                            <div class="tpr-fill"
+                                 style="width: {{ (topic['done'] / topic['total'] * 100) | int if topic['total'] else 0 }}%">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- ── TAB: Programs ── -->
+            <div class="ptab-content" id="tab-programs">
+                {% if not programs %}
+                <div class="progress-empty">Not enrolled in any programs.</div>
+                {% else %}
+                <div class="progress-grid">
+                    {% for p in programs %}
+                    <div class="prog-report-card status-{{ p['status'] }}">
+                        <div class="prc-header">
+                            <h4>{{ p['title'] }}</h4>
+                            <span class="prc-status {{ p['status'] }}">{{ p['status'].title() }}</span>
+                        </div>
+                        {% if p['species_focus'] %}
+                        <p class="prc-species">🦎 {{ p['species_focus'] }}</p>
+                        {% endif %}
+                        {% if p['total_files'] > 0 %}
+                        <div class="prc-progress">
+                            <div class="prc-track">
+                                <div class="prc-fill"
+                                     style="width: {{ (p['done_files'] / p['total_files'] * 100) | int }}%">
+                                </div>
+                            </div>
+                            <span class="prc-text">{{ p['done_files'] }}/{{ p['total_files'] }} files</span>
+                        </div>
+                        {% endif %}
+                        <p class="prc-date">
+                            Enrolled {{ p['enrolled_at'][:10] }}
+                            {% if p['completed_at'] %} · Completed {{ p['completed_at'][:10] }}{% endif %}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ── TAB: Challenges ── -->
+            <div class="ptab-content" id="tab-challenges">
+                {% if not submissions %}
+                <div class="progress-empty">No challenge submissions yet.</div>
+                {% else %}
+                <table class="progress-table">
+                    <thead>
+                        <tr>
+                            <th>Challenge</th>
+                            <th>Species</th>
+                            <th>Submitted</th>
+                            <th>Points</th>
+                            <th>Score</th>
+                            <th>Feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in submissions %}
+                        <tr>
+                            <td><strong>{{ s['challenge_title'] }}</strong></td>
+                            <td>{{ s['species_focus'] or '—' }}</td>
+                            <td>{{ s['submitted_at'][:10] }}</td>
+                            <td>+{{ s['points'] }} pts</td>
+                            <td>
+                                {% if s['score'] is not none %}
+                                <span class="score-pill">{{ s['score'] }}/100</span>
+                                {% else %}
+                                <span class="score-pill ungraded">—</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ s['feedback'] or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+
+            <!-- ── TAB: Sightings ── -->
+            <div class="ptab-content" id="tab-sightings">
+                {% if not sightings %}
+                <div class="progress-empty">No sightings recorded yet.</div>
+                {% else %}
+                <table class="progress-table">
+                    <thead>
+                        <tr>
+                            <th>Species</th>
+                            <th>Location</th>
+                            <th>Count</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in sightings %}
+                        <tr>
+                            <td>{{ s['common_name'] }}</td>
+                            <td>{{ s['location'] }}</td>
+                            <td>{{ s['count'] }}</td>
+                            <td>{{ s['sighting_date'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='js/tabs/student-progress.js') }}"></script>
+</body>
+</html>

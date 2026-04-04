@@ -51,28 +51,30 @@
                 <div class="species-grid collapsed" id="species-grid">
                     <!-- Species Card  -->
                     {% for s in species %}
+                    <a href="{{ s['full_details_url'] }}" target="_blank" class="showcase-card-link">
                         <div class="species-card" data-status="{{ s['status'] }}">
-                        <div class="species-image-large">
-                            <img src="{{ url_for('static', filename=s['image']) }}" alt="{{ s['common_name'] }}">
-                        </div>
-                        <div class="species-details">
-                            <h3 class="species-name">{{ s['common_name'] }}</h3>
-                            <p class="species-scientific">{{ s['scientific_name'] }}</p>
-                            <div class="species-meta-row">
-                                <span class="location-tag">&#128205; {{ s['location'] }}</span>
-                                <span class="diet-tag">&#127807; {{ s['diet'] }}</span>
+                            <div class="species-image-large">
+                                <img src="{{ url_for('static', filename=s['image']) }}" alt="{{ s['common_name'] }}">
                             </div>
-                            <span class="status-badge status-{{ s['status'].lower() }}">
-                                {% if s['status'] == 'CR' %}Critically Endangered
-                                {% elif s['status'] == 'EN' %}Endangered
-                                {% elif s['status'] == 'VU' %}Vulnerable
-                                {% endif %}
-                            </span>
-                            <p class="species-description">{{ s['description'] }}</p>
-                            <p class="species-fact">💡 {{ s['fun_fact'] }}</p>
-                            <a href="{{ s['full_details_url'] }}" target="_blank" class="learn-more-link">Click here to learn more &#8599;</a>
+                            <div class="species-details">
+                                <h3 class="species-name">{{ s['common_name'] }}</h3>
+                                <p class="species-scientific">{{ s['scientific_name'] }}</p>
+                                <div class="species-meta-row">
+                                    <span class="location-tag">&#128205; {{ s['location'] }}</span>
+                                    <span class="diet-tag">&#127807; {{ s['diet'] }}</span>
+                                </div>
+                                <span class="status-badge status-{{ s['status'].lower() }}">
+                                    {% if s['status'] == 'CR' %}Critically Endangered
+                                    {% elif s['status'] == 'EN' %}Endangered
+                                    {% elif s['status'] == 'VU' %}Vulnerable
+                                    {% endif %}
+                                </span>
+                                <p class="species-description">{{ s['description'] }}</p>
+                                <p class="species-fact">💡 {{ s['fun_fact'] }}</p>
+                                <span class="learn-more-link">Click here to learn more &#8599;</span>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                     {% endfor %} 
 
             </section>
@@ -87,14 +89,30 @@
                         </button>
                     </div>
                     <div class="feed-tabs">
-                        <button class="feed-tab active" onclick="filterFeed('all', this)">All</button>
                         {% if user['role'] in ['student', 'teacher', 'school-admin', 'principal'] %}
+                        <button class="feed-tab active" onclick="filterFeed('all', this)">All</button>
                         <button class="feed-tab" onclick="filterFeed('school', this)">My School</button>
                         {% endif %}
                         {% if user['role'] in ['community-member', 'community-admin'] %}
+                        <button class="feed-tab active" onclick="filterFeed('all', this)">All</button>
                         <button class="feed-tab" onclick="filterFeed('community', this)">My Community</button>
                         {% endif %}
                     </div>
+                </div>
+
+                <div class="feed-controls collapsed" id="feed-controls">
+                    <input type="text" id="feed-search" placeholder="Search by location or reporter..." oninput="filterFeedPosts()">
+                    <select id="feed-species-filter" onchange="filterFeedPosts()">
+                        <option value="all">All Species</option>
+                        <option value="javan rhinoceros">Javan Rhinoceros</option>
+                        <option value="sumatran tiger">Sumatran Tiger</option>
+                        <option value="bali myna">Bali Myna</option>
+                        <option value="komodo dragon">Komodo Dragon</option>
+                        <option value="javan hawk-eagle">Javan Hawk-Eagle</option>
+                        <option value="celebes crested macaque">Celebes Crested Macaque</option>
+                        <option value="sumatran orangutan">Sumatran Orangutan</option>
+                        <option value="sumatran elephant">Sumatran Elephant</option>
+                    </select>
                 </div>
 
                 <!-- Add collapsed class to feed-posts by default -->
@@ -102,24 +120,26 @@
                     {% for s in sightings %}
                     <div class="feed-post" 
                         data-type="sighting"
-                        data-org="{{ s['reporter_org_id'] }}">
+                        data-org="{{ s['reporter_org_id'] }}"
+                        data-species="{{ s['common_name'].lower() }}"
+                        data-location="{{ s['location'].lower() }}">
 
-                        <div class="post-header">
+                       <div class="post-header">
                             <div class="post-user">
                                 <div class="user-avatar">
-                                    {% if s['reporter_avatar'] %}
-                                        <img src="{{ url_for('static', filename=s['reporter_avatar']) }}" 
+                                    {% if s['org_avatar'] %}
+                                        <img src="{{ url_for('static', filename=s['org_avatar']) }}"
                                             style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
                                     {% else %}
-                                        👤
+                                        🏫
                                     {% endif %}
                                 </div>
                                 <div class="user-info">
-                                    <div class="user-name">{{ s['reporter_name'] }}</div>
-                                    <div class="user-meta">{{ s['reporter_role'].replace('-',' ').title() }} • {{ s['sighting_date'] }}</div>
+                                    <div class="user-name">{{ s['org_name'] or 'Unknown Organisation' }}</div>
+                                    <div class="user-meta">{{ s['org_category'].title() if s['org_category'] else '' }} • {{ s['sighting_date'] }}</div>
                                 </div>
                             </div>
-                            <span class="post-type-badge">&#128205; Sighting</span>
+                            <span class="post-type-badge">📍 Sighting</span>
                         </div>
 
                         <div class="post-content">
@@ -141,6 +161,192 @@
                 </div>
 
                 <button class="btn-load-more" style="display:none;">Load More Posts</button>
+            </section>
+
+            <!-- SECTION 3: Programs -->
+            <section class="community-feed" style="margin-top: 32px;">
+                <div class="feed-header">
+                    <div class="header-left">
+                        <h2>📁 Conservation Programs</h2>
+                        <button class="toggle-section-btn" id="programs-toggle-btn" onclick="togglePrograms()">
+                            <span id="programs-arrow">View All</span>
+                        </button>
+                    </div>
+                    <div class="feed-tabs">
+                        {% if user['role'] in ['student', 'teacher', 'school-admin', 'principal'] %}
+                        <button class="feed-tab active" onclick="filterPrograms('all', this)">All</button>
+                        <button class="feed-tab" onclick="filterPrograms('school', this)">My School</button>
+                        {% endif %}
+                        {% if user['role'] in ['community-member', 'community-admin'] %}
+                        <button class="feed-tab active" onclick="filterPrograms('all', this)">All</button>
+                        <button class="feed-tab" onclick="filterPrograms('community', this)">My Community</button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="feed-controls collapsed" id="programs-controls">
+                    <input type="text" id="programs-search" placeholder="Search programs..." oninput="filterProgramPosts()">
+                    <select id="programs-species-filter" onchange="filterProgramPosts()">
+                        <option value="all">All Species</option>
+                        {% for s in species %}
+                        <option value="{{ s['common_name'].lower() }}">{{ s['common_name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="feed-posts collapsed" id="programs-posts">
+                    {% for p in programs %}
+                    <div class="feed-post"
+                        data-org="{{ p['creator_org_id'] }}"
+                        data-species="{{ p['species_focus'].lower() if p['species_focus'] else '' }}">
+
+                        <div class="post-header">
+                            <div class="post-user">
+                                <div class="user-avatar">
+                                    {% if p['org_avatar'] %}
+                                        <img src="{{ url_for('static', filename=p['org_avatar']) }}"
+                                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                    {% else %}
+                                        🏫
+                                    {% endif %}
+                                </div>
+                                <div class="user-info">
+                                    <div class="user-name">{{ p['org_name'] or 'Unknown Organisation' }}</div>
+                                    <div class="user-meta">{{ p['org_category'].title() if p['org_category'] else '' }} • {{ p['created_at'][:10] }}</div>
+                                </div>
+                            </div>
+                            <span class="post-type-badge" style="background:#3B5FBB;">📁 Program</span>
+                        </div>
+
+                        <div class="post-content">
+                            <h3>{{ p['title'] }}</h3>
+                            <p>{{ p['description'] }}</p>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                                {% if p['species_focus'] %}
+                                <span style="background:#E8F5E9; color:#2e7d32; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600;">
+                                    🦎 {{ p['species_focus'] }}
+                                </span>
+                                {% endif %}
+                                {% if p['duration'] %}
+                                <span style="background:#EEF4FF; color:#3B5FBB; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600;">
+                                    🕐 {{ p['duration'] }}
+                                </span>
+                                {% endif %}
+                                <span style="background:#F3E5F5; color:#7B1FA2; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600;">
+                                    👥 {{ p['enrolled_count'] }} enrolled
+                                </span>
+                            </div>
+
+                            {% if p['files'] %}
+                            <div style="margin-top:12px; border-top:1px solid var(--border-color); padding-top:10px;">
+                                <p style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:8px;">📂 Materials</p>
+                                <div style="display:flex; flex-direction:column; gap:6px;">
+                                    {% for f in p['files'] %}
+                                    <a href="{{ url_for('static', filename=f['filepath']) }}" target="_blank"
+                                    style="display:inline-flex; align-items:center; gap:6px; font-size:13px;
+                                            color:#3B5FBB; text-decoration:none; padding:6px 10px;
+                                            background:#EEF4FF; border-radius:6px; border:1px solid #C7D7F5;">
+                                        📄 {{ f['filename'] }}
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <p style="padding: 20px; color: var(--text-muted);">No programs yet.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- SECTION 4: Challenges -->
+            <section class="community-feed" style="margin-top: 32px;">
+                <div class="feed-header">
+                    <div class="header-left">
+                        <h2>⚡ Activity Challenges</h2>
+                        <button class="toggle-section-btn" id="challenges-toggle-btn" onclick="toggleChallenges()">
+                            <span id="challenges-arrow">View All</span>
+                        </button>
+                    </div>
+                    <div class="feed-tabs">
+                        {% if user['role'] in ['student', 'teacher', 'school-admin', 'principal'] %}
+                        <button class="feed-tab active" onclick="filterChallengesLib('all', this)">All</button>
+                        <button class="feed-tab" onclick="filterChallengesLib('school', this)">My School</button>
+                        {% endif %}
+                        {% if user['role'] in ['community-member', 'community-admin'] %}
+                        <button class="feed-tab active" onclick="filterChallengesLib('all', this)">All</button>
+                        <button class="feed-tab" onclick="filterChallengesLib('community', this)">My Community</button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="feed-controls collapsed" id="challenges-controls">
+                    <input type="text" id="challenges-search" placeholder="Search challenges..." oninput="filterChallengePosts()">
+                    <select id="challenges-species-filter" onchange="filterChallengePosts()">
+                        <option value="all">All Species</option>
+                        {% for s in species %}
+                        <option value="{{ s['common_name'].lower() }}">{{ s['common_name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="feed-posts collapsed" id="challenges-posts">
+                    {% for c in challenges %}
+                    <div class="feed-post"
+                        data-org="{{ c['creator_org_id'] }}"
+                        data-species="{{ c['species_focus'].lower() if c['species_focus'] else '' }}">
+
+                        <div class="post-header">
+                            <div class="post-user">
+                                <div class="user-avatar">
+                                    {% if c['org_avatar'] %}
+                                        <img src="{{ url_for('static', filename=c['org_avatar']) }}"
+                                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                    {% else %}
+                                        🏫
+                                    {% endif %}
+                                </div>
+                                <div class="user-info">
+                                    <div class="user-name">{{ c['org_name'] or 'Unknown Organisation' }}</div>
+                                    <div class="user-meta">{{ c['org_category'].title() if c['org_category'] else '' }} • {{ c['created_at'][:10] }}</div>
+                                </div>
+                            </div>
+                            <span class="post-type-badge" style="background:{{ '#E17B3C' if c['status'] == 'expired' else '#4a7c2c' }};">
+                                {{ '⚡ Active' if c['status'] == 'active' else '🚫 Expired' }}
+                            </span>
+                        </div>
+
+                        <div class="post-content">
+                            <h3>{{ c['title'] }}</h3>
+                            <p>{{ c['description'] }}</p>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                                {% if c['species_focus'] %}
+                                <span style="background:#E8F5E9; color:#2e7d32; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600;">
+                                    🦎 {{ c['species_focus'] }}
+                                </span>
+                                {% endif %}
+                                <span style="background:#FFF3E0; color:#E17B3C; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600;">
+                                    🏆 {{ c['points'] }} pts
+                                </span>
+                                <span style="background:var(--light-bg); color:var(--text-muted); padding:4px 10px; border-radius:12px; font-size:12px;">
+                                    🗓 {{ 'Ends' if c['status'] == 'active' else 'Ended' }} {{ c['deadline'][:10] }}
+                                </span>
+                            </div>
+                            {% if c['submission_count'] > 0 %}
+                            <a href="/public-challenge-submissions/{{ c['challenge_id'] }}"
+                            style="display:inline-flex; align-items:center; gap:6px; margin-top:12px;
+                                    padding:8px 14px; background:var(--secondary-green); color:#fff;
+                                    border-radius:8px; font-size:13px; font-weight:700; text-decoration:none;">
+                                📋 {{ c['submission_count'] }} submissions
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <p style="padding: 20px; color: var(--text-muted);">No challenges yet.</p>
+                    {% endfor %}
+                </div>
             </section>
 
             <div id="user-data" data-org-id="{{ user['organization_id'] or '' }}"></div>

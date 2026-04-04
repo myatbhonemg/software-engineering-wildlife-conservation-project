@@ -1,0 +1,24 @@
+/* =============================================================
+   class-sightings.css
+   File: static/css/tabs/class-sightings.css
+   ============================================================= */
+ 
+.cs-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.cs-stat {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 18px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 100px;
+}
+.cs-n { font-size: 28px; font-weight: 800; color: var(--text-dark); }
+.cs-l { font-size: 12px; color: var(--text-muted); margin-top: 4px; }

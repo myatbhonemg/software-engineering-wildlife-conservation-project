@@ -1,0 +1,196 @@
+/* ===== PAGE HEADER ===== */
+.page-header {
+    margin-bottom: 32px;
+}
+
+.page-header h1 {
+    font-size: 32px;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.page-header p {
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+/* ===== SEARCH SECTION ===== */
+.search-section {
+    margin-bottom: 24px;
+}
+
+#search-input {
+    width: 100%;
+    max-width: 500px;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+#search-input:focus {
+    outline: none;
+    border-color: var(--secondary-green);
+}
+
+/* ===== STUDENTS CONTAINER ===== */
+.students-container {
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 2px solid var(--border-color);
+    overflow: hidden;
+}
+
+/* ===== STUDENTS TABLE ===== */
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.students-table thead {
+    background-color: var(--light-bg);
+}
+
+.students-table th {
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dark);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.students-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.students-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.students-table tbody tr:hover {
+    background-color: var(--light-bg);
+}
+
+.students-table td {
+    padding: 16px 20px;
+    font-size: 14px;
+    color: var(--text-dark);
+}
+
+/* Student Info */
+.student-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.student-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--secondary-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--white);
+    font-weight: 700;
+}
+
+.student-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.student-name {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.student-email-mobile {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: none;
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background-color: #E8F5E9;
+    color: #4CAF50;
+}
+
+.status-inactive {
+    background-color: #FFEBEE;
+    color: #F44336;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    font-size: 16px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .students-table thead {
+        display: none;
+    }
+
+    .students-table tbody tr {
+        display: block;
+        margin-bottom: 16px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+    }
+
+    .students-table td {
+        display: block;
+        text-align: left;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .students-table td:last-child {
+        border-bottom: none;
+    }
+
+    .students-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        display: inline-block;
+        margin-right: 8px;
+        color: var(--text-muted);
+    }
+
+    .student-email-mobile {
+        display: block;
+        margin-top: 4px;
+    }
+
+    .students-table td:first-child::before {
+        display: none;
+    }
+}

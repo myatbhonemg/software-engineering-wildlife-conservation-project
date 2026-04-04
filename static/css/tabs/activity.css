@@ -431,10 +431,15 @@
     display: flex;
     gap: 8px;
     margin-top: auto;
+    align-items: stretch;  /* ensures equal height */
+}
+.challenge-card-actions .btn-assess-submissions {
+    flex: 3;  /* takes up 3 parts of the space */
 }
 
-.challenge-card-actions .btn-challenge {
-    flex: 1;
+.challenge-card-actions .btn-delete-challenge {
+    flex: 1;  /* takes up 1 part of the space */
+    width: auto;  /* override the 100% width from .btn-challenge */
 }
 
 .btn-manage-classes {
@@ -447,4 +452,92 @@
     background: #E5EDE1;
     border-color: var(--secondary-green);
     color: var(--secondary-green);
+}
+
+.student-grade-display {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #e6f4ea;
+    border-radius: 8px;
+    border-left: 3px solid var(--secondary-green);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.grade-score {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e6e3a;
+}
+.grade-feedback {
+    font-size: 13px;
+    color: #2d6a4f;
+    line-height: 1.4;
+}
+.grade-pending {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    font-style: italic;
+}
+.btn-assess-submissions {
+    background: var(--secondary-green);
+    color: var(--white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-assess-submissions:hover {
+    background: var(--primary-green);
+}
+
+/* ===== SYLLABUS CLASS TAGS ===== */
+.program-syllabus-classes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #EEF4FF;
+    border: 1px solid #C7D7F5;
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.syllabus-classes-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #3B5FBB;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    flex-shrink: 0;
+}
+
+.syllabus-class-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    background: #fff;
+    color: #3B5FBB;
+    border: 1px solid #C7D7F5;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Student syllabus indicator on challenge cards */
+.challenge-syllabus-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: #FFF8E1;
+    color: #B8860B;
+    border: 1px solid #FFD966;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
 }

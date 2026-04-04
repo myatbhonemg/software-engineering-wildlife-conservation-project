@@ -11,50 +11,181 @@
 </head>
 <body class="dashboard-body">
 
-    <!-- Top Navigation Bar -->
     {% include 'shared/navbar.html' %}
 
     <div class="dash-layout">
-
-        <!-- Sidebar (will be populated by JS) -->
         {% include 'shared/sidebar.html' %}
 
-        <!-- Main Content -->
         <main class="dash-main">
 
             <!-- Page Header -->
             <div class="page-header">
                 <h1>&#127912; Creative Canvas</h1>
-                <p>Share presentations, documents, and creative work</p>
+                <p>Share presentations, documents, and conservation work with your organisation</p>
             </div>
 
             <!-- Upload Section -->
             <div class="upload-section">
                 <div class="upload-card">
-                    <div class="upload-icon">&#128193;</div>
-                    <h3>Upload Your Work</h3>
-                    <p>Share presentations, reports, posters, and documents</p>
                     <div class="upload-zone" id="upload-zone">
-                        <input type="file" id="file-input" multiple accept=".ppt,.pptx,.doc,.docx,.pdf,.txt,.xlsx,.xls" style="display: none;">
-                        <div class="upload-placeholder">
-                            <span class="upload-icon-large">&#128194;</span>
-                            <p class="upload-text">Drag and drop files here</p>
-                            <p class="upload-subtext">or</p>
-                            <button class="btn-browse" onclick="document.getElementById('file-input').click()">Browse Files</button>
-                            <p class="upload-hint">Supported: PPT, PPTX, DOC, DOCX, PDF, TXT, XLS, XLSX (Max 25MB)</p>
-                        </div>
+                        <input type="file" id="file-input" accept=".ppt,.pptx,.doc,.docx,.pdf,.txt,.xlsx,.xls" style="display:none;">
+                        <span class="upload-icon-large">&#128194;</span>
+                        <p class="upload-text">Drag & drop your file here</p>
+                        <p class="upload-subtext">or</p>
+                        <button class="btn-browse" onclick="document.getElementById('file-input').click()">Browse Files</button>
+                        <p class="upload-hint">Supported: PPT, PPTX, DOC, DOCX, PDF, XLS, XLSX &bull; Max 25 MB</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Upload Success Message -->
-            <div id="upload-success" class="upload-success" style="display: none;">
-                <p>✅ Files uploaded successfully! They will appear in the Library feed.</p>
+            <!-- Upload Success Banner -->
+            <div id="upload-success" class="upload-success" style="display:none;">
+                ✅ File uploaded successfully! It now appears in the library below.
+            </div>
+
+            <!-- Upload Error Banner -->
+            <div id="upload-error" class="upload-error" style="display:none;"></div>
+
+            <!-- Filter Tabs -->
+            <div class="canvas-filters">
+                <button class="canvas-tab active" data-filter="all"      onclick="filterFiles('all')">All Files</button>
+                <button class="canvas-tab"         data-filter="my-files" onclick="filterFiles('my-files')">My Files</button>
+                <button class="canvas-tab"         data-filter="pdf"      onclick="filterFiles('pdf')">PDF</button>
+                <button class="canvas-tab"         data-filter="ppt"      onclick="filterFiles('ppt')">Presentations</button>
+                <button class="canvas-tab"         data-filter="doc"      onclick="filterFiles('doc')">Documents</button>
+                <button class="canvas-tab"         data-filter="xls"      onclick="filterFiles('xls')">Spreadsheets</button>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="canvas-stats">
+                <span id="stat-total">{{ files|length }} file{{ 's' if files|length != 1 else '' }}</span>
+                <span class="stat-sep">&bull;</span>
+                <span id="stat-mine">{{ files | selectattr('user_id', 'equalto', user.user_id) | list | length }} uploaded by you</span>
+            </div>
+
+            <!-- Files Grid -->
+            {% if files %}
+            <div class="files-grid" id="files-grid">
+                {% for f in files %}
+                <div class="file-card"
+                     data-type="{{ f.file_type }}"
+                     data-owner="{{ 'mine' if f.user_id == user.user_id else 'others' }}"
+                     data-id="{{ f.file_id }}">
+
+                    <!-- Coloured preview strip -->
+                    <div class="file-preview {{ f.file_type }}">
+                        <span class="file-icon">
+                            {% if f.file_type == 'pdf' %}📄
+                            {% elif f.file_type == 'ppt' %}📊
+                            {% elif f.file_type == 'xls' %}📈
+                            {% else %}📝{% endif %}
+                        </span>
+                        <span class="file-extension">{{ f.file_type }}</span>
+                        {% if f.species_tag %}
+                        <span class="species-badge">🦎 {{ f.species_tag }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- File Info -->
+                    <div class="file-info">
+                        <p class="file-title">{{ f.title }}</p>
+                        {% if f.description %}
+                        <p class="file-description">{{ f.description }}</p>
+                        {% endif %}
+                        <div class="file-meta">
+                            <span class="file-author">
+                                {% if f.uploader_avatar %}
+                                <img src="/static/{{ f.uploader_avatar }}" alt="" class="meta-avatar">
+                                {% else %}
+                                <span class="meta-avatar-placeholder">{{ f.uploader_name[0] }}</span>
+                                {% endif %}
+                                {{ f.uploader_name }}
+                                <em class="role-chip">{{ f.uploader_role | replace('-', ' ') | title }}</em>
+                            </span>
+                            <span class="file-date">
+                                🕐 {{ f.uploaded_at[:10] }}
+                                &nbsp;&bull;&nbsp;
+                                {% if f.file_size %}
+                                    {% if f.file_size >= 1048576 %}
+                                        {{ "%.1f"|format(f.file_size / 1048576) }} MB
+                                    {% else %}
+                                        {{ "%.0f"|format(f.file_size / 1024) }} KB
+                                    {% endif %}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="file-actions">
+                        <a href="/download-creative-file/{{ f.file_id }}" class="btn-download">⬇ Download</a>
+                        {% if f.user_id == user.user_id or user.role in ['school-admin','principal','community-admin','system-admin'] %}
+                        <button class="btn-delete" onclick="deleteFile({{ f.file_id }}, this)">🗑 Delete</button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <div class="no-results" id="no-results">
+                <span style="font-size:48px;">📂</span>
+                <p>No files shared yet. Be the first to upload!</p>
+            </div>
+            {% endif %}
+
+            <!-- Hidden: shown when filter returns 0 results -->
+            <div class="no-results" id="no-filter-results" style="display:none;">
+                <span style="font-size:48px;">🔍</span>
+                <p>No files match this filter.</p>
             </div>
 
         </main>
     </div>
 
+    <!-- ── Upload Modal ── -->
+    <div class="modal-overlay" id="upload-modal" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>📤 Upload File</h2>
+                <button class="modal-close" onclick="closeUploadModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-file-name" id="modal-file-name"></p>
+
+                <div class="form-group">
+                    <label>Title <span class="required">*</span></label>
+                    <input type="text" id="upload-title" placeholder="e.g. Javan Rhino Habitat Report" maxlength="120">
+                </div>
+
+                <div class="form-group">
+                    <label>Description <span class="optional">(optional)</span></label>
+                    <textarea id="upload-description" rows="3" placeholder="Brief summary of the file…"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Species Tag <span class="optional">(optional)</span></label>
+                    <select id="upload-species">
+                        <option value="">— None —</option>
+                        {% for s in species %}
+                        <option value="{{ s.common_name }}">{{ s.common_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-cancel" onclick="closeUploadModal()">Cancel</button>
+                    <button class="btn-confirm" id="btn-upload-confirm" onclick="confirmUpload()">Upload File</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Store current user id for JS -->
+    <script>
+        const CURRENT_USER_ID = {{ user.user_id }};
+        const USER_ROLE       = "{{ user.role }}";
+    </script>
     <script src="../../static/js/tabs/creative-canvas.js"></script>
 </body>
 </html>

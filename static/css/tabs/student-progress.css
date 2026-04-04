@@ -1,0 +1,205 @@
+/* =============================================================
+   student-progress.css
+   File: static/css/tabs/student-progress.css
+   ============================================================= */
+ h1 {
+    margin-bottom: 20px;
+ }
+.student-id-card {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+.sid-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--light-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; flex-shrink: 0;
+    overflow: hidden;
+    border: 3px solid var(--border-color);
+}
+.sid-avatar img { width:100%; height:100%; object-fit:cover; }
+.sid-info h2 { font-size: 20px; color: var(--text-dark); margin-bottom: 4px; }
+.sid-info p  { font-size: 13px; color: var(--text-muted); margin: 2px 0; }
+.sid-stats {
+    margin-left: auto;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.sid-stat { display: flex; flex-direction: column; align-items: center; }
+.sid-n    { font-size: 24px; font-weight: 800; color: var(--text-dark); }
+.sid-l    { font-size: 11px; color: var(--text-muted); }
+ 
+.progress-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.ptab {
+    padding: 10px 20px;
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text-dark);
+    transition: all 0.2s;
+}
+.ptab.active, .ptab:hover {
+    background: var(--secondary-green);
+    border-color: var(--secondary-green);
+    color: #fff;
+}
+.ptab-content { display: none; }
+.ptab-content.active { display: block; }
+ 
+.progress-empty {
+    text-align: center;
+    padding: 48px;
+    background: var(--white);
+    border-radius: 12px;
+    color: var(--text-muted);
+    font-size: 15px;
+}
+ 
+.progress-section-card {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    margin-bottom: 18px;
+}
+.psc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+}
+.psc-header h3    { font-size: 17px; color: var(--text-dark); margin-bottom: 3px; }
+.psc-header p     { font-size: 13px; color: var(--text-muted); margin: 2px 0; }
+.psc-teacher      { font-size: 12px; color: var(--text-muted); }
+.psc-sub          { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+ 
+/* SVG ring */
+.psc-pct-ring { position: relative; width: 56px; height: 56px; flex-shrink: 0; }
+.ring-svg     { width: 56px; height: 56px; transform: rotate(-90deg); }
+.ring-bg      { fill: none; stroke: var(--border-color); stroke-width: 3; }
+.ring-fill    {
+    fill: none;
+    stroke: var(--secondary-green);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dasharray 0.5s ease;
+}
+.ring-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+ 
+.topic-progress-row { margin-bottom: 10px; }
+.tpr-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+.tpr-title { color: var(--text-dark); font-weight: 600; }
+.tpr-count { color: var(--text-muted); }
+.tpr-track {
+    height: 7px;
+    background: var(--light-bg);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.tpr-fill {
+    height: 100%;
+    background: var(--secondary-green);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+ 
+.progress-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+.prog-report-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    border-left: 4px solid var(--border-color);
+}
+.prog-report-card.status-completed { border-left-color: var(--secondary-green); }
+.prog-report-card.status-enrolled  { border-left-color: #1A73E8; }
+.prc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+.prc-header h4  { font-size: 15px; color: var(--text-dark); }
+.prc-status     { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.prc-status.completed { background: #e6f4ea; color: #1e6e3a; }
+.prc-status.enrolled  { background: #e8f0fe; color: #1557B0; }
+.prc-species    { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+.prc-progress   { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.prc-track      { flex: 1; height: 6px; background: var(--light-bg); border-radius: 3px; overflow: hidden; }
+.prc-fill       { height: 100%; background: var(--secondary-green); border-radius: 3px; }
+.prc-text       { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.prc-date       { font-size: 11px; color: var(--text-muted); }
+ 
+.progress-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    font-size: 14px;
+}
+.progress-table th {
+    background: var(--light-bg);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+.progress-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-dark);
+}
+.progress-table tr:last-child td { border-bottom: none; }
+ 
+.score-pill {
+    padding: 3px 10px;
+    background: var(--secondary-green);
+    color: #fff;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.score-pill.ungraded {
+    background: var(--light-bg);
+    color: var(--text-muted);
+}

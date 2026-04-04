@@ -11,63 +11,6 @@ function signOut() {
 
 let currentProgramId = null;
 
-function openProgramClassModal(programId) {
-    currentProgramId = programId;
-    document.getElementById('program-class-modal').style.display = 'flex';
-    loadProgramClasses(programId);
-}
-
-function closeProgramClassModal() {
-    document.getElementById('program-class-modal').style.display = 'none';
-    currentProgramId = null;
-}
-
-function loadProgramClasses(programId) {
-    const list = document.getElementById('program-class-list');
-    list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">Loading...</p>';
-
-    fetch('/my-classes')
-    .then(r => r.json())
-    .then(data => {
-        if (!data.classes.length) {
-            list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">You have no classes assigned yet.</p>';
-            return;
-        }
-
-        // Also fetch which classes this program is already assigned to
-        fetch(`/get-program-classes/${programId}`)
-        .then(r => r.json())
-        .then(assigned => {
-            const assignedIds = new Set(assigned.class_ids);
-            list.innerHTML = data.classes.map(c => `
-                <label style="display:flex; align-items:center; gap:12px; padding:10px 12px;
-                              background:var(--light-bg); border-radius:8px; cursor:pointer;">
-                    <input type="checkbox"
-                           ${assignedIds.has(c.class_id) ? 'checked' : ''}
-                           onchange="toggleProgramClass(${programId}, ${c.class_id}, this.checked)"
-                           style="width:16px; height:16px; accent-color:var(--secondary-green);">
-                    <span style="font-size:14px; font-weight:600; color:var(--text-dark);">
-                        ${c.name}
-                        ${c.subject ? `<span style="font-size:12px; color:var(--text-muted); font-weight:400;"> — ${c.subject}</span>` : ''}
-                    </span>
-                </label>
-            `).join('');
-        });
-    });
-}
-
-function toggleProgramClass(programId, classId, assign) {
-    fetch('/toggle-program-class', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ program_id: programId, class_id: classId, assign })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (!data.success) alert(data.message || 'Failed to update.');
-    });
-}
-
 // ===== MODALS =====
 function openCreateProgramModal() {
     document.getElementById('create-program-modal').style.display = 'flex';
@@ -169,6 +112,26 @@ function createProgram() {
         });
 }
 
+function filterPrograms() {
+    const species = document.getElementById('filter-species').value;
+    const search  = document.getElementById('filter-search').value.toLowerCase();
+
+    document.querySelectorAll('.program-card').forEach(card => {
+        const cardSpecies = card.dataset.species || 'all';
+        const cardText    = card.innerText.toLowerCase();
+
+        const speciesMatch = species === 'all' || cardSpecies === species;
+        const searchMatch  = search === '' || cardText.includes(search);
+
+        card.style.display = speciesMatch && searchMatch ? '' : 'none';
+    });
+}
+
+function resetProgramFilters() {
+    document.getElementById('filter-species').value = 'all';
+    document.getElementById('filter-search').value  = '';
+    filterPrograms();
+}
 
 // ===== ENROLL =====
 function enroll(programId, btn) {
@@ -236,7 +199,7 @@ function completeFile(fileId, programId, btn) {
 
             // If program completed, replace unenroll button with completed badge
             if (data.program_completed) {
-                const footer = document.querySelector(`#program-card-${programId} .program-footer`);
+                const footer = document.querySelector(`#program-${programId} .program-footer`);
                 const unenrollBtn = footer.querySelector('.btn-unenroll');
                 if (unenrollBtn) {
                     unenrollBtn.outerHTML = `<span class="program-status-badge completed">✓ Completed</span>`;
@@ -263,7 +226,7 @@ function uncompleteFile(fileId, programId, btn) {
             if (fileItem) fileItem.classList.remove('file-done');
 
             // Recalculate progress from DOM
-            const card = document.getElementById(`program-card-${programId}`);
+            const card = document.getElementById(`program-${programId}`);
             const totalBtns = card.querySelectorAll('.btn-file-complete').length;
             const doneBtns = card.querySelectorAll('.btn-file-complete.done').length;
             updateProgressBar(programId, doneBtns, totalBtns);
@@ -300,7 +263,7 @@ function deleteProgram(programId) {
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                const card = document.getElementById(`program-card-${programId}`);
+                const card = document.getElementById(`program-${programId}`);
                 if (card) card.remove();
             } else {
                 alert(data.message || 'Could not delete program.');

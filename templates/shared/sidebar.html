@@ -5,49 +5,62 @@
         {% if user['role'] == 'student' %}
         <li class="sidebar-item {% if request.path == '/dashboard/student' %}active{% endif %}"><a href="/dashboard/student">&#127968; Dashboard</a></li>
         <li class="sidebar-item {% if request.path == '/species-library' %}active{% endif %}"><a href="/species-library">&#128218; Library</a></li>
+        {% if enrolled_class %}
+        <li class="sidebar-item {% if '/my-syllabus/' in request.path %}active{% endif %}">
+            <a href="/my-syllabus/{{ enrolled_class['class_id'] }}">&#128218; My Class</a></li>
+        {% endif %}
+        <li class="sidebar-item {% if request.path == '/my-submissions' %}active{% endif %}"><a href="/my-submissions">📋 My Submissions</a></li>
+        <li class="sidebar-item {% if '/student-progress/' in request.path %}active{% endif %}"><a href="/student-progress/{{ user['user_id'] }}">📊 My Progress</a>     
         <li class="sidebar-item {% if request.path == '/report-sighting' %}active{% endif %}"><a href="/report-sighting">&#128248; Report Sighting</a></li>
         <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128248; My Sightings</a></li>
-        <li class="sidebar-item"><a href="#">&#127979; My School</a></li>
-        <li class="sidebar-item {% if request.path == '/programs' %}active{% endif %}"><a href="/programs">&#127942; School Programs</a></li>
+        <li class="sidebar-item {% if request.path == '/programs' %}active{% endif %}"><a href="/programs">&#127942; Programs</a></li>
         <li class="sidebar-item {% if request.path == '/activities' %}active{% endif %}"><a href="/activities">&#127942; Activity</a></li>
         <li class="sidebar-item {% if request.path == '/creative-canvas' %}active{% endif %}"><a href="/creative-canvas">&#127912; Creative Canvas</a></li>
         <li class="sidebar-item {% if request.path == '/messages' %}active{% endif %}"><a href="/messages">&#128172; Messages</a></li>
+        <li class="sidebar-item {% if request.path == '/my-organization' %}active{% endif %}"><a href="/my-organization">&#127979; My School</a></li>
         <li class="sidebar-item {% if request.path == '/my-profile' %}active{% endif %}"><a href="/my-profile">&#128100; My Profile</a></li>
 
         <!-- TEACHER -->
         {% elif user['role'] == 'teacher' %}
         <li class="sidebar-item {% if request.path == '/dashboard/teacher' %}active{% endif %}"><a href="/dashboard/teacher">&#127968; Dashboard</a></li>
         <li class="sidebar-item {% if request.path == '/species-library' %}active{% endif %}"><a href="/species-library">&#128218; Library</a></li>
-        <li class="sidebar-item"><a href="#">&#128100; My Students</a></li>
-        <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128248; Sighting Reports</a></li>
+        <li class="sidebar-item {% if request.path == '/classes' %}active{% endif %}"><a href="/classes">&#128218; My Classes</a></li>
+        <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128248; Classes Sightings</a></li>
         <li class="sidebar-item {% if request.path == '/programs' %}active{% endif %}"><a href="/programs">&#127942; School Programs</a></li>
         <li class="sidebar-item {% if request.path == '/activities' %}active{% endif %}"><a href="/activities">&#127942; Activity</a></li>
         <li class="sidebar-item {% if request.path == '/creative-canvas' %}active{% endif %}"><a href="/creative-canvas">&#127912; Creative Canvas</a></li>
         <li class="sidebar-item {% if request.path == '/messages' %}active{% endif %}"><a href="/messages">&#128172; Messages</a></li>
+        <li class="sidebar-item {% if request.path == '/my-organization' %}active{% endif %}"><a href="/my-organization">&#127979; My School</a></li>
         <li class="sidebar-item {% if request.path == '/my-profile' %}active{% endif %}"><a href="/my-profile">&#128100; My Profile</a></li>
 
         <!-- SCHOOL ADMIN -->
         {% elif user['role'] == 'school-admin' %}
         <li class="sidebar-item {% if request.path == '/dashboard/school-admin' %}active{% endif %}"><a href="/dashboard/school-admin">&#127968; Dashboard</a></li>
         <li class="sidebar-item {% if request.path == '/species-library' %}active{% endif %}"><a href="/species-library">&#128218; Library</a></li>
-        <li class="sidebar-item {% if request.path == '/programs' %}active{% endif %}"><a href="/programs">&#127942; School Programs</a></li>
-        <li class="sidebar-item {% if request.path == '/classes' %}active{% endif %}"><a href="/classes">&#127979; Manage Classes</a></li>
         <li class="sidebar-item {% if request.path == '/manage-staff' %}active{% endif %}"><a href="/manage-staff">&#128188; Manage Staff</a></li>
         <li class="sidebar-item {% if request.path == '/manage-students' %}active{% endif %}"><a href="/manage-students">&#127891; Manage Students</a></li>
-        <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128248; Sighting Reports</a></li>
+        <li class="sidebar-item {% if request.path == '/classes' %}active{% endif %}"><a href="/classes">&#127979; Manage Classes</a></li>
+        <li class="sidebar-item {% if request.path == '/programs' %}active{% endif %}"><a href="/programs">&#127942; School Programs</a></li>
+        <li class="sidebar-item {% if request.path == '/activities' %}active{% endif %}"><a href="/activities">&#127942; Activity</a></li>
+        <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128248; School Sighting</a></li>
+        <li class="sidebar-item {% if request.path == '/creative-canvas' %}active{% endif %}"><a href="/creative-canvas">&#127912; Creative Canvas</a></li>
         <li class="sidebar-item {% if request.path == '/messages' %}active{% endif %}"><a href="/messages">&#128172; Messages</a></li>
-        <li class="sidebar-item {% if request.path == '/my-profile' %}active{% endif %}"><a href="/my-profile">&#128100; School Profile</a></li>
+        <li class="sidebar-item {% if request.path == '/my-organization' %}active{% endif %}"><a href="/my-organization">&#127979; My School</a></li>
+        <li class="sidebar-item {% if request.path == '/my-profile' %}active{% endif %}"><a href="/my-profile">&#128100; My Profile</a></li>
 
         <!-- PRINCIPAL -->
         {% elif user['role'] == 'principal' %}
         <li class="sidebar-item {% if request.path == '/dashboard/principal' %}active{% endif %}"><a href="/dashboard/principal">&#127968; Dashboard</a></li>
+        <li class="sidebar-item {% if request.path == '/species-library' %}active{% endif %}"><a href="/species-library">&#128218; Library</a></li>
         <li class="sidebar-item {% if request.path == '/manage-staff' %}active{% endif %}"><a href="/manage-staff">&#128188; Manage Staff</a></li>
         <li class="sidebar-item {% if request.path == '/manage-students' %}active{% endif %}"><a href="/manage-students">&#127891; Manage Students</a></li>
         <li class="sidebar-item {% if request.path == '/classes' %}active{% endif %}"><a href="/classes">&#127979; Manage Classes</a></li>
-        <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128202; Sighting Reports</a></li>
+        <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128202; School Sightings</a></li>
         <li class="sidebar-item {% if request.path == '/programs' %}active{% endif %}"><a href="/programs">&#127942; School Programs</a></li>
-        <li class="sidebar-item {% if request.path == '/species-library' %}active{% endif %}"><a href="/species-library">&#128218; Library</a></li>
+        <li class="sidebar-item {% if request.path == '/activities' %}active{% endif %}"><a href="/activities">&#127942; Activity</a></li>
+        <li class="sidebar-item {% if request.path == '/creative-canvas' %}active{% endif %}"><a href="/creative-canvas">&#127912; Creative Canvas</a></li>
         <li class="sidebar-item {% if request.path == '/messages' %}active{% endif %}"><a href="/messages">&#128172; Messages</a></li>
+        <li class="sidebar-item {% if request.path == '/my-organization' %}active{% endif %}"><a href="/my-organization">&#127979; My School</a></li>
         <li class="sidebar-item {% if request.path == '/my-profile' %}active{% endif %}"><a href="/my-profile">&#128100; My Profile</a></li>
 
         <!-- COMMUNITY MEMBER -->
@@ -56,31 +69,35 @@
         <li class="sidebar-item {% if request.path == '/species-library' %}active{% endif %}"><a href="/species-library">&#128218; Library</a></li>
         <li class="sidebar-item {% if request.path == '/report-sighting' %}active{% endif %}"><a href="/report-sighting">&#128248; Report Sighting</a></li>
         <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128248; My Sightings</a></li>
-        <li class="sidebar-item"><a href="#">&#129309; My Community</a></li>
         <li class="sidebar-item {% if request.path == '/activities' %}active{% endif %}"><a href="/activities">&#127942; Activity</a></li>
         <li class="sidebar-item {% if request.path == '/creative-canvas' %}active{% endif %}"><a href="/creative-canvas">&#127912; Creative Canvas</a></li>
         <li class="sidebar-item {% if request.path == '/messages' %}active{% endif %}"><a href="/messages">&#128172; Messages</a></li>
+        <li class="sidebar-item {% if request.path == '/my-organization' %}active{% endif %}"><a href="/my-organization">&#129309; My Community</a></li>
         <li class="sidebar-item {% if request.path == '/my-profile' %}active{% endif %}"><a href="/my-profile">&#128100; My Profile</a></li>
 
         <!-- COMMUNITY ADMIN -->
         {% elif user['role'] == 'community-admin' %}
         <li class="sidebar-item {% if request.path == '/dashboard/community-admin' %}active{% endif %}"><a href="/dashboard/community-admin">&#127968; Dashboard</a></li>
+        <li class="sidebar-item {% if request.path == '/species-library' %}active{% endif %}"><a href="/species-library">&#128218; Library</a></li>
         <li class="sidebar-item {% if request.path == '/manage-members' %}active{% endif %}"><a href="/manage-members">&#128100; Manage Staff</a></li>
-        <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128248; Sighting Reports</a></li>
-        <li class="sidebar-item {% if request.path == '/species-library' %}active{% endif %}"><a href="/species-library">&#128218; Community Library</a></li>
+        <li class="sidebar-item {% if request.path == '/activities' %}active{% endif %}"><a href="/activities">&#127942; Activity</a></li>
+        <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128248; Community Sightings</a></li>
+        <li class="sidebar-item {% if request.path == '/creative-canvas' %}active{% endif %}"><a href="/creative-canvas">&#127912; Creative Canvas</a></li>
         <li class="sidebar-item {% if request.path == '/messages' %}active{% endif %}"><a href="/messages">&#128172; Messages</a></li>
         <li class="sidebar-item {% if request.path == '/my-profile' %}active{% endif %}"><a href="/my-profile">&#128100; My Profile</a></li>
 
         <!-- SYSTEM ADMIN -->
         {% elif user['role'] == 'system-admin' %}
         <li class="sidebar-item {% if request.path == '/dashboard/system-admin' %}active{% endif %}"><a href="/dashboard/system-admin">&#127968; Dashboard</a></li>
-        <li class="sidebar-item"><a href="#">&#127979; Manage Schools</a></li>
-        <li class="sidebar-item"><a href="#">&#129309; Manage Communities</a></li>
-        <li class="sidebar-item"><a href="/manage-all-users">&#128100; Manage All Users</a></li>
         <li class="sidebar-item {% if request.path == '/species-library' %}active{% endif %}"><a href="/species-library">&#128218; Library</a></li>
+        <li class="sidebar-item {% if request.path == '/platform-analytics' and active_section is defined and active_section == 'schools' %}active{% endif %}">
+            <a href="/platform-analytics?section=schools#schools">&#127979; Manage Schools</a></li>
+        <li class="sidebar-item {% if request.path == '/platform-analytics' and active_section is defined and active_section == 'communities' %}active{% endif %}">
+            <a href="/platform-analytics?section=communities#communities">&#129309; Manage Communities</a></li>     
+        <li class="sidebar-item {% if request.path == '/manage-all-users' %}active{% endif %}"><a href="/manage-all-users">&#128100; Manage All Users</a></li>
         <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128248; All Sighting Reports</a></li>
-        <li class="sidebar-item"><a href="#">&#128202; Platform Analytics</a></li>
-        <li class="sidebar-item"><a href="#">&#128736; System Settings</a></li>
+        <li class="sidebar-item {% if request.path == '/platform-analytics' and (active_section is not defined or active_section == 'analytics') %}active{% endif %}">
+            <a href="/platform-analytics">&#128202; Platform Analytics</a></li>  
         <li class="sidebar-item {% if request.path == '/messages' %}active{% endif %}"><a href="/messages">&#128172; Messages</a></li>
         <li class="sidebar-item {% if request.path == '/my-profile' %}active{% endif %}"><a href="/my-profile">&#128100; My Profile</a></li>
 
@@ -88,7 +105,10 @@
         {% elif user['role'] == 'public' %}
         <li class="sidebar-item {% if request.path == '/dashboard/public' %}active{% endif %}"><a href="/dashboard/public">&#127968; Dashboard</a></li>
         <li class="sidebar-item {% if request.path == '/species-library' %}active{% endif %}"><a href="/species-library">&#128218; Library</a></li>
+        <li class="sidebar-item {% if request.path == '/sighting-reports' %}active{% endif %}"><a href="/sighting-reports">&#128248; My Sightings</a></li>
+        <li class="sidebar-item {% if request.path == '/creative-canvas' %}active{% endif %}"><a href="/creative-canvas">&#127912; Creative Canvas</a></li>
         <li class="sidebar-item {% if request.path == '/report-sighting' %}active{% endif %}"><a href="/report-sighting">&#128248; Report Sighting</a></li>
+        <li class="sidebar-item {% if request.path == '/my-profile' %}active{% endif %}"><a href="/my-profile">&#128100; My Profile</a></li>
         {% endif %}
 
     </ul>
@@ -96,8 +116,8 @@
     <!-- Public upgrade prompt -->
     {% if user['role'] == 'public' %}
     <div class="sidebar-upgrade">
-        <p>Want to submit reports?</p>
-        <a href="/login" class="btn-upgrade">Join a Community</a>
+        <p>Want to join a Community?</p>
+        <a href="/login" class="btn-upgrade">Join Now</a>
     </div>
     {% endif %}
 

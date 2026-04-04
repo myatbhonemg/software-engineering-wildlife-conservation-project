@@ -145,10 +145,16 @@
                             <td><span class="status-badge status-{{ m['status'] or 'active' }}">{{ (m['status'] or 'active').title() }}</span></td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="btn-edit-user" 
-                                        onclick="editUser({{ m['user_id'] }}, '{{ m['fullname'] }}', '{{ m['email'] }}', '{{ m['status'] or 'active' }}')">
-                                        Edit
-                                    </button>
+                                    {% if manage_type == 'students' %}
+                                    <a href="/student-progress/{{ m['user_id'] }}" class="btn-edit-user"
+                                    style="text-decoration:none; display:inline-block;">📊 Progress</a>
+                                    <a href="/student-submissions/{{ m['user_id'] }}" class="btn-edit-user"
+                                    style="text-decoration:none; display:inline-block;">📋 Submissions</a>
+                                    {% endif %}
+                                    <a href="/messages?open={{ m['user_id'] }}" class="btn-edit-user"
+                                    style="text-decoration:none; display:inline-block;">💬 Message</a>
+                                    <button class="btn-edit-user" onclick="editUser({{ m['user_id'] }}, 
+                                        '{{ m['fullname'] }}', '{{ m['email'] }}', '{{ m['status'] or 'active' }}')">Edit</button>
                                     <button class="btn-delete-user" onclick="deleteUser({{ m['user_id'] }})">Delete</button>
                                 </div>
                             </td>
@@ -246,7 +252,7 @@
                         <option value="community-member">Community Member</option>
                     </select>
                 </div>
-                {% else %}
+                {% elif manage_type == 'students' %}
                 <input type="hidden" id="add-role" value="student">
                 {% endif %}
 
