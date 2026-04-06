@@ -1,3 +1,4 @@
+# 5005CMD-Software-Engineering-Assessment
 **PLEASE PULL ALL THE FILES AND FOLDERS INCLUDED IN MAIN BRANCH AND RUN APP.PY IN YOUR MACHINE**
 
 **#Log-in Accounts**
@@ -13,9 +14,7 @@ principal1@email.com /
 cadmin1@email.com #Community admin /
 public1@email.com /
 
-# 5005CMD-Software-Engineering-Assessment
-
-How User Registration Works: 
+**How User Registration Works: **
 
 Komodo Hub uses a two-step registration system to ensure only verified users can access the platform. Users cannot create their own accounts - they must be registered by authorized administrators first.
 
