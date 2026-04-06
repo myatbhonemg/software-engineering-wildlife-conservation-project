@@ -2,7 +2,7 @@
 
 **#Log-in Accounts**
 System admin
-email: Admin@komodohub.com
+email: admin@komodohub.com
 password: password 
 
 **#All the accounts below's password is "1".**
