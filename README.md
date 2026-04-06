@@ -12,10 +12,9 @@ teacher1@email.com /
 sadmin1@email.com #school admin /
 principal1@email.com /
 cadmin1@email.com #Community admin /
-public1@email.com /
+public1@email.com 
 
-**How User Registration Works: **
-
+**#How User Registration Works:**
 Komodo Hub uses a two-step registration system to ensure only verified users can access the platform. Users cannot create their own accounts - they must be registered by authorized administrators first.
 
 The Two-Step Process
