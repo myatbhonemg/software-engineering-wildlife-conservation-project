@@ -1,3 +1,5 @@
+** This project is completed with team afford, and done with agile method, and scrum method. published in this repo with their consent. Teammates - Kifoyatullo Shirinov , Tevin Tebula, Odala Chakwera and myself**
+
 # 5005CMD-Software-Engineering-Assessment
 **PLEASE PULL ALL THE FILES AND FOLDERS INCLUDED IN MAIN BRANCH AND RUN APP.PY IN YOUR MACHINE**
 
